@@ -1,3 +1,4 @@
+import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { WhatIsSection } from "@/components/WhatIsSection";
 import { TimelineSection } from "@/components/TimelineSection";
@@ -10,17 +11,20 @@ import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
-    <main className="min-h-screen bg-background">
-      <HeroSection />
-      <WhatIsSection />
-      <TimelineSection />
-      <EnergySection />
-      <RankingSection />
-      <ExperiencesSection />
-      <AppSection />
-      <RegistrationSection />
-      <Footer />
-    </main>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="pt-16">
+        <HeroSection />
+        <WhatIsSection />
+        <TimelineSection />
+        <EnergySection />
+        <RankingSection />
+        <ExperiencesSection />
+        <AppSection />
+        <RegistrationSection />
+        <Footer />
+      </main>
+    </div>
   );
 };
 
