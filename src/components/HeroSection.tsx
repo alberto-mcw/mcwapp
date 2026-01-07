@@ -1,5 +1,4 @@
 import { MasterChefLogo, Manopla } from "./MasterChefLogo";
-import { FireCircle } from "./FireCircle";
 import { Button } from "./ui/button";
 import { Download, ChevronRight } from "lucide-react";
 
@@ -38,52 +37,6 @@ export const HeroSection = () => {
           </p>
         </div>
 
-        {/* App Mockup with Ranking */}
-        <div className="relative flex justify-center mb-10">
-          <div className="relative">
-            <FireCircle size="xl" intensity="high" className="absolute -inset-8 z-0" />
-            <div className="relative z-10 bg-card/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/30 glow-fire">
-              <div className="w-56 md:w-72">
-                {/* Mock App Header */}
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
-                  <span className="text-xs font-bold uppercase tracking-wider text-primary">Ranking Live</span>
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                </div>
-                
-                {/* Ranking List */}
-                <div className="space-y-2">
-                  {[
-                    { pos: 1, name: "ChefMaster_Pro", energy: "24,580" },
-                    { pos: 2, name: "CocinaFusion", energy: "22,340" },
-                    { pos: 3, name: "SaborIntens0", energy: "21,890" },
-                    { pos: 4, name: "TúPodrías", energy: "—" },
-                  ].map((player, i) => (
-                    <div 
-                      key={i}
-                      className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                        player.pos === 4 
-                          ? "bg-primary/20 border border-primary/50" 
-                          : "bg-secondary/50"
-                      }`}
-                    >
-                      <span className={`ranking-number text-lg font-black w-6 ${
-                        player.pos <= 3 ? "text-primary" : "text-muted-foreground"
-                      }`}>
-                        {player.pos}
-                      </span>
-                      <span className="text-xs font-medium flex-1 truncate">
-                        {player.name}
-                      </span>
-                      <span className="text-xs font-bold text-primary">
-                        {player.energy}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up stagger-3">
