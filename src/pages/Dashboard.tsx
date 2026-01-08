@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
@@ -10,11 +11,12 @@ import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
 import { WeeklyChallenge } from '@/components/dashboard/WeeklyChallenge';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { Button } from '@/components/ui/button';
-import { Loader2, Video } from 'lucide-react';
+import { Loader2, Video, Shield } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, uploadAvatar, refetch } = useProfile();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [localEnergy, setLocalEnergy] = useState(0);
 
@@ -63,12 +65,22 @@ const Dashboard = () => {
                 Bienvenido a tu zona de entrenamiento
               </p>
             </div>
-            <Button asChild variant="outline" className="gap-2 hidden md:flex">
-              <Link to="/videos">
-                <Video className="w-4 h-4" />
-                Ver Galería
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              {isAdmin && (
+                <Button asChild variant="default" className="gap-2 hidden md:flex">
+                  <Link to="/admin">
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </Link>
+                </Button>
+              )}
+              <Button asChild variant="outline" className="gap-2 hidden md:flex">
+                <Link to="/videos">
+                  <Video className="w-4 h-4" />
+                  Ver Galería
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Main Grid */}
