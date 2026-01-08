@@ -1,27 +1,38 @@
-import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { useChallenges } from '@/hooks/useChallenges';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
 import { EnergyStats } from '@/components/dashboard/EnergyStats';
-import { ChallengeCard } from '@/components/dashboard/ChallengeCard';
+import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { Loader2 } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading, uploadAvatar } = useProfile();
-  const { dailyChallenge, weeklyChallenge, loading: challengesLoading, completeChallenge, isChallengeCompleted } = useChallenges();
+  const { profile, loading: profileLoading, uploadAvatar, refetch } = useProfile();
   const navigate = useNavigate();
+  const [localEnergy, setLocalEnergy] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');
     }
   }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (profile) {
+      setLocalEnergy(profile.total_energy);
+    }
+  }, [profile]);
+
+  const handleEnergyEarned = (amount: number) => {
+    setLocalEnergy(prev => prev + amount);
+    // Refetch profile to sync with database
+    setTimeout(() => refetch(), 1000);
+  };
 
   if (authLoading || profileLoading) {
     return (
@@ -56,36 +67,17 @@ const Dashboard = () => {
             {/* Left Column - Profile & Stats */}
             <div className="lg:col-span-1 space-y-6">
               <ProfileCard profile={profile} onAvatarUpload={uploadAvatar} />
-              <EnergyStats totalEnergy={profile.total_energy} />
+              <EnergyStats totalEnergy={localEnergy} />
               <QuickActions />
             </div>
 
-            {/* Right Column - Challenges */}
+            {/* Right Column - Daily Trivia */}
             <div className="lg:col-span-2 space-y-6">
               <h2 className="font-unbounded text-xl font-bold flex items-center gap-2">
-                🔥 Tus Retos
+                ⚡ Mini Reto Diario
               </h2>
 
-              {challengesLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <ChallengeCard
-                    type="daily"
-                    challenge={dailyChallenge}
-                    isCompleted={dailyChallenge ? isChallengeCompleted(dailyChallenge.id) : false}
-                    onComplete={completeChallenge}
-                  />
-                  <ChallengeCard
-                    type="weekly"
-                    challenge={weeklyChallenge}
-                    isCompleted={weeklyChallenge ? isChallengeCompleted(weeklyChallenge.id) : false}
-                    onComplete={completeChallenge}
-                  />
-                </div>
-              )}
+              <DailyTrivia onEnergyEarned={handleEnergyEarned} />
 
               {/* Info Card */}
               <div className="bg-card border border-border rounded-2xl p-6">
@@ -93,7 +85,7 @@ const Dashboard = () => {
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Completa los retos diarios y semanales
+                    Completa el trivia culinario diario (+25 energía)
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
