@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_completions: {
+        Row: {
+          challenge_id: string
+          completed_at: string
+          energy_earned: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string
+          energy_earned: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string
+          energy_earned?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_completions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          challenge_type: string
+          created_at: string
+          created_by: string | null
+          description: string
+          ends_at: string
+          energy_reward: number
+          id: string
+          is_active: boolean
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          challenge_type: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          ends_at: string
+          energy_reward?: number
+          id?: string
+          is_active?: boolean
+          starts_at: string
+          title: string
+        }
+        Update: {
+          challenge_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string
+          energy_reward?: number
+          id?: string
+          is_active?: boolean
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          instagram_handle: string | null
+          tiktok_handle: string | null
+          total_energy: number
+          twitter_handle: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          instagram_handle?: string | null
+          tiktok_handle?: string | null
+          total_energy?: number
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          instagram_handle?: string | null
+          tiktok_handle?: string | null
+          total_energy?: number
+          twitter_handle?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_verifications: {
         Row: {
           action_type: string
@@ -41,15 +160,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -176,6 +319,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
