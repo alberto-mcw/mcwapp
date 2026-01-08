@@ -95,23 +95,34 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       // Mark as completed for today
       const today = new Date().toDateString();
       localStorage.setItem(`trivia_completed_${user.id}`, today);
+      setTodayCompleted(true);
       
-      // Update energy in profiles
+      // Update energy in profiles using direct update
       try {
-        const { error } = await supabase.rpc('increment_user_energy', {
-          p_user_id: user.id,
-          p_amount: challenge.energy_reward
-        });
+        // First get current energy
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('total_energy')
+          .eq('user_id', user.id)
+          .single();
         
-        if (!error) {
-          onEnergyEarned?.(challenge.energy_reward);
-          toast({
-            title: '🎉 ¡Correcto!',
-            description: `Has ganado +${challenge.energy_reward} de energía`
-          });
+        if (profile) {
+          await supabase
+            .from('profiles')
+            .update({ 
+              total_energy: profile.total_energy + challenge.energy_reward,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id);
         }
+        
+        onEnergyEarned?.(challenge.energy_reward);
+        toast({
+          title: '🎉 ¡Correcto!',
+          description: `Has ganado +${challenge.energy_reward} de energía`
+        });
       } catch (e) {
-        // Fallback: just show success
+        console.error('Error updating energy:', e);
         toast({
           title: '🎉 ¡Correcto!',
           description: `Has ganado +${challenge.energy_reward} de energía`
