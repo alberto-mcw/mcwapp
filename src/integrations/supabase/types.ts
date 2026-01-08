@@ -14,7 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      social_verifications: {
+        Row: {
+          action_type: string
+          energy_earned: number
+          id: string
+          platform: string
+          user_email: string
+          verified_at: string
+        }
+        Insert: {
+          action_type?: string
+          energy_earned?: number
+          id?: string
+          platform?: string
+          user_email: string
+          verified_at?: string
+        }
+        Update: {
+          action_type?: string
+          energy_earned?: number
+          id?: string
+          platform?: string
+          user_email?: string
+          verified_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

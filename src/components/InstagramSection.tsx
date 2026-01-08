@@ -1,10 +1,69 @@
-import { Instagram } from "lucide-react";
+import { Instagram, Zap, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const InstagramSection = () => {
-  // Instagram oficial de MasterChef World App
   const instagramUsername = "mchefworldapp";
   const instagramUrl = `https://www.instagram.com/${instagramUsername}`;
+  
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const { toast } = useToast();
+
+  const handleVerifyFollow = async () => {
+    if (!email || !email.includes("@")) {
+      toast({
+        title: "Email inválido",
+        description: "Por favor, introduce un email válido",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase
+        .from("social_verifications")
+        .insert({
+          user_email: email.toLowerCase().trim(),
+          platform: "instagram",
+          action_type: "follow",
+          energy_earned: 50,
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({
+            title: "Ya verificaste tu follow",
+            description: "Este email ya tiene la energía de Instagram",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        setIsVerified(true);
+        toast({
+          title: "¡+50 Energía!",
+          description: "Has verificado tu follow a @mchefworldapp",
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying follow:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo verificar. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <section className="relative py-20 px-4 bg-background overflow-hidden">
@@ -29,7 +88,6 @@ export const InstagramSection = () => {
 
         {/* Instagram Embed Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mb-10">
-          {/* Embed posts using blockquote - Instagram will render them */}
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <a
               key={i}
@@ -38,22 +96,79 @@ export const InstagramSection = () => {
               rel="noopener noreferrer"
               className="aspect-square bg-card border border-border rounded-xl overflow-hidden group relative hover:border-primary/50 transition-all duration-300"
             >
-              {/* Placeholder gradient - se reemplazará con embed real */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20 group-hover:opacity-80 transition-opacity" />
               
-              {/* Instagram icon overlay */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="bg-black/60 backdrop-blur-sm p-4 rounded-full">
                   <Instagram className="w-8 h-8 text-white" />
                 </div>
               </div>
 
-              {/* Decorative food icon placeholder */}
               <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
                 <span className="text-4xl">🍳</span>
               </div>
             </a>
           ))}
+        </div>
+
+        {/* Verify Follow Card */}
+        <div className="max-w-md mx-auto mb-10">
+          <div className="bg-card border border-primary/30 rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
+                  <Instagram className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Verifica tu Follow</h3>
+                  <p className="text-sm text-muted-foreground">Gana energía extra</p>
+                </div>
+                <div className="ml-auto flex items-center gap-1 bg-primary/20 px-3 py-1 rounded-full">
+                  <Zap className="w-4 h-4 text-primary" />
+                  <span className="font-bold text-primary">+50</span>
+                </div>
+              </div>
+
+              {isVerified ? (
+                <div className="flex items-center gap-2 justify-center py-4 text-green-500">
+                  <CheckCircle className="w-6 h-6" />
+                  <span className="font-bold">¡Verificado! +50 Energía</span>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    1. Sigue a <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline">@{instagramUsername}</a>
+                    <br />
+                    2. Introduce tu email para verificar
+                  </p>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="flex-1"
+                      disabled={isLoading}
+                    />
+                    <Button 
+                      onClick={handleVerifyFollow}
+                      disabled={isLoading}
+                      className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 border-0"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        "Verificar"
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* CTA */}
