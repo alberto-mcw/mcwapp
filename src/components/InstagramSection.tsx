@@ -2,8 +2,8 @@ import { Instagram } from "lucide-react";
 import { Button } from "./ui/button";
 
 export const InstagramSection = () => {
-  // Instagram username - cambiar por el oficial de MasterChef
-  const instagramUsername = "masterchef_es";
+  // Instagram oficial de MasterChef World App
+  const instagramUsername = "mchefworldapp";
   const instagramUrl = `https://www.instagram.com/${instagramUsername}`;
 
   return (
