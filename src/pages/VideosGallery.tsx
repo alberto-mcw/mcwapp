@@ -136,25 +136,25 @@ const VideosGallery = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {submissions.map((submission) => (
                 <div 
                   key={submission.id}
                   className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/50 transition-all"
                 >
-                  {/* Video Thumbnail/Player */}
-                  <div className="relative aspect-video bg-muted">
+                  {/* Video Thumbnail/Player - 9:16 aspect ratio */}
+                  <div className="relative aspect-[9/16] bg-black">
                     <video
                       src={submission.video_url}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       onClick={() => setSelectedVideo(submission)}
                     />
                     <button
                       onClick={() => setSelectedVideo(submission)}
                       className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
-                        <Play className="w-6 h-6 text-white ml-1" />
+                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                        <Play className="w-5 h-5 text-white ml-1" />
                       </div>
                     </button>
                   </div>
@@ -216,25 +216,26 @@ const VideosGallery = () => {
         </div>
       </main>
 
-      {/* Video Modal */}
+      {/* Video Modal - 9:16 aspect ratio */}
       {selectedVideo && (
         <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
           onClick={() => setSelectedVideo(null)}
         >
           <div 
-            className="max-w-4xl w-full"
+            className="flex flex-col items-center max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <video
-              src={selectedVideo.video_url}
-              controls
-              autoPlay
-              className="w-full rounded-xl"
-              style={{ maxHeight: '80vh' }}
-            />
+            <div className="aspect-[9/16] h-[70vh] max-w-full bg-black rounded-xl overflow-hidden">
+              <video
+                src={selectedVideo.video_url}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div className="mt-4 flex items-center gap-3 text-white">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
                 {selectedVideo.profile?.avatar_url ? (
                   <img 
                     src={selectedVideo.profile.avatar_url} 
@@ -252,7 +253,7 @@ const VideosGallery = () => {
                   {selectedVideo.profile?.display_name || 'Chef Anónimo'}
                 </p>
                 {selectedVideo.description && (
-                  <p className="text-sm text-white/70">{selectedVideo.description}</p>
+                  <p className="text-sm text-white/70 max-w-md">{selectedVideo.description}</p>
                 )}
               </div>
             </div>

@@ -82,11 +82,37 @@ export const WeeklyChallenge = () => {
     }
   };
 
+  const validateVideoAspectRatio = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        const aspectRatio = width / height;
+        const targetRatio = 9 / 16; // 0.5625
+        const tolerance = 0.1; // 10% tolerance
+        
+        const isValid = Math.abs(aspectRatio - targetRatio) <= tolerance;
+        resolve(isValid);
+      };
+      
+      video.onerror = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(false);
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !challenge) return;
 
-    // Validate file
+    // Validate file type
     if (!file.type.startsWith('video/')) {
       toast({
         title: 'Formato no válido',
@@ -96,10 +122,22 @@ export const WeeklyChallenge = () => {
       return;
     }
 
+    // Validate file size
     if (file.size > 100 * 1024 * 1024) { // 100MB limit
       toast({
         title: 'Archivo demasiado grande',
         description: 'El vídeo debe ser menor a 100MB',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate aspect ratio (9:16)
+    const isValidAspect = await validateVideoAspectRatio(file);
+    if (!isValidAspect) {
+      toast({
+        title: 'Formato de vídeo incorrecto',
+        description: 'El vídeo debe estar en formato vertical 9:16 (como TikTok o Reels)',
         variant: 'destructive'
       });
       return;
@@ -247,13 +285,16 @@ export const WeeklyChallenge = () => {
               </div>
             </div>
 
-            {/* Show submitted video */}
-            <video 
-              src={submission.video_url} 
-              controls 
-              className="w-full rounded-xl"
-              style={{ maxHeight: '300px' }}
-            />
+            {/* Show submitted video in 9:16 aspect ratio */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-[200px] aspect-[9/16] rounded-xl overflow-hidden bg-black">
+                <video 
+                  src={submission.video_url} 
+                  controls 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
           </div>
         ) : (
           // Upload form
@@ -296,7 +337,7 @@ export const WeeklyChallenge = () => {
             </label>
 
             <p className="text-xs text-muted-foreground text-center">
-              Formatos: MP4, MOV, WebM · Máximo 100MB
+              📱 Formato vertical 9:16 (como TikTok/Reels) · Máximo 100MB
             </p>
           </div>
         )}
