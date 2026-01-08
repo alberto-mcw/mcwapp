@@ -126,6 +126,60 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_trivias: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          correct_answer: number
+          created_at: string
+          difficulty: string
+          energy_reward: number
+          explanation: string
+          fun_fact: string
+          id: string
+          options: Json
+          question: string
+          scheduled_date: string
+          status: string
+          title: string
+          trivia_type: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          correct_answer: number
+          created_at?: string
+          difficulty?: string
+          energy_reward?: number
+          explanation: string
+          fun_fact: string
+          id?: string
+          options?: Json
+          question: string
+          scheduled_date: string
+          status?: string
+          title: string
+          trivia_type?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          correct_answer?: number
+          created_at?: string
+          difficulty?: string
+          energy_reward?: number
+          explanation?: string
+          fun_fact?: string
+          id?: string
+          options?: Json
+          question?: string
+          scheduled_date?: string
+          status?: string
+          title?: string
+          trivia_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

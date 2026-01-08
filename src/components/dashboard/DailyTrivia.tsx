@@ -46,13 +46,42 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
     setHasAnswered(false);
     
     try {
-      const response = await supabase.functions.invoke('generate-daily-challenge');
-      
-      if (response.error) {
-        throw new Error(response.error.message);
+      // First try to get approved trivia for today
+      const today = new Date().toISOString().split('T')[0];
+      const { data: approvedTrivia, error: triviaError } = await supabase
+        .from('daily_trivias')
+        .select('*')
+        .eq('scheduled_date', today)
+        .eq('status', 'approved')
+        .maybeSingle();
+
+      if (approvedTrivia && !triviaError) {
+        // Parse options if it's a string
+        const options = typeof approvedTrivia.options === 'string' 
+          ? JSON.parse(approvedTrivia.options) 
+          : approvedTrivia.options;
+        
+        setChallenge({
+          type: approvedTrivia.trivia_type,
+          title: approvedTrivia.title,
+          question: approvedTrivia.question,
+          options: options,
+          correct_answer: approvedTrivia.correct_answer,
+          explanation: approvedTrivia.explanation,
+          fun_fact: approvedTrivia.fun_fact,
+          difficulty: approvedTrivia.difficulty,
+          energy_reward: approvedTrivia.energy_reward
+        });
+      } else {
+        // Fallback to AI-generated challenge
+        const response = await supabase.functions.invoke('generate-daily-challenge');
+        
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+        
+        setChallenge(response.data);
       }
-      
-      setChallenge(response.data);
     } catch (error) {
       console.error('Error fetching challenge:', error);
       toast({
@@ -97,9 +126,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       localStorage.setItem(`trivia_completed_${user.id}`, today);
       setTodayCompleted(true);
       
-      // Update energy in profiles using direct update
+      // Update energy in profiles
       try {
-        // First get current energy
         const { data: profile } = await supabase
           .from('profiles')
           .select('total_energy')
@@ -177,7 +205,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       <div className="bg-card border border-border rounded-2xl p-6">
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Generando tu reto del día...</p>
+          <p className="text-muted-foreground">Cargando tu reto del día...</p>
         </div>
       </div>
     );
