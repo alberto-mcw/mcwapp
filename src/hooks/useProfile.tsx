@@ -41,12 +41,17 @@ export const useProfile = () => {
       
       // If no profile exists, create one
       if (!data) {
+        const userMetadata = user.user_metadata || {};
+        const displayName = userMetadata.display_name || user.email?.split('@')[0] || 'Usuario';
+        const avatarUrl = userMetadata.avatar_url || null;
+        
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
             user_id: user.id,
             email: user.email,
-            display_name: user.email?.split('@')[0] || 'Usuario'
+            display_name: displayName,
+            avatar_url: avatarUrl
           })
           .select()
           .single();
