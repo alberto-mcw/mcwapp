@@ -227,24 +227,7 @@ export const AdminCalendar = ({
                 </div>
 
                 <div className="space-y-1">
-                  {/* Trivia indicator */}
-                  {showTrivia && trivia && (
-                    <button
-                      onClick={() => onEditTrivia(trivia)}
-                      className={cn(
-                        "w-full text-left text-xs p-1 rounded flex items-center gap-1 truncate transition-colors hover:opacity-80",
-                        getTriviaStatus(trivia.scheduled_date) === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
-                        getTriviaStatus(trivia.scheduled_date) === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400" :
-                        "bg-muted text-muted-foreground"
-                      )}
-                      title={trivia.title}
-                    >
-                      <Brain className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{trivia.title}</span>
-                    </button>
-                  )}
-
-                  {/* Challenge indicators */}
+                  {/* Challenge indicators - shown first (above) */}
                   {showChallenges && dayChallenges.slice(0, 2).map((challenge) => {
                     const isStart = isSameDay(parseISO(challenge.starts_at), day);
                     const isEnd = isSameDay(parseISO(challenge.ends_at), day);
@@ -253,12 +236,16 @@ export const AdminCalendar = ({
                     return (
                       <button
                         key={challenge.id}
-                        onClick={() => onEditChallenge(challenge)}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditChallenge(challenge);
+                        }}
                         className={cn(
-                          "w-full text-left text-xs p-1 rounded flex items-center gap-1 truncate transition-colors hover:opacity-80",
-                          challengeStatus === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
-                          challengeStatus === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400" :
-                          "bg-muted text-muted-foreground"
+                          "w-full text-left text-xs p-1.5 rounded flex items-center gap-1 truncate transition-colors cursor-pointer relative z-10",
+                          challengeStatus === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-500/30" :
+                          challengeStatus === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-500/30" :
+                          "bg-muted text-muted-foreground hover:bg-muted/80"
                         )}
                         title={`${challenge.title} (${isStart ? 'Inicio' : isEnd ? 'Fin' : 'En curso'})`}
                       >
@@ -269,6 +256,33 @@ export const AdminCalendar = ({
                       </button>
                     );
                   })}
+
+                  {showChallenges && dayChallenges.length > 2 && (
+                    <span className="text-xs text-muted-foreground">
+                      +{dayChallenges.length - 2} más
+                    </span>
+                  )}
+
+                  {/* Trivia indicator - shown second (below) */}
+                  {showTrivia && trivia && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditTrivia(trivia);
+                      }}
+                      className={cn(
+                        "w-full text-left text-xs p-1.5 rounded flex items-center gap-1 truncate transition-colors cursor-pointer relative z-10",
+                        getTriviaStatus(trivia.scheduled_date) === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-500/30" :
+                        getTriviaStatus(trivia.scheduled_date) === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-500/30" :
+                        "bg-muted text-muted-foreground hover:bg-muted/80"
+                      )}
+                      title={trivia.title}
+                    >
+                      <Brain className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{trivia.title}</span>
+                    </button>
+                  )}
 
                   {showChallenges && dayChallenges.length > 2 && (
                     <span className="text-xs text-muted-foreground">
