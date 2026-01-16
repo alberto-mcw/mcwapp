@@ -63,21 +63,28 @@ export const AdminCalendar = ({
     });
   };
 
-  const getTriviaStatusByDate = (scheduledDate: string) => {
+  const getStatusByDate = (dateStr: string) => {
     const today = new Date().toISOString().split('T')[0];
-    if (scheduledDate > today) return 'future';
-    if (scheduledDate === today) return 'active';
+    if (dateStr > today) return 'future';
+    if (dateStr === today) return 'active';
     return 'past';
   };
 
-  const getStatusColor = (scheduledDate: string) => {
-    const status = getTriviaStatusByDate(scheduledDate);
-    switch (status) {
-      case 'future': return 'bg-blue-500';
-      case 'active': return 'bg-green-500';
-      case 'past': return 'bg-muted-foreground/50';
-      default: return 'bg-muted';
-    }
+  const getChallengeStatusForDay = (challenge: Challenge, day: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayNormalized = new Date(day);
+    dayNormalized.setHours(0, 0, 0, 0);
+    
+    const start = parseISO(challenge.starts_at);
+    const end = parseISO(challenge.ends_at);
+    
+    // Check if today is within the challenge range
+    const isTodayInRange = isWithinInterval(today, { start, end });
+    
+    if (isTodayInRange && isSameDay(day, today)) return 'active';
+    if (dayNormalized > today) return 'future';
+    return 'past';
   };
 
   const today = new Date();
@@ -149,15 +156,15 @@ export const AdminCalendar = ({
         <div className="flex items-center gap-4 mb-4 text-sm">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="text-muted-foreground">Mini reto programado</span>
+            <span className="text-muted-foreground">Programado (futuro)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-muted-foreground">Mini reto activo (hoy)</span>
+            <span className="text-muted-foreground">Activo (hoy)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-primary" />
-            <span className="text-muted-foreground">Desafío semanal</span>
+            <div className="w-3 h-3 rounded-full bg-muted-foreground/50" />
+            <span className="text-muted-foreground">Pasado</span>
           </div>
         </div>
 
@@ -222,8 +229,8 @@ export const AdminCalendar = ({
                       onClick={() => onEditTrivia(trivia)}
                       className={cn(
                         "w-full text-left text-xs p-1 rounded flex items-center gap-1 truncate transition-colors hover:opacity-80",
-                        getTriviaStatusByDate(trivia.scheduled_date) === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
-                        getTriviaStatusByDate(trivia.scheduled_date) === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400" :
+                        getStatusByDate(trivia.scheduled_date) === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
+                        getStatusByDate(trivia.scheduled_date) === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400" :
                         "bg-muted text-muted-foreground"
                       )}
                       title={trivia.title}
@@ -238,13 +245,17 @@ export const AdminCalendar = ({
                     const isStart = isSameDay(parseISO(challenge.starts_at), day);
                     const isEnd = isSameDay(parseISO(challenge.ends_at), day);
                     
+                    const challengeStatus = getChallengeStatusForDay(challenge, day);
+                    
                     return (
                       <button
                         key={challenge.id}
                         onClick={() => onEditChallenge(challenge)}
                         className={cn(
                           "w-full text-left text-xs p-1 rounded flex items-center gap-1 truncate transition-colors hover:opacity-80",
-                          challenge.is_active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                          challengeStatus === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
+                          challengeStatus === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400" :
+                          "bg-muted text-muted-foreground"
                         )}
                         title={`${challenge.title} (${isStart ? 'Inicio' : isEnd ? 'Fin' : 'En curso'})`}
                       >
