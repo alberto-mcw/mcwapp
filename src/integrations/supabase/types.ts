@@ -51,6 +51,7 @@ export type Database = {
           challenge_id: string
           created_at: string
           description: string | null
+          dish_name: string | null
           id: string
           likes_count: number
           recipe_data: Json | null
@@ -65,6 +66,7 @@ export type Database = {
           challenge_id: string
           created_at?: string
           description?: string | null
+          dish_name?: string | null
           id?: string
           likes_count?: number
           recipe_data?: Json | null
@@ -79,6 +81,7 @@ export type Database = {
           challenge_id?: string
           created_at?: string
           description?: string | null
+          dish_name?: string | null
           id?: string
           likes_count?: number
           recipe_data?: Json | null
