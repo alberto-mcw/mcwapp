@@ -1,82 +1,40 @@
 import { Link } from 'react-router-dom';
 import { Profile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
-import { User, Camera, Loader2, Settings } from 'lucide-react';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { User, Settings } from 'lucide-react';
+
+const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '🍜', '🦪', '🍰', '🔪', '🍏', '🌯', '🍫', '🍔', '🧋', '🍝', '🍦', '🥘', '🍪'];
 
 interface ProfileCardProps {
   profile: Profile;
-  onAvatarUpload: (file: File) => Promise<{ error: Error | null; url: string | null }>;
+  onAvatarUpload?: (file: File) => Promise<{ error: Error | null; url: string | null }>;
 }
 
-export const ProfileCard = ({ profile, onAvatarUpload }: ProfileCardProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const { toast } = useToast();
-
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: 'Archivo demasiado grande',
-        description: 'La imagen debe ser menor a 2MB',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setIsUploading(true);
-    const { error } = await onAvatarUpload(file);
-    setIsUploading(false);
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo subir la imagen',
-        variant: 'destructive'
-      });
-    } else {
-      toast({
-        title: '¡Foto actualizada!',
-        description: 'Tu foto de perfil se ha actualizado'
-      });
-    }
-  };
+export const ProfileCard = ({ profile }: ProfileCardProps) => {
+  const isEmojiAvatar = profile.avatar_url && EMOJI_AVATARS.includes(profile.avatar_url);
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6">
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
         <div className="relative group mb-4">
-          <div className="w-20 h-20 rounded-full overflow-hidden bg-muted border-2 border-primary/30 ring-4 ring-primary/10">
+          <div className="w-20 h-20 rounded-full overflow-hidden bg-muted border-2 border-primary/30 ring-4 ring-primary/10 flex items-center justify-center">
             {profile.avatar_url ? (
-              <img 
-                src={profile.avatar_url} 
-                alt="Avatar" 
-                className="w-full h-full object-cover"
-              />
+              isEmojiAvatar ? (
+                <span className="text-4xl">{profile.avatar_url}</span>
+              ) : (
+                <img 
+                  src={profile.avatar_url} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
+                />
+              )
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
                 <User className="w-8 h-8 text-primary" />
               </div>
             )}
           </div>
-          <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-            {isUploading ? (
-              <Loader2 className="w-5 h-5 text-white animate-spin" />
-            ) : (
-              <Camera className="w-5 h-5 text-white" />
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              className="hidden"
-              disabled={isUploading}
-            />
-          </label>
         </div>
 
         {/* Name & Email */}
