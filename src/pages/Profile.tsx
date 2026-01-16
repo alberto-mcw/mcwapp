@@ -12,16 +12,26 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const CHEF_AVATARS = [
-  { emoji: '🧑‍🍳', label: 'Chef' },
-  { emoji: '🍳', label: 'Huevo frito' },
-  { emoji: '🥘', label: 'Paella' },
-  { emoji: '🍲', label: 'Olla' },
-  { emoji: '🔪', label: 'Cuchillo' },
-  { emoji: '🥄', label: 'Cuchara' },
-  { emoji: '🍴', label: 'Cubiertos' },
-  { emoji: '🥗', label: 'Ensalada' },
   { emoji: '🍕', label: 'Pizza' },
+  { emoji: '🍷', label: 'Vino' },
+  { emoji: '🥐', label: 'Croissant' },
+  { emoji: '🍣', label: 'Sushi' },
+  { emoji: '☕', label: 'Café' },
+  { emoji: '🍞', label: 'Pan' },
+  { emoji: '🍾', label: 'Champán' },
+  { emoji: '🍜', label: 'Ramen' },
+  { emoji: '🦪', label: 'Ostra' },
   { emoji: '🍰', label: 'Tarta' },
+  { emoji: '🔪', label: 'Cuchillo' },
+  { emoji: '🍏', label: 'Manzana' },
+  { emoji: '🌯', label: 'Burrito' },
+  { emoji: '🍫', label: 'Chocolate' },
+  { emoji: '🍔', label: 'Hamburguesa' },
+  { emoji: '🧋', label: 'Bubble tea' },
+  { emoji: '🍝', label: 'Pasta' },
+  { emoji: '🍦', label: 'Helado' },
+  { emoji: '🥘', label: 'Paella' },
+  { emoji: '🍪', label: 'Galleta' },
 ];
 import { 
   User, 
@@ -129,7 +139,7 @@ const ProfilePage = () => {
               <Label className="block mb-3">Tu avatar</Label>
               
               {/* Emoji avatars grid */}
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-10 gap-1">
                 {CHEF_AVATARS.map((avatar) => {
                   const isSelected = profile.avatar_url === avatar.emoji;
                   return (
@@ -144,7 +154,7 @@ const ProfilePage = () => {
                         });
                       }}
                       className={cn(
-                        "aspect-square rounded-xl text-3xl flex items-center justify-center transition-all border-2",
+                        "aspect-square rounded-lg text-xl flex items-center justify-center transition-all border",
                         isSelected
                           ? "border-primary bg-primary/10 scale-105 shadow-lg"
                           : "border-border bg-background hover:border-primary/50 hover:bg-muted"
