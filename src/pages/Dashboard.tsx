@@ -8,7 +8,7 @@ import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
 import { EnergyStats } from '@/components/dashboard/EnergyStats';
 import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
-import { WeeklyChallenge } from '@/components/dashboard/WeeklyChallenge';
+import { WeeklyChallenges } from '@/components/dashboard/WeeklyChallenges';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { Button } from '@/components/ui/button';
 import { Loader2, Video, Shield } from 'lucide-react';
@@ -102,12 +102,12 @@ const Dashboard = () => {
                 <DailyTrivia onEnergyEarned={handleEnergyEarned} />
               </div>
 
-              {/* Weekly Challenge */}
+              {/* Weekly Challenges */}
               <div>
                 <h2 className="font-unbounded text-xl font-bold flex items-center gap-2 mb-4">
-                  🏆 Desafío Semanal
+                  🏆 Desafíos Semanales
                 </h2>
-                <WeeklyChallenge />
+                <WeeklyChallenges />
               </div>
 
               {/* Mobile Gallery Link */}
