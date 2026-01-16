@@ -71,12 +71,18 @@ export const AdminCalendar = ({
   };
 
   const getChallengeStatusForDay = (challenge: Challenge) => {
-    // If challenge is active, always show as active (green)
-    if (challenge.is_active) return 'active';
-    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const end = parseISO(challenge.ends_at);
+    end.setHours(0, 0, 0, 0);
     const start = parseISO(challenge.starts_at);
+    start.setHours(0, 0, 0, 0);
+    
+    // If end date is in the past, always show as past (gray)
+    if (end < today) return 'past';
+    
+    // If challenge is active and not ended, show as active (green)
+    if (challenge.is_active) return 'active';
     
     // If not active and starts in future, show as scheduled (blue)
     if (start > today) return 'future';
