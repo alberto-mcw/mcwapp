@@ -6,46 +6,92 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Get authorization header for user authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Autenticación requerida" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    
+    // Create client with user's auth to verify identity
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: userError } = await userSupabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Usuario no autenticado" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { submissionId } = await req.json();
     
-    if (!submissionId) {
+    // Validate submissionId format
+    if (!submissionId || !UUID_REGEX.test(submissionId)) {
       return new Response(
-        JSON.stringify({ error: "Missing submissionId" }),
+        JSON.stringify({ error: "ID de envío inválido" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "Error de configuración del servidor" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    // Use service role for database operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get the transcription
+    // Verify ownership of submission
     const { data: submission, error: fetchError } = await supabase
       .from("challenge_submissions")
-      .select("transcription")
+      .select("user_id, transcription")
       .eq("id", submissionId)
       .single();
 
     if (fetchError || !submission) {
-      throw new Error("Submission not found");
+      return new Response(
+        JSON.stringify({ error: "Envío no encontrado" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (submission.user_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "No autorizado para este envío" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     if (!submission.transcription) {
-      throw new Error("No transcription available");
+      return new Response(
+        JSON.stringify({ error: "La transcripción no está disponible" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    console.log("Extracting recipe from transcription...");
+    console.log("Extracting recipe from transcription for submission:", submissionId);
 
     // Call Lovable AI to extract recipe data
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -85,25 +131,22 @@ Si no puedes identificar alguna categoría, usa un array vacío.`
     if (!aiResponse.ok) {
       if (aiResponse.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Límite de solicitudes excedido. Inténtalo más tarde." }),
+          JSON.stringify({ error: "Servicio temporalmente no disponible. Inténtalo más tarde." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (aiResponse.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Créditos de IA agotados." }),
+          JSON.stringify({ error: "Servicio temporalmente no disponible." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await aiResponse.text();
-      console.error("AI Gateway error:", errorText);
-      throw new Error(`AI extraction failed: ${aiResponse.status}`);
+      console.error("AI Gateway error:", aiResponse.status);
+      throw new Error("Error en el servicio de IA");
     }
 
     const aiResult = await aiResponse.json();
     const content = aiResult.choices?.[0]?.message?.content || "";
-
-    console.log("AI response:", content);
 
     // Parse the JSON response
     let recipeData;
@@ -112,12 +155,11 @@ Si no puedes identificar alguna categoría, usa un array vacío.`
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       recipeData = JSON.parse(cleanContent);
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
+      console.error("Failed to parse AI response");
       recipeData = {
         ingredients: [],
         steps: [],
-        utensils: [],
-        raw_response: content
+        utensils: []
       };
     }
 
@@ -142,7 +184,7 @@ Si no puedes identificar alguna categoría, usa un array vacío.`
   } catch (error) {
     console.error("Recipe extraction error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "Error procesando la receta. Inténtalo de nuevo." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

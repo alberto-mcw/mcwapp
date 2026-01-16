@@ -316,7 +316,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      daily_trivias_public: {
+        Row: {
+          created_at: string | null
+          difficulty: string | null
+          energy_reward: number | null
+          explanation: string | null
+          fun_fact: string | null
+          id: string | null
+          options: Json | null
+          question: string | null
+          scheduled_date: string | null
+          status: string | null
+          title: string | null
+          trivia_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          difficulty?: string | null
+          energy_reward?: number | null
+          explanation?: string | null
+          fun_fact?: string | null
+          id?: string | null
+          options?: Json | null
+          question?: string | null
+          scheduled_date?: string | null
+          status?: string | null
+          title?: string | null
+          trivia_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          difficulty?: string | null
+          energy_reward?: number | null
+          explanation?: string | null
+          fun_fact?: string | null
+          id?: string | null
+          options?: Json | null
+          question?: string | null
+          scheduled_date?: string | null
+          status?: string | null
+          title?: string | null
+          trivia_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
