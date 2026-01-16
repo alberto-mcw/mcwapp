@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 import { 
   Trophy, 
   Upload, 
@@ -13,7 +14,8 @@ import {
   Calendar,
   Zap,
   Clock,
-  Sparkles
+  Sparkles,
+  ChefHat
 } from 'lucide-react';
 
 interface Challenge {
@@ -40,6 +42,7 @@ export const WeeklyChallenge = () => {
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
   const [processingAI, setProcessingAI] = useState(false);
 
@@ -184,6 +187,17 @@ export const WeeklyChallenge = () => {
     const file = e.target.files?.[0];
     if (!file || !user || !challenge) return;
 
+    // Validate dish name is provided
+    if (!dishName.trim()) {
+      toast({
+        title: 'Nombre del plato requerido',
+        description: 'Por favor escribe el nombre de tu plato antes de subir el vídeo',
+        variant: 'destructive'
+      });
+      e.target.value = ''; // Reset input so user can try again
+      return;
+    }
+
     // Validate file type
     if (!file.type.startsWith('video/')) {
       toast({
@@ -240,6 +254,7 @@ export const WeeklyChallenge = () => {
           user_id: user.id,
           challenge_id: challenge.id,
           video_url: publicUrl,
+          dish_name: dishName.trim(),
           description: description || null,
           transcription_status: 'pending'
         })
@@ -395,6 +410,20 @@ export const WeeklyChallenge = () => {
         ) : (
           // Upload form
           <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <ChefHat className="w-4 h-4 text-primary" />
+                Nombre del plato <span className="text-destructive">*</span>
+              </label>
+              <Input
+                placeholder="Ej: Paella valenciana, Tortilla española..."
+                value={dishName}
+                onChange={(e) => setDishName(e.target.value)}
+                className="bg-background"
+                maxLength={100}
+              />
+            </div>
+
             <Textarea
               placeholder="Describe tu creación (opcional)..."
               value={description}
@@ -409,12 +438,12 @@ export const WeeklyChallenge = () => {
                 accept="video/*"
                 onChange={handleVideoUpload}
                 className="hidden"
-                disabled={uploading}
+                disabled={uploading || !dishName.trim()}
               />
               <Button 
                 asChild 
-                className="w-full gap-2 cursor-pointer"
-                disabled={uploading}
+                className={`w-full gap-2 ${!dishName.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                disabled={uploading || !dishName.trim()}
               >
                 <span>
                   {uploading ? (
