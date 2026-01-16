@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,9 +20,38 @@ serve(async (req) => {
   }
 
   try {
+    // Get authorization header for user authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Autenticación requerida" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    // Create client with user's auth to verify identity
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: userError } = await userSupabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Usuario no autenticado" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "Error de configuración del servidor" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Pick a random challenge type
@@ -80,19 +110,18 @@ correct_answer es el índice (0-3) de la respuesta correcta.`;
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Demasiadas solicitudes. Inténtalo en unos minutos." }),
+          JSON.stringify({ error: "Servicio temporalmente no disponible. Inténtalo en unos minutos." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Créditos agotados. Contacta al administrador." }),
+          JSON.stringify({ error: "Servicio temporalmente no disponible." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("Error generando el reto");
+      console.error("AI gateway error:", response.status);
+      throw new Error("Error en el servicio de generación");
     }
 
     const data = await response.json();
@@ -109,7 +138,7 @@ correct_answer es el índice (0-3) de la respuesta correcta.`;
       const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
       challenge = JSON.parse(cleanContent);
     } catch (e) {
-      console.error("Error parsing AI response:", content);
+      console.error("Error parsing AI response");
       throw new Error("Error procesando la respuesta");
     }
 
@@ -120,7 +149,7 @@ correct_answer es el índice (0-3) de la respuesta correcta.`;
   } catch (error) {
     console.error("generate-daily-challenge error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Error desconocido" }),
+      JSON.stringify({ error: "Error generando el reto. Inténtalo de nuevo." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
