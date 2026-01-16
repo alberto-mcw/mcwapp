@@ -88,13 +88,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           energy_reward: triviaData.energy_reward
         });
       } else {
-        const response = await supabase.functions.invoke('generate-daily-challenge');
-        
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-        
-        setChallenge(response.data);
+        // No hay trivia programada para hoy - mostrar mensaje
+        setChallenge(null);
       }
     } catch (error) {
       console.error('Error fetching challenge:', error);
@@ -296,11 +291,11 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
     return (
       <div className="bg-card border border-border rounded-2xl p-6">
         <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">No se pudo cargar el reto</p>
-          <Button onClick={fetchChallenge} variant="outline" className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Reintentar
-          </Button>
+          <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="font-unbounded font-bold mb-2">Sin reto hoy</h3>
+          <p className="text-muted-foreground">No hay trivia programada para hoy. ¡Vuelve mañana!</p>
         </div>
       </div>
     );
