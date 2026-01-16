@@ -8,10 +8,10 @@ import {
   Loader2, 
   Check, 
   X, 
-  RefreshCw,
   Sparkles,
   Trophy,
-  Lightbulb
+  Lightbulb,
+  Clock
 } from 'lucide-react';
 
 interface Challenge {
@@ -35,12 +35,73 @@ interface SavedResult {
   explanation: string;
   funFact: string;
   energyEarned: number;
-  date: string;
+  effectiveDate: string; // Changed from 'date' to track CET effective date
 }
 
 interface DailyTriviaProps {
   onEnergyEarned?: (amount: number) => void;
 }
+
+// Get the effective trivia date based on 8 AM CET reset
+const getEffectiveTriviaDate = (): string => {
+  const now = new Date();
+  
+  // Convert to CET (UTC+1) or CEST (UTC+2)
+  // Using Europe/Madrid timezone for accurate CET/CEST handling
+  const cetFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Madrid',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    hour12: false
+  });
+  
+  const parts = cetFormatter.formatToParts(now);
+  const year = parts.find(p => p.type === 'year')?.value;
+  const month = parts.find(p => p.type === 'month')?.value;
+  const day = parts.find(p => p.type === 'day')?.value;
+  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+  
+  // If before 8 AM CET, use yesterday's date
+  if (hour < 8) {
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yParts = cetFormatter.formatToParts(yesterday);
+    return `${yParts.find(p => p.type === 'year')?.value}-${yParts.find(p => p.type === 'month')?.value}-${yParts.find(p => p.type === 'day')?.value}`;
+  }
+  
+  return `${year}-${month}-${day}`;
+};
+
+// Get time until next 8 AM CET reset
+const getTimeUntilReset = (): { hours: number; minutes: number } => {
+  const now = new Date();
+  
+  // Create next 8 AM CET
+  const cetFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Madrid',
+    hour: '2-digit',
+    hour12: false
+  });
+  const currentHour = parseInt(cetFormatter.format(now));
+  
+  let hoursUntil: number;
+  if (currentHour >= 8) {
+    // Next reset is tomorrow at 8 AM
+    hoursUntil = 24 - currentHour + 8;
+  } else {
+    // Next reset is today at 8 AM
+    hoursUntil = 8 - currentHour;
+  }
+  
+  const minutesUntil = 60 - now.getMinutes();
+  if (minutesUntil < 60) {
+    hoursUntil -= 1;
+  }
+  
+  return { hours: Math.max(0, hoursUntil), minutes: minutesUntil % 60 };
+};
 
 export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
   const { user } = useAuth();
@@ -55,6 +116,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string>('');
   const [funFact, setFunFact] = useState<string>('');
+  const [timeUntilReset, setTimeUntilReset] = useState(getTimeUntilReset());
 
   const getStorageKey = () => `trivia_result_${user?.id}`;
 
@@ -64,16 +126,15 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
     setHasAnswered(false);
     
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const { data: approvedTrivia, error: triviaError } = await supabase
+      const effectiveDate = getEffectiveTriviaDate();
+      const { data: trivia, error: triviaError } = await supabase
         .from('daily_trivias_public' as any)
         .select('*')
-        .eq('scheduled_date', today)
-        .eq('status', 'approved')
+        .eq('scheduled_date', effectiveDate)
         .maybeSingle();
 
-      if (approvedTrivia && !triviaError) {
-        const triviaData = approvedTrivia as any;
+      if (trivia && !triviaError) {
+        const triviaData = trivia as any;
         const options = typeof triviaData.options === 'string' 
           ? JSON.parse(triviaData.options) 
           : triviaData.options;
@@ -95,7 +156,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       console.error('Error fetching challenge:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo cargar el reto. Inténtalo de nuevo.',
+        description: 'No se pudo cargar la trivia. Inténtalo de nuevo.',
         variant: 'destructive'
       });
     } finally {
@@ -103,18 +164,27 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
     }
   };
 
-  // Check if user already completed today's challenge
+  // Update countdown timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeUntilReset(getTimeUntilReset());
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check if user already completed today's trivia
   useEffect(() => {
     const checkTodayCompletion = () => {
-      const today = new Date().toISOString().split('T')[0];
+      const effectiveDate = getEffectiveTriviaDate();
       const storageKey = getStorageKey();
       const savedData = localStorage.getItem(storageKey);
       
       if (savedData) {
         try {
           const parsed: SavedResult = JSON.parse(savedData);
-          // Check if it's from today
-          if (parsed.date === today) {
+          // Check if it's from the current effective date (8 AM CET cycle)
+          if (parsed.effectiveDate === effectiveDate) {
             // Restore the saved result
             setSavedResult(parsed);
             setChallenge(parsed.challenge);
@@ -192,8 +262,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       setExplanation(resultExplanation);
       setFunFact(resultFunFact);
 
-      // Save result to localStorage
-      const today = new Date().toISOString().split('T')[0];
+      // Save result to localStorage using effective date (8 AM CET cycle)
+      const effectiveDate = getEffectiveTriviaDate();
       const resultToSave: SavedResult = {
         challenge,
         selectedAnswer: answerIndex,
@@ -202,7 +272,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
         explanation: resultExplanation,
         funFact: resultFunFact,
         energyEarned,
-        date: today
+        effectiveDate
       };
       localStorage.setItem(getStorageKey(), JSON.stringify(resultToSave));
 
@@ -281,7 +351,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       <div className="bg-card border border-border rounded-2xl p-6">
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Cargando tu reto del día...</p>
+          <p className="text-muted-foreground">Cargando tu trivia del día...</p>
         </div>
       </div>
     );
@@ -294,8 +364,12 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="font-unbounded font-bold mb-2">Sin reto hoy</h3>
-          <p className="text-muted-foreground">No hay trivia programada para hoy. ¡Vuelve mañana!</p>
+          <h3 className="font-unbounded font-bold mb-2">Sin trivia hoy</h3>
+          <p className="text-muted-foreground mb-4">No hay trivia programada para hoy.</p>
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            <span>Próxima trivia a las 8:00 AM (CET)</span>
+          </div>
         </div>
       </div>
     );
@@ -316,7 +390,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
                 <span className={`px-2 py-0.5 rounded-full ${getDifficultyColor(challenge.difficulty)}`}>
                   {challenge.difficulty}
                 </span>
-                <span className="text-muted-foreground">Mini Reto Diario</span>
+                <span className="text-muted-foreground">Trivia Diaria</span>
               </div>
             </div>
           </div>
@@ -432,9 +506,10 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
               </div>
             )}
 
-            {/* Next challenge info */}
-            <div className="text-center pt-2 text-sm text-muted-foreground">
-              El próximo reto estará disponible mañana
+            {/* Next trivia countdown */}
+            <div className="text-center pt-2 text-sm text-muted-foreground flex items-center justify-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>Próxima trivia en {timeUntilReset.hours}h {timeUntilReset.minutes}m (8:00 AM CET)</span>
             </div>
           </div>
         )}

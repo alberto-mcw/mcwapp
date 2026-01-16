@@ -63,11 +63,19 @@ export const AdminCalendar = ({
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getTriviaStatusByDate = (scheduledDate: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    if (scheduledDate > today) return 'future';
+    if (scheduledDate === today) return 'active';
+    return 'past';
+  };
+
+  const getStatusColor = (scheduledDate: string) => {
+    const status = getTriviaStatusByDate(scheduledDate);
     switch (status) {
-      case 'approved': return 'bg-green-500';
-      case 'pending': return 'bg-yellow-500';
-      case 'rejected': return 'bg-red-500';
+      case 'future': return 'bg-blue-500';
+      case 'active': return 'bg-green-500';
+      case 'past': return 'bg-muted-foreground/50';
       default: return 'bg-muted';
     }
   };
@@ -140,20 +148,16 @@ export const AdminCalendar = ({
         {/* Legend */}
         <div className="flex items-center gap-4 mb-4 text-sm">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-muted-foreground">Aprobado</span>
+            <div className="w-3 h-3 rounded-full bg-blue-500" />
+            <span className="text-muted-foreground">Trivia programada</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <span className="text-muted-foreground">Pendiente</span>
+            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="text-muted-foreground">Trivia activa (hoy)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-primary" />
-            <span className="text-muted-foreground">Desafío activo</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-muted-foreground/50" />
-            <span className="text-muted-foreground">Desafío inactivo</span>
+            <span className="text-muted-foreground">Desafío semanal</span>
           </div>
         </div>
 
@@ -224,9 +228,9 @@ export const AdminCalendar = ({
                       onClick={() => onEditTrivia(trivia)}
                       className={cn(
                         "w-full text-left text-xs p-1 rounded flex items-center gap-1 truncate transition-colors hover:opacity-80",
-                        trivia.status === 'approved' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
-                        trivia.status === 'pending' ? "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400" :
-                        "bg-red-500/20 text-red-700 dark:text-red-400"
+                        getTriviaStatusByDate(trivia.scheduled_date) === 'active' ? "bg-green-500/20 text-green-700 dark:text-green-400" :
+                        getTriviaStatusByDate(trivia.scheduled_date) === 'future' ? "bg-blue-500/20 text-blue-700 dark:text-blue-400" :
+                        "bg-muted text-muted-foreground"
                       )}
                       title={trivia.title}
                     >
@@ -274,13 +278,7 @@ export const AdminCalendar = ({
           <div className="flex items-center gap-2">
             <Brain className="w-4 h-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {trivias.filter(t => t.status === 'approved').length} trivias aprobadas
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            <span className="text-muted-foreground">
-              {trivias.filter(t => t.status === 'pending').length} trivias pendientes
+              {trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0])).length} trivias programadas
             </span>
           </div>
           <div className="flex items-center gap-2">

@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Check, X, Trash2, Edit, Video, Calendar, Sparkles, Brain, CalendarDays } from 'lucide-react';
+import { Loader2, Plus, Check, X, Trash2, Edit, Video, Calendar, Sparkles, Brain, CalendarDays, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -277,7 +277,7 @@ const Admin = () => {
     setEditingChallenge(null);
   };
 
-  // Trivia CRUD
+  // Trivia CRUD - No approval workflow, trivias activate automatically on scheduled_date at 8 AM CET
   const handleSaveTrivia = async () => {
     if (!triviaForm.scheduled_date || !triviaForm.question || triviaForm.options.some(o => !o)) {
       toast({ title: "Error", description: "Completa todos los campos", variant: "destructive" });
@@ -295,7 +295,7 @@ const Admin = () => {
       fun_fact: triviaForm.fun_fact,
       difficulty: triviaForm.difficulty,
       energy_reward: triviaForm.energy_reward,
-      status: 'pending'
+      status: 'scheduled' // Auto-scheduled, no approval needed
     };
 
     if (editingTrivia) {
@@ -307,25 +307,12 @@ const Admin = () => {
       if (error) {
         if (error.code === '23505') toast({ title: "Ya existe trivia para esa fecha", variant: "destructive" });
         else toast({ title: "Error al crear", variant: "destructive" });
-      } else toast({ title: "Trivia guardada como pendiente" });
+      } else toast({ title: "Trivia programada correctamente" });
     }
 
     resetTriviaForm();
     setIsTriviaDialogOpen(false);
     fetchData();
-  };
-
-  const handleApproveTrivia = async (trivia: DailyTrivia) => {
-    const { error } = await supabase
-      .from('daily_trivias')
-      .update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: user?.id })
-      .eq('id', trivia.id);
-    if (!error) { toast({ title: "Trivia aprobada" }); fetchData(); }
-  };
-
-  const handleRejectTrivia = async (id: string) => {
-    const { error } = await supabase.from('daily_trivias').update({ status: 'rejected' }).eq('id', id);
-    if (!error) { toast({ title: "Trivia rechazada" }); fetchData(); }
   };
 
   const handleDeleteTrivia = async (id: string) => {
@@ -391,7 +378,7 @@ const Admin = () => {
   if (!isAdmin) return null;
 
   const pendingSubmissions = submissions.filter(s => s.status === 'pending');
-  const pendingTrivias = trivias.filter(t => t.status === 'pending');
+  const futureTrivias = trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0]));
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -404,12 +391,12 @@ const Admin = () => {
               <h1 className="font-unbounded text-2xl md:text-3xl font-bold mb-2">
                 Panel de <span className="text-gradient-fire">Administración</span>
               </h1>
-              <p className="text-muted-foreground">Gestiona desafíos, trivias y vídeos</p>
+              <p className="text-muted-foreground">Gestiona trivias diarias, desafíos semanales y vídeos</p>
             </div>
             <div className="flex gap-2">
-              {pendingTrivias.length > 0 && (
+              {futureTrivias.length > 0 && (
                 <Badge variant="secondary" className="text-sm px-3 py-1">
-                  {pendingTrivias.length} trivia{pendingTrivias.length > 1 ? 's' : ''} pendiente{pendingTrivias.length > 1 ? 's' : ''}
+                  {futureTrivias.length} trivia{futureTrivias.length > 1 ? 's' : ''} programada{futureTrivias.length > 1 ? 's' : ''}
                 </Badge>
               )}
               {pendingSubmissions.length > 0 && (
@@ -429,7 +416,7 @@ const Admin = () => {
               <TabsTrigger value="trivias" className="gap-2">
                 <Brain className="w-4 h-4" />
                 Trivias
-                {pendingTrivias.length > 0 && <Badge variant="secondary" className="ml-1">{pendingTrivias.length}</Badge>}
+                {futureTrivias.length > 0 && <Badge variant="secondary" className="ml-1">{futureTrivias.length}</Badge>}
               </TabsTrigger>
               <TabsTrigger value="challenges" className="gap-2">
                 <Calendar className="w-4 h-4" />
@@ -593,55 +580,80 @@ const Admin = () => {
                 </Dialog>
               </div>
 
-              <Tabs defaultValue="pending">
-                <TabsList>
-                  <TabsTrigger value="pending">Pendientes ({pendingTrivias.length})</TabsTrigger>
-                  <TabsTrigger value="approved">Aprobadas ({trivias.filter(t => t.status === 'approved').length})</TabsTrigger>
-                </TabsList>
-
-                {['pending', 'approved'].map((status) => (
-                  <TabsContent key={status} value={status} className="mt-4">
-                    <div className="grid gap-4">
-                      {trivias.filter(t => t.status === status).map((trivia) => (
-                        <Card key={trivia.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant="outline">{format(new Date(trivia.scheduled_date), 'dd MMM yyyy', { locale: es })}</Badge>
-                                  <Badge variant={trivia.status === 'approved' ? 'default' : 'secondary'}>{trivia.status === 'approved' ? 'Aprobada' : 'Pendiente'}</Badge>
-                                  <Badge variant="outline">{trivia.difficulty}</Badge>
-                                </div>
-                                <h3 className="font-unbounded font-bold mb-1">{trivia.title}</h3>
-                                <p className="text-muted-foreground text-sm mb-2">{trivia.question}</p>
-                                <div className="flex flex-wrap gap-1">
-                                  {trivia.options.map((opt, idx) => (
-                                    <span key={idx} className={`text-xs px-2 py-1 rounded ${idx === trivia.correct_answer ? 'bg-green-500/20 text-green-500' : 'bg-muted'}`}>
-                                      {String.fromCharCode(65 + idx)}: {opt}
-                                    </span>
-                                  ))}
-                                </div>
+              {/* Trivias list - grouped by status */}
+              <div className="space-y-6">
+                {/* Future trivias */}
+                <div>
+                  <h3 className="font-unbounded font-bold mb-3 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Programadas ({trivias.filter(t => new Date(t.scheduled_date) > new Date()).length})
+                  </h3>
+                  <div className="grid gap-3">
+                    {trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0])).map((trivia) => (
+                      <Card key={trivia.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="outline">{format(new Date(trivia.scheduled_date), 'dd MMM yyyy', { locale: es })}</Badge>
+                                <Badge variant="default">Programada</Badge>
+                                <Badge variant="outline">{trivia.difficulty}</Badge>
                               </div>
-                              <div className="flex items-center gap-1">
-                                {status === 'pending' && (
-                                  <Button size="icon" variant="ghost" onClick={() => handleApproveTrivia(trivia)} className="text-green-500 hover:text-green-600">
-                                    <Check className="w-4 h-4" />
-                                  </Button>
-                                )}
-                                <Button size="icon" variant="ghost" onClick={() => handleEditTrivia(trivia)}><Edit className="w-4 h-4" /></Button>
-                                <Button size="icon" variant="ghost" onClick={() => handleDeleteTrivia(trivia.id)} className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                              <h3 className="font-unbounded font-bold mb-1">{trivia.title}</h3>
+                              <p className="text-muted-foreground text-sm mb-2">{trivia.question}</p>
+                              <div className="flex flex-wrap gap-1">
+                                {trivia.options.map((opt, idx) => (
+                                  <span key={idx} className={`text-xs px-2 py-1 rounded ${idx === trivia.correct_answer ? 'bg-green-500/20 text-green-500' : 'bg-muted'}`}>
+                                    {String.fromCharCode(65 + idx)}: {opt}
+                                  </span>
+                                ))}
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      {trivias.filter(t => t.status === status).length === 0 && (
-                        <Card><CardContent className="py-12 text-center text-muted-foreground">No hay trivias {status === 'pending' ? 'pendientes' : 'aprobadas'}</CardContent></Card>
-                      )}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
+                            <div className="flex items-center gap-1">
+                              <Button size="icon" variant="ghost" onClick={() => handleEditTrivia(trivia)}><Edit className="w-4 h-4" /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => handleDeleteTrivia(trivia.id)} className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0])).length === 0 && (
+                      <Card><CardContent className="py-8 text-center text-muted-foreground">No hay trivias programadas</CardContent></Card>
+                    )}
+                  </div>
+                </div>
+
+                {/* Past trivias */}
+                <div>
+                  <h3 className="font-unbounded font-bold mb-3 flex items-center gap-2 text-muted-foreground">
+                    Pasadas ({trivias.filter(t => new Date(t.scheduled_date) < new Date(new Date().toISOString().split('T')[0])).length})
+                  </h3>
+                  <div className="grid gap-3">
+                    {trivias.filter(t => new Date(t.scheduled_date) < new Date(new Date().toISOString().split('T')[0])).slice(0, 5).map((trivia) => (
+                      <Card key={trivia.id} className="opacity-60">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="secondary">{format(new Date(trivia.scheduled_date), 'dd MMM yyyy', { locale: es })}</Badge>
+                                <Badge variant="secondary">Finalizada</Badge>
+                              </div>
+                              <h3 className="font-unbounded font-bold mb-1">{trivia.title}</h3>
+                              <p className="text-muted-foreground text-sm">{trivia.question}</p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button size="icon" variant="ghost" onClick={() => handleDeleteTrivia(trivia.id)} className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {trivias.filter(t => new Date(t.scheduled_date) < new Date(new Date().toISOString().split('T')[0])).length === 0 && (
+                      <Card><CardContent className="py-8 text-center text-muted-foreground">No hay trivias pasadas</CardContent></Card>
+                    )}
+                  </div>
+                </div>
+              </div>
             </TabsContent>
 
             {/* CHALLENGES TAB */}
