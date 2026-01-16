@@ -156,7 +156,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       console.error('Error fetching challenge:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo cargar la trivia. Inténtalo de nuevo.',
+        description: 'No se pudo cargar el mini reto. Inténtalo de nuevo.',
         variant: 'destructive'
       });
     } finally {
@@ -351,7 +351,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       <div className="bg-card border border-border rounded-2xl p-6">
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Cargando tu trivia del día...</p>
+          <p className="text-muted-foreground">Cargando tu mini reto del día...</p>
         </div>
       </div>
     );
@@ -364,11 +364,11 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="font-unbounded font-bold mb-2">Sin trivia hoy</h3>
-          <p className="text-muted-foreground mb-4">No hay trivia programada para hoy.</p>
+          <h3 className="font-unbounded font-bold mb-2">Sin mini reto hoy</h3>
+          <p className="text-muted-foreground mb-4">No hay mini reto programado para hoy.</p>
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
-            <span>Próxima trivia a las 8:00 AM (CET)</span>
+            <span>Próximo mini reto a las 8:00 AM (CET)</span>
           </div>
         </div>
       </div>
@@ -390,7 +390,7 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
                 <span className={`px-2 py-0.5 rounded-full ${getDifficultyColor(challenge.difficulty)}`}>
                   {challenge.difficulty}
                 </span>
-                <span className="text-muted-foreground">Trivia Diaria</span>
+                <span className="text-muted-foreground">Mini Reto Diario</span>
               </div>
             </div>
           </div>

@@ -124,14 +124,14 @@ export const AdminCalendar = ({
             >
               Todo
             </Button>
-            <Button 
+              <Button 
               variant={viewMode === 'trivias' ? 'default' : 'outline'} 
               size="sm"
               onClick={() => setViewMode('trivias')}
               className="gap-1"
             >
               <Brain className="w-3 h-3" />
-              Trivias
+              Mini Retos
             </Button>
             <Button 
               variant={viewMode === 'challenges' ? 'default' : 'outline'} 
@@ -149,11 +149,11 @@ export const AdminCalendar = ({
         <div className="flex items-center gap-4 mb-4 text-sm">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="text-muted-foreground">Trivia programada</span>
+            <span className="text-muted-foreground">Mini reto programado</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-muted-foreground">Trivia activa (hoy)</span>
+            <span className="text-muted-foreground">Mini reto activo (hoy)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-primary" />
@@ -208,12 +208,12 @@ export const AdminCalendar = ({
                   {/* Quick add buttons */}
                   <div className="flex gap-0.5">
                     {showTrivia && !trivia && (
-                      <Button
+                                <Button
                         variant="ghost"
                         size="icon"
                         className="w-5 h-5 opacity-0 group-hover:opacity-100 hover:opacity-100"
                         onClick={() => onSelectDate(day, 'trivia')}
-                        title="Añadir trivia"
+                        title="Añadir mini reto"
                       >
                         <Plus className="w-3 h-3" />
                       </Button>
@@ -278,7 +278,7 @@ export const AdminCalendar = ({
           <div className="flex items-center gap-2">
             <Brain className="w-4 h-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0])).length} trivias programadas
+              {trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0])).length} mini retos programados
             </span>
           </div>
           <div className="flex items-center gap-2">

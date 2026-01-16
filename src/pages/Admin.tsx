@@ -212,7 +212,7 @@ const Admin = () => {
       });
       
       setIsTriviaDialogOpen(true);
-      toast({ title: 'Trivia generada con IA', description: 'Revisa y aprueba el contenido' });
+      toast({ title: 'Mini reto generado con IA', description: 'Revisa y programa el contenido' });
     } catch (error) {
       console.error('Error generating trivia:', error);
       toast({ title: 'Error al generar', variant: 'destructive' });
@@ -301,13 +301,13 @@ const Admin = () => {
     if (editingTrivia) {
       const { error } = await supabase.from('daily_trivias').update(triviaData).eq('id', editingTrivia.id);
       if (error) toast({ title: "Error al actualizar", variant: "destructive" });
-      else toast({ title: "Trivia actualizada" });
+      else toast({ title: "Mini reto actualizado" });
     } else {
       const { error } = await supabase.from('daily_trivias').insert(triviaData);
       if (error) {
-        if (error.code === '23505') toast({ title: "Ya existe trivia para esa fecha", variant: "destructive" });
+        if (error.code === '23505') toast({ title: "Ya existe mini reto para esa fecha", variant: "destructive" });
         else toast({ title: "Error al crear", variant: "destructive" });
-      } else toast({ title: "Trivia programada correctamente" });
+      } else toast({ title: "Mini reto programado correctamente" });
     }
 
     resetTriviaForm();
@@ -317,7 +317,7 @@ const Admin = () => {
 
   const handleDeleteTrivia = async (id: string) => {
     const { error } = await supabase.from('daily_trivias').delete().eq('id', id);
-    if (!error) { toast({ title: "Trivia eliminada" }); fetchData(); }
+    if (!error) { toast({ title: "Mini reto eliminado" }); fetchData(); }
   };
 
   const handleEditTrivia = (trivia: DailyTrivia) => {
@@ -391,12 +391,12 @@ const Admin = () => {
               <h1 className="font-unbounded text-2xl md:text-3xl font-bold mb-2">
                 Panel de <span className="text-gradient-fire">Administración</span>
               </h1>
-              <p className="text-muted-foreground">Gestiona trivias diarias, desafíos semanales y vídeos</p>
+              <p className="text-muted-foreground">Gestiona mini retos diarios, desafíos semanales y vídeos</p>
             </div>
             <div className="flex gap-2">
               {futureTrivias.length > 0 && (
                 <Badge variant="secondary" className="text-sm px-3 py-1">
-                  {futureTrivias.length} trivia{futureTrivias.length > 1 ? 's' : ''} programada{futureTrivias.length > 1 ? 's' : ''}
+                  {futureTrivias.length} mini reto{futureTrivias.length > 1 ? 's' : ''} programado{futureTrivias.length > 1 ? 's' : ''}
                 </Badge>
               )}
               {pendingSubmissions.length > 0 && (
@@ -415,7 +415,7 @@ const Admin = () => {
               </TabsTrigger>
               <TabsTrigger value="trivias" className="gap-2">
                 <Brain className="w-4 h-4" />
-                Trivias
+                Mini Retos
                 {futureTrivias.length > 0 && <Badge variant="secondary" className="ml-1">{futureTrivias.length}</Badge>}
               </TabsTrigger>
               <TabsTrigger value="challenges" className="gap-2">
@@ -480,11 +480,11 @@ const Admin = () => {
               <div className="flex gap-2 justify-end">
                 <Button onClick={generateTriviaSuggestion} disabled={generatingTrivia} variant="outline" className="gap-2">
                   {generatingTrivia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Generar Trivia con IA
+                  Generar Mini Reto con IA
                 </Button>
                 <Button onClick={() => setIsTriviaDialogOpen(true)} className="gap-2">
                   <Plus className="w-4 h-4" />
-                  Nueva Trivia
+                  Nuevo Mini Reto
                 </Button>
                 <Button onClick={() => setIsDialogOpen(true)} variant="secondary" className="gap-2">
                   <Plus className="w-4 h-4" />
@@ -502,11 +502,11 @@ const Admin = () => {
                 </Button>
                 <Dialog open={isTriviaDialogOpen} onOpenChange={(open) => { setIsTriviaDialogOpen(open); if (!open) resetTriviaForm(); }}>
                   <DialogTrigger asChild>
-                    <Button className="gap-2"><Plus className="w-4 h-4" />Nueva Trivia</Button>
+                    <Button className="gap-2"><Plus className="w-4 h-4" />Nuevo Mini Reto</Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>{editingTrivia ? 'Editar Trivia' : 'Nueva Trivia Diaria'}</DialogTitle>
+                      <DialogTitle>{editingTrivia ? 'Editar Mini Reto' : 'Nuevo Mini Reto Diario'}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 pt-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -574,7 +574,7 @@ const Admin = () => {
                           <Input type="number" value={triviaForm.energy_reward} onChange={(e) => setTriviaForm({ ...triviaForm, energy_reward: parseInt(e.target.value) || 25 })} />
                         </div>
                       </div>
-                      <Button onClick={handleSaveTrivia} className="w-full">{editingTrivia ? 'Guardar cambios' : 'Guardar trivia'}</Button>
+                      <Button onClick={handleSaveTrivia} className="w-full">{editingTrivia ? 'Guardar cambios' : 'Guardar mini reto'}</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -618,7 +618,7 @@ const Admin = () => {
                       </Card>
                     ))}
                     {trivias.filter(t => new Date(t.scheduled_date) >= new Date(new Date().toISOString().split('T')[0])).length === 0 && (
-                      <Card><CardContent className="py-8 text-center text-muted-foreground">No hay trivias programadas</CardContent></Card>
+                      <Card><CardContent className="py-8 text-center text-muted-foreground">No hay mini retos programados</CardContent></Card>
                     )}
                   </div>
                 </div>
@@ -649,7 +649,7 @@ const Admin = () => {
                       </Card>
                     ))}
                     {trivias.filter(t => new Date(t.scheduled_date) < new Date(new Date().toISOString().split('T')[0])).length === 0 && (
-                      <Card><CardContent className="py-8 text-center text-muted-foreground">No hay trivias pasadas</CardContent></Card>
+                      <Card><CardContent className="py-8 text-center text-muted-foreground">No hay mini retos pasados</CardContent></Card>
                     )}
                   </div>
                 </div>
