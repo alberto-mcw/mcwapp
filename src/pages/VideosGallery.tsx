@@ -16,8 +16,25 @@ import {
   Zap,
   Share2,
   Copy,
-  X
+  X,
+  ChefHat,
+  UtensilsCrossed,
+  ListOrdered
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+interface RecipeData {
+  ingredients?: string[];
+  steps?: string[];
+  utensils?: string[];
+}
+
+type JsonRecipeData = RecipeData | null;
 
 interface Submission {
   id: string;
@@ -27,6 +44,8 @@ interface Submission {
   challenge_id: string;
   user_id: string;
   likes_count: number;
+  recipe_data: unknown;
+  transcription_status: string | null;
   challenges: {
     title: string;
     ends_at: string;
@@ -54,6 +73,16 @@ const VideosGallery = () => {
   const [selectedVideo, setSelectedVideo] = useState<SubmissionWithProfile | null>(null);
   const [likingIds, setLikingIds] = useState<Set<string>>(new Set());
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
+  const [recipeModal, setRecipeModal] = useState<SubmissionWithProfile | null>(null);
+
+  const getRecipeData = (data: unknown): RecipeData | null => {
+    if (!data || typeof data !== 'object') return null;
+    const recipe = data as RecipeData;
+    if (recipe.ingredients || recipe.steps || recipe.utensils) {
+      return recipe;
+    }
+    return null;
+  };
 
   // Check for video ID in URL on load
   useEffect(() => {
@@ -83,6 +112,8 @@ const VideosGallery = () => {
           challenge_id,
           user_id,
           likes_count,
+          recipe_data,
+          transcription_status,
           challenges (
             title,
             ends_at
@@ -384,6 +415,22 @@ const VideosGallery = () => {
                         {submission.description}
                       </p>
                     )}
+
+                    {/* Ver Receta Button */}
+                    {getRecipeData(submission.recipe_data) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRecipeModal(submission);
+                        }}
+                        className="w-full mb-2 gap-2 text-xs border-primary/50 text-primary hover:bg-primary/10"
+                      >
+                        <ChefHat className="w-3.5 h-3.5" />
+                        Ver receta
+                      </Button>
+                    )}
                     
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full overflow-hidden bg-muted flex-shrink-0">
@@ -570,6 +617,89 @@ const VideosGallery = () => {
           </div>
         </div>
       )}
+
+      {/* Recipe Modal */}
+      <Dialog open={!!recipeModal} onOpenChange={() => setRecipeModal(null)}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-unbounded">
+              <ChefHat className="w-5 h-5 text-primary" />
+              Receta
+            </DialogTitle>
+          </DialogHeader>
+          
+          {recipeModal && getRecipeData(recipeModal.recipe_data) && (
+            <div className="space-y-6">
+              {/* Ingredients */}
+              {getRecipeData(recipeModal.recipe_data)?.ingredients && 
+               getRecipeData(recipeModal.recipe_data)!.ingredients!.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-3 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <span className="text-xs">🥬</span>
+                    </div>
+                    Ingredientes
+                  </h3>
+                  <ul className="space-y-2">
+                    {getRecipeData(recipeModal.recipe_data)!.ingredients!.map((ingredient, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <span className="text-primary mt-1">•</span>
+                        <span>{ingredient}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Steps */}
+              {getRecipeData(recipeModal.recipe_data)?.steps && 
+               getRecipeData(recipeModal.recipe_data)!.steps!.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-3 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <ListOrdered className="w-3 h-3 text-blue-500" />
+                    </div>
+                    Preparación
+                  </h3>
+                  <ol className="space-y-3">
+                    {getRecipeData(recipeModal.recipe_data)!.steps!.map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-sm">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <span className="pt-0.5">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Utensils */}
+              {getRecipeData(recipeModal.recipe_data)?.utensils && 
+               getRecipeData(recipeModal.recipe_data)!.utensils!.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-3 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center">
+                      <UtensilsCrossed className="w-3 h-3 text-orange-500" />
+                    </div>
+                    Utensilios
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {getRecipeData(recipeModal.recipe_data)!.utensils!.map((utensil, idx) => (
+                      <span 
+                        key={idx} 
+                        className="px-3 py-1 rounded-full bg-muted text-sm"
+                      >
+                        {utensil}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

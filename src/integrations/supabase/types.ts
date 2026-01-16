@@ -53,8 +53,11 @@ export type Database = {
           description: string | null
           id: string
           likes_count: number
+          recipe_data: Json | null
           status: string
           thumbnail_url: string | null
+          transcription: string | null
+          transcription_status: string | null
           user_id: string
           video_url: string
         }
@@ -64,8 +67,11 @@ export type Database = {
           description?: string | null
           id?: string
           likes_count?: number
+          recipe_data?: Json | null
           status?: string
           thumbnail_url?: string | null
+          transcription?: string | null
+          transcription_status?: string | null
           user_id: string
           video_url: string
         }
@@ -75,8 +81,11 @@ export type Database = {
           description?: string | null
           id?: string
           likes_count?: number
+          recipe_data?: Json | null
           status?: string
           thumbnail_url?: string | null
+          transcription?: string | null
+          transcription_status?: string | null
           user_id?: string
           video_url?: string
         }

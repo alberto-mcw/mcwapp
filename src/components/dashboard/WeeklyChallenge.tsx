@@ -12,7 +12,8 @@ import {
   Check, 
   Calendar,
   Zap,
-  Clock
+  Clock,
+  Sparkles
 } from 'lucide-react';
 
 interface Challenge {
@@ -29,6 +30,7 @@ interface Submission {
   video_url: string;
   status: string;
   created_at: string;
+  transcription_status?: string;
 }
 
 export const WeeklyChallenge = () => {
@@ -39,6 +41,7 @@ export const WeeklyChallenge = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [description, setDescription] = useState('');
+  const [processingAI, setProcessingAI] = useState(false);
 
   useEffect(() => {
     fetchChallengeAndSubmission();
@@ -65,7 +68,7 @@ export const WeeklyChallenge = () => {
         if (user) {
           const { data: submissions } = await supabase
             .from('challenge_submissions')
-            .select('*')
+            .select('id, video_url, status, created_at, transcription_status')
             .eq('user_id', user.id)
             .eq('challenge_id', challenges[0].id)
             .limit(1);
@@ -106,6 +109,75 @@ export const WeeklyChallenge = () => {
       
       video.src = URL.createObjectURL(file);
     });
+  };
+
+  const processVideoWithAI = async (submissionId: string, videoUrl: string) => {
+    setProcessingAI(true);
+    try {
+      // Step 1: Transcribe the video
+      toast({
+        title: '🎙️ Transcribiendo vídeo...',
+        description: 'La IA está escuchando tu receta'
+      });
+
+      const transcribeResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-video`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ submissionId, videoUrl })
+        }
+      );
+
+      if (!transcribeResponse.ok) {
+        const error = await transcribeResponse.json();
+        throw new Error(error.error || 'Error en la transcripción');
+      }
+
+      // Step 2: Extract recipe from transcription
+      toast({
+        title: '🍳 Extrayendo receta...',
+        description: 'La IA está organizando los ingredientes y pasos'
+      });
+
+      const extractResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-recipe`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ submissionId })
+        }
+      );
+
+      if (!extractResponse.ok) {
+        const error = await extractResponse.json();
+        throw new Error(error.error || 'Error al extraer la receta');
+      }
+
+      toast({
+        title: '✨ ¡Receta extraída!',
+        description: 'Tu receta está lista para ser vista'
+      });
+
+      // Refresh submission to get updated status
+      fetchChallengeAndSubmission();
+
+    } catch (error) {
+      console.error('AI processing error:', error);
+      toast({
+        title: 'Error de IA',
+        description: error instanceof Error ? error.message : 'No se pudo procesar el vídeo',
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingAI(false);
+    }
   };
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,24 +234,29 @@ export const WeeklyChallenge = () => {
         .getPublicUrl(fileName);
 
       // Create submission
-      const { error: submitError } = await supabase
+      const { data: newSubmission, error: submitError } = await supabase
         .from('challenge_submissions')
         .insert({
           user_id: user.id,
           challenge_id: challenge.id,
           video_url: publicUrl,
-          description: description || null
-        });
+          description: description || null,
+          transcription_status: 'pending'
+        })
+        .select('id, video_url, status, created_at, transcription_status')
+        .single();
 
       if (submitError) throw submitError;
 
       toast({
         title: '🎬 ¡Vídeo subido!',
-        description: 'Tu participación está pendiente de revisión'
+        description: 'Procesando con IA...'
       });
 
-      // Refresh submission
-      fetchChallengeAndSubmission();
+      setSubmission(newSubmission);
+
+      // Process with AI (transcribe + extract recipe)
+      await processVideoWithAI(newSubmission.id, publicUrl);
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -284,6 +361,25 @@ export const WeeklyChallenge = () => {
                 )}
               </div>
             </div>
+
+            {/* AI Processing Status */}
+            {(processingAI || submission.transcription_status === 'processing' || submission.transcription_status === 'transcribed') && (
+              <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+                <span className="text-sm text-purple-400">
+                  {submission.transcription_status === 'transcribed' 
+                    ? 'Extrayendo receta...' 
+                    : 'Transcribiendo vídeo...'}
+                </span>
+              </div>
+            )}
+
+            {submission.transcription_status === 'complete' && (
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-400" />
+                <span className="text-sm text-green-400">¡Receta extraída! Ver en galería</span>
+              </div>
+            )}
 
             {/* Show submitted video in 9:16 aspect ratio */}
             <div className="flex justify-center">
