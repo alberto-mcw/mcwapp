@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MasterChefLogo } from "./MasterChefLogo";
-import { Menu, X, Download, User, LogIn } from "lucide-react";
+import { Menu, X, Download, User, LogIn, Shield } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 
 const navItems = [
   { label: "Ranking", href: "/ranking" },
@@ -16,6 +17,7 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, loading } = useAuth();
+  const { isAdmin } = useAdmin();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -56,12 +58,22 @@ export const Header = () => {
             </Button>
             {!loading && (
               user ? (
-                <Button asChild size="sm" className="gap-2">
-                  <Link to="/dashboard">
-                    <User className="w-4 h-4" />
-                    Mi Zona
-                  </Link>
-                </Button>
+                <>
+                  <Button asChild size="sm" className="gap-2">
+                    <Link to="/dashboard">
+                      <User className="w-4 h-4" />
+                      Mi Zona
+                    </Link>
+                  </Button>
+                  {isAdmin && (
+                    <Button asChild size="sm" variant="outline" className="gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                      <Link to="/admin">
+                        <Shield className="w-4 h-4" />
+                        Admin
+                      </Link>
+                    </Button>
+                  )}
+                </>
               ) : (
                 <Button asChild size="sm" className="gap-2">
                   <Link to="/auth">
@@ -110,12 +122,22 @@ export const Header = () => {
                 </Button>
                 {!loading && (
                   user ? (
-                    <Button asChild size="sm" className="gap-2 w-full">
-                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                        <User className="w-4 h-4" />
-                        Mi Zona
-                      </Link>
-                    </Button>
+                    <>
+                      <Button asChild size="sm" className="gap-2 w-full">
+                        <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                          <User className="w-4 h-4" />
+                          Mi Zona
+                        </Link>
+                      </Button>
+                      {isAdmin && (
+                        <Button asChild size="sm" variant="outline" className="gap-2 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                          <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                            <Shield className="w-4 h-4" />
+                            Admin
+                          </Link>
+                        </Button>
+                      )}
+                    </>
                   ) : (
                     <Button asChild size="sm" className="gap-2 w-full">
                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
