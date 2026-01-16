@@ -9,11 +9,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+
+const CHEF_AVATARS = [
+  { emoji: '🧑‍🍳', label: 'Chef' },
+  { emoji: '🍳', label: 'Huevo frito' },
+  { emoji: '🥘', label: 'Paella' },
+  { emoji: '🍲', label: 'Olla' },
+  { emoji: '🔪', label: 'Cuchillo' },
+  { emoji: '🥄', label: 'Cuchara' },
+  { emoji: '🍴', label: 'Cubiertos' },
+  { emoji: '🥗', label: 'Ensalada' },
+  { emoji: '🍕', label: 'Pizza' },
+  { emoji: '🍰', label: 'Tarta' },
+];
 import { 
   User, 
   MapPin, 
   Instagram, 
-  Twitter, 
   Loader2, 
   Save,
   ArrowLeft,
@@ -31,8 +44,7 @@ const ProfilePage = () => {
     bio: '',
     city: '',
     instagram_handle: '',
-    tiktok_handle: '',
-    twitter_handle: ''
+    tiktok_handle: ''
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -50,8 +62,7 @@ const ProfilePage = () => {
         bio: profile.bio || '',
         city: profile.city || '',
         instagram_handle: profile.instagram_handle || '',
-        tiktok_handle: profile.tiktok_handle || '',
-        twitter_handle: profile.twitter_handle || ''
+        tiktok_handle: profile.tiktok_handle || ''
       });
     }
   }, [profile]);
@@ -147,39 +158,72 @@ const ProfilePage = () => {
             <h1 className="font-unbounded text-2xl font-bold mb-6">Editar Perfil</h1>
 
             {/* Avatar Section */}
-            <div className="flex flex-col items-center mb-8">
-              <div className="relative group">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border-2 border-primary/30">
-                  {profile.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt="Avatar" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-10 h-10 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                  {isUploading ? (
-                    <Loader2 className="w-6 h-6 text-white animate-spin" />
-                  ) : (
-                    <Camera className="w-6 h-6 text-white" />
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                    disabled={isUploading}
-                  />
-                </label>
+            <div className="mb-8">
+              <Label className="block mb-3">Tu avatar</Label>
+              
+              {/* Emoji avatars grid */}
+              <div className="grid grid-cols-5 gap-2 mb-4">
+                {CHEF_AVATARS.map((avatar) => {
+                  const isSelected = profile.avatar_url === avatar.emoji;
+                  return (
+                    <button
+                      key={avatar.emoji}
+                      type="button"
+                      onClick={async () => {
+                        await updateProfile({ avatar_url: avatar.emoji });
+                        toast({
+                          title: '¡Avatar actualizado!',
+                          description: 'Tu avatar se ha cambiado'
+                        });
+                      }}
+                      className={cn(
+                        "aspect-square rounded-xl text-3xl flex items-center justify-center transition-all border-2",
+                        isSelected
+                          ? "border-primary bg-primary/10 scale-105 shadow-lg"
+                          : "border-border bg-background hover:border-primary/50 hover:bg-muted"
+                      )}
+                      title={avatar.label}
+                    >
+                      {avatar.emoji}
+                    </button>
+                  );
+                })}
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Haz clic para cambiar tu foto
-              </p>
+              
+              {/* Custom photo upload */}
+              <div className="flex items-center gap-4 p-4 border border-dashed border-border rounded-xl">
+                <div className="relative group">
+                  <div className="w-16 h-16 rounded-full overflow-hidden bg-muted border-2 border-primary/30 flex items-center justify-center">
+                    {profile.avatar_url && !CHEF_AVATARS.some(a => a.emoji === profile.avatar_url) ? (
+                      <img 
+                        src={profile.avatar_url} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Camera className="w-6 h-6 text-muted-foreground" />
+                    )}
+                  </div>
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    {isUploading ? (
+                      <Loader2 className="w-5 h-5 text-white animate-spin" />
+                    ) : (
+                      <Camera className="w-5 h-5 text-white" />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </label>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">O sube tu propia foto</p>
+                  <p className="text-xs text-muted-foreground">Haz clic en el círculo para subir una imagen</p>
+                </div>
+              </div>
             </div>
 
             {/* Form */}
@@ -263,20 +307,6 @@ const ProfilePage = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="twitter_handle" className="flex items-center gap-2">
-                      <Twitter className="w-4 h-4 text-primary" />
-                      Twitter / X
-                    </Label>
-                    <Input
-                      id="twitter_handle"
-                      name="twitter_handle"
-                      value={formData.twitter_handle}
-                      onChange={handleChange}
-                      placeholder="@tu_usuario"
-                      className="bg-background"
-                    />
-                  </div>
                 </div>
               </div>
 

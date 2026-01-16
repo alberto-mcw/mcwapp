@@ -11,6 +11,20 @@ import { Flame, Mail, Lock, User, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+
+const CHEF_AVATARS = [
+  { emoji: '🧑‍🍳', label: 'Chef' },
+  { emoji: '🍳', label: 'Huevo frito' },
+  { emoji: '🥘', label: 'Paella' },
+  { emoji: '🍲', label: 'Olla' },
+  { emoji: '🔪', label: 'Cuchillo' },
+  { emoji: '🥄', label: 'Cuchara' },
+  { emoji: '🍴', label: 'Cubiertos' },
+  { emoji: '🥗', label: 'Ensalada' },
+  { emoji: '🍕', label: 'Pizza' },
+  { emoji: '🍰', label: 'Tarta' },
+];
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -18,7 +32,8 @@ const loginSchema = z.object({
 });
 
 const signupSchema = loginSchema.extend({
-  displayName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres')
+  displayName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  avatar: z.string().min(1, 'Selecciona un avatar')
 });
 
 const Auth = () => {
@@ -26,6 +41,7 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -45,7 +61,7 @@ const Auth = () => {
       if (mode === 'login') {
         loginSchema.parse({ email, password });
       } else if (mode === 'signup') {
-        signupSchema.parse({ email, password, displayName });
+        signupSchema.parse({ email, password, displayName, avatar: selectedAvatar });
       } else {
         z.string().email('Email inválido').parse(email);
       }
@@ -129,7 +145,7 @@ const Auth = () => {
           });
         }
       } else {
-        const { error } = await signUp(email, password, displayName);
+        const { error } = await signUp(email, password, displayName, selectedAvatar);
         if (error) {
           if (error.message.includes('already registered')) {
             toast({
@@ -200,23 +216,52 @@ const Auth = () => {
           <div className="bg-card border border-border rounded-2xl p-6 shadow-xl">
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === 'signup' && (
-                <div className="space-y-2">
-                  <Label htmlFor="displayName" className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" />
-                    Nombre
-                  </Label>
-                  <Input
-                    id="displayName"
-                    type="text"
-                    placeholder="Tu nombre de chef"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="bg-background border-border"
-                  />
-                  {errors.displayName && (
-                    <p className="text-sm text-destructive">{errors.displayName}</p>
-                  )}
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="displayName" className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-primary" />
+                      Nombre de Chef
+                    </Label>
+                    <Input
+                      id="displayName"
+                      type="text"
+                      placeholder="Tu nombre de chef"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="bg-background border-border"
+                    />
+                    {errors.displayName && (
+                      <p className="text-sm text-destructive">{errors.displayName}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="flex items-center gap-2">
+                      Elige tu avatar
+                    </Label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {CHEF_AVATARS.map((avatar) => (
+                        <button
+                          key={avatar.emoji}
+                          type="button"
+                          onClick={() => setSelectedAvatar(avatar.emoji)}
+                          className={cn(
+                            "w-full aspect-square rounded-xl text-3xl flex items-center justify-center transition-all border-2",
+                            selectedAvatar === avatar.emoji
+                              ? "border-primary bg-primary/10 scale-110 shadow-lg"
+                              : "border-border bg-background hover:border-primary/50 hover:bg-muted"
+                          )}
+                          title={avatar.label}
+                        >
+                          {avatar.emoji}
+                        </button>
+                      ))}
+                    </div>
+                    {errors.avatar && (
+                      <p className="text-sm text-destructive">{errors.avatar}</p>
+                    )}
+                  </div>
+                </>
               )}
 
               <div className="space-y-2">
