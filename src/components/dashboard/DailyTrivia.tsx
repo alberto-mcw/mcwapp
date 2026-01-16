@@ -20,19 +20,22 @@ interface Challenge {
   title: string;
   question: string;
   options: string[];
-  correct_answer?: number; // Only available for AI-generated challenges
+  correct_answer?: number;
   explanation?: string;
   fun_fact?: string;
   difficulty: string;
   energy_reward: number;
 }
 
-interface AnswerResult {
-  correct_answer: number;
+interface SavedResult {
+  challenge: Challenge;
+  selectedAnswer: number;
+  correctAnswer: number;
+  isCorrect: boolean;
   explanation: string;
-  fun_fact: string;
-  is_correct: boolean;
-  energy_reward: number;
+  funFact: string;
+  energyEarned: number;
+  date: string;
 }
 
 interface DailyTriviaProps {
@@ -47,18 +50,20 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [todayCompleted, setTodayCompleted] = useState(false);
-  const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedResult, setSavedResult] = useState<SavedResult | null>(null);
+  const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
+  const [explanation, setExplanation] = useState<string>('');
+  const [funFact, setFunFact] = useState<string>('');
+
+  const getStorageKey = () => `trivia_result_${user?.id}`;
 
   const fetchChallenge = async () => {
     setLoading(true);
     setSelectedAnswer(null);
     setHasAnswered(false);
-    setAnswerResult(null);
     
     try {
-      // First try to get approved trivia for today using the public view (no correct_answer exposed)
       const today = new Date().toISOString().split('T')[0];
       const { data: approvedTrivia, error: triviaError } = await supabase
         .from('daily_trivias_public' as any)
@@ -69,7 +74,6 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
 
       if (approvedTrivia && !triviaError) {
         const triviaData = approvedTrivia as any;
-        // Parse options if it's a string
         const options = typeof triviaData.options === 'string' 
           ? JSON.parse(triviaData.options) 
           : triviaData.options;
@@ -84,7 +88,6 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           energy_reward: triviaData.energy_reward
         });
       } else {
-        // Fallback to AI-generated challenge
         const response = await supabase.functions.invoke('generate-daily-challenge');
         
         if (response.error) {
@@ -108,14 +111,36 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
   // Check if user already completed today's challenge
   useEffect(() => {
     const checkTodayCompletion = () => {
-      const today = new Date().toDateString();
-      const lastCompleted = localStorage.getItem(`trivia_completed_${user?.id}`);
-      if (lastCompleted === today) {
-        setTodayCompleted(true);
-        setLoading(false);
-      } else {
-        fetchChallenge();
+      const today = new Date().toISOString().split('T')[0];
+      const storageKey = getStorageKey();
+      const savedData = localStorage.getItem(storageKey);
+      
+      if (savedData) {
+        try {
+          const parsed: SavedResult = JSON.parse(savedData);
+          // Check if it's from today
+          if (parsed.date === today) {
+            // Restore the saved result
+            setSavedResult(parsed);
+            setChallenge(parsed.challenge);
+            setSelectedAnswer(parsed.selectedAnswer);
+            setCorrectAnswer(parsed.correctAnswer);
+            setIsCorrect(parsed.isCorrect);
+            setExplanation(parsed.explanation);
+            setFunFact(parsed.funFact);
+            setHasAnswered(true);
+            setLoading(false);
+            return;
+          } else {
+            // Clear old result
+            localStorage.removeItem(storageKey);
+          }
+        } catch (e) {
+          localStorage.removeItem(storageKey);
+        }
       }
+      
+      fetchChallenge();
     };
 
     if (user) {
@@ -131,7 +156,10 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
 
     try {
       let correct: boolean;
-      let resultData: AnswerResult | null = null;
+      let resultCorrectAnswer: number;
+      let resultExplanation: string;
+      let resultFunFact: string;
+      let energyEarned: number;
 
       // If it's a database trivia, use the RPC to check answer securely
       if (challenge.id) {
@@ -149,37 +177,41 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           throw new Error(rpcResult.error);
         }
 
-        resultData = {
-          correct_answer: rpcResult.correct_answer,
-          explanation: rpcResult.explanation,
-          fun_fact: rpcResult.fun_fact,
-          is_correct: rpcResult.is_correct,
-          energy_reward: rpcResult.energy_reward
-        };
-        correct = resultData.is_correct;
-        setAnswerResult(resultData);
+        correct = rpcResult.is_correct;
+        resultCorrectAnswer = rpcResult.correct_answer;
+        resultExplanation = rpcResult.explanation;
+        resultFunFact = rpcResult.fun_fact;
+        energyEarned = rpcResult.energy_reward;
       } else {
-        // AI-generated challenge - correct_answer is available
+        // AI-generated challenge
         correct = answerIndex === challenge.correct_answer;
-        resultData = {
-          correct_answer: challenge.correct_answer!,
-          explanation: challenge.explanation || '',
-          fun_fact: challenge.fun_fact || '',
-          is_correct: correct,
-          energy_reward: correct ? challenge.energy_reward : 0
-        };
-        setAnswerResult(resultData);
+        resultCorrectAnswer = challenge.correct_answer!;
+        resultExplanation = challenge.explanation || '';
+        resultFunFact = challenge.fun_fact || '';
+        energyEarned = correct ? challenge.energy_reward : 0;
       }
 
       setHasAnswered(true);
       setIsCorrect(correct);
+      setCorrectAnswer(resultCorrectAnswer);
+      setExplanation(resultExplanation);
+      setFunFact(resultFunFact);
+
+      // Save result to localStorage
+      const today = new Date().toISOString().split('T')[0];
+      const resultToSave: SavedResult = {
+        challenge,
+        selectedAnswer: answerIndex,
+        correctAnswer: resultCorrectAnswer,
+        isCorrect: correct,
+        explanation: resultExplanation,
+        funFact: resultFunFact,
+        energyEarned,
+        date: today
+      };
+      localStorage.setItem(getStorageKey(), JSON.stringify(resultToSave));
 
       if (correct && user) {
-        // Mark as completed for today
-        const today = new Date().toDateString();
-        localStorage.setItem(`trivia_completed_${user.id}`, today);
-        setTodayCompleted(true);
-        
         // Update energy in profiles
         try {
           const { data: profile } = await supabase
@@ -249,22 +281,6 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
     }
   };
 
-  if (todayCompleted && !hasAnswered) {
-    return (
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <div className="text-center py-8">
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-            <Trophy className="w-8 h-8 text-green-500" />
-          </div>
-          <h3 className="font-unbounded font-bold text-lg mb-2">¡Reto completado!</h3>
-          <p className="text-muted-foreground">
-            Vuelve mañana para un nuevo reto culinario
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6">
@@ -289,11 +305,6 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       </div>
     );
   }
-
-  // Get correct answer from result if available
-  const correctAnswer = answerResult?.correct_answer ?? challenge.correct_answer;
-  const explanation = answerResult?.explanation ?? challenge.explanation;
-  const funFact = answerResult?.fun_fact ?? challenge.fun_fact;
 
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -325,11 +336,34 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       <div className="p-6">
         <p className="text-lg mb-6">{challenge.question}</p>
 
+        {/* Completed badge when viewing saved result */}
+        {savedResult && (
+          <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isCorrect ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+              {isCorrect ? (
+                <Trophy className="w-5 h-5 text-green-500" />
+              ) : (
+                <X className="w-5 h-5 text-red-500" />
+              )}
+            </div>
+            <div>
+              <p className="font-medium">
+                {isCorrect ? '¡Acertaste!' : 'Respuesta incorrecta'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {isCorrect 
+                  ? `Ganaste +${challenge.energy_reward} de energía` 
+                  : 'Vuelve mañana para un nuevo reto'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Options */}
         <div className="space-y-3">
           {challenge.options.map((option, index) => {
             const isSelected = selectedAnswer === index;
-            const isCorrectOption = hasAnswered && correctAnswer !== undefined && index === correctAnswer;
+            const isCorrectOption = hasAnswered && correctAnswer !== null && index === correctAnswer;
             
             let optionClass = "w-full p-4 rounded-xl border text-left transition-all ";
             
@@ -402,6 +436,11 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
                 </div>
               </div>
             )}
+
+            {/* Next challenge info */}
+            <div className="text-center pt-2 text-sm text-muted-foreground">
+              El próximo reto estará disponible mañana
+            </div>
           </div>
         )}
       </div>
