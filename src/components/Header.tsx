@@ -8,6 +8,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 
 const navItems = [
   { label: "Ranking", href: "/ranking" },
+  { label: "Galería", href: "/videos" },
   { label: "Calendario", href: "/calendario" },
   { label: "Bases", href: "/bases" },
   { label: "Contacto", href: "/contacto" },
