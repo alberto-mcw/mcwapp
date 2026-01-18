@@ -47,24 +47,48 @@ const signupSchema = loginSchema.extend({
 });
 
 const Auth = () => {
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isRecoverySession, setIsRecoverySession] = useState(false);
   
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Check URL for reset mode and listen for password recovery event
   useEffect(() => {
-    if (user) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'reset') {
+      setMode('reset');
+    }
+
+    // Listen for PASSWORD_RECOVERY event from Supabase
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setMode('reset');
+        setIsRecoverySession(true);
+      } else if (event === 'SIGNED_IN' && !isRecoverySession && session) {
+        // Only redirect if not in recovery flow
+        navigate('/dashboard');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, isRecoverySession]);
+
+  useEffect(() => {
+    // Don't redirect if in reset mode
+    if (user && mode !== 'reset') {
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+  }, [user, navigate, mode]);
 
   const validateForm = () => {
     try {
@@ -90,6 +114,39 @@ const Auth = () => {
         setErrors(newErrors);
       }
       return false;
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (password.length < 6) {
+      setErrors({ password: 'La contraseña debe tener al menos 6 caracteres' });
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrors({ confirmPassword: 'Las contraseñas no coinciden' });
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      
+      if (error) {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: '¡Contraseña actualizada!',
+          description: 'Tu contraseña ha sido cambiada correctamente'
+        });
+        setIsRecoverySession(false);
+        navigate('/dashboard');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,6 +179,10 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (mode === 'reset') {
+      return handleResetPassword();
+    }
     
     if (mode === 'forgot') {
       return handleForgotPassword();
@@ -187,6 +248,7 @@ const Auth = () => {
       case 'login': return 'Accede a tu cuenta';
       case 'signup': return 'Únete al Reto';
       case 'forgot': return 'Recuperar contraseña';
+      case 'reset': return 'Nueva contraseña';
     }
   };
 
@@ -195,6 +257,7 @@ const Auth = () => {
       case 'login': return 'Entra en tu zona de entrenamiento';
       case 'signup': return 'Crea tu perfil y empieza a competir';
       case 'forgot': return 'Te enviaremos un email para restablecer tu contraseña';
+      case 'reset': return 'Introduce tu nueva contraseña';
     }
   };
 
@@ -292,7 +355,56 @@ const Auth = () => {
                 )}
               </div>
 
-              {mode !== 'forgot' && (
+              {mode === 'reset' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-primary" />
+                      Nueva contraseña
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="bg-background border-border pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {errors.password && (
+                      <p className="text-sm text-destructive">{errors.password}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-primary" />
+                      Confirmar contraseña
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="bg-background border-border"
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {mode !== 'forgot' && mode !== 'reset' && (
                 <div className="space-y-2">
                   <Label htmlFor="password" className="flex items-center gap-2">
                     <Lock className="w-4 h-4 text-primary" />
@@ -346,7 +458,7 @@ const Auth = () => {
                 ) : (
                   <Flame className="w-4 h-4 mr-2" />
                 )}
-                {mode === 'login' ? 'Entrar' : mode === 'signup' ? 'Crear cuenta' : 'Enviar email'}
+                {mode === 'login' ? 'Entrar' : mode === 'signup' ? 'Crear cuenta' : mode === 'reset' ? 'Guardar contraseña' : 'Enviar email'}
               </Button>
             </form>
 
