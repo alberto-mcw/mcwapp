@@ -530,84 +530,9 @@ const Admin = () => {
                   {generatingTrivia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   Generar con IA
                 </Button>
-                <Dialog open={isTriviaDialogOpen} onOpenChange={(open) => { setIsTriviaDialogOpen(open); if (!open) resetTriviaForm(); }}>
-                  <DialogTrigger asChild>
-                    <Button className="gap-2"><Plus className="w-4 h-4" />Nuevo Mini Reto</Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>{editingTrivia ? 'Editar Mini Reto' : 'Nuevo Mini Reto Diario'}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 pt-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Fecha programada *</Label>
-                          <Input type="date" value={triviaForm.scheduled_date} onChange={(e) => setTriviaForm({ ...triviaForm, scheduled_date: e.target.value })} />
-                        </div>
-                        <div>
-                          <Label>Tipo</Label>
-                          <Select value={triviaForm.trivia_type} onValueChange={(v) => setTriviaForm({ ...triviaForm, trivia_type: v })}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="trivia">🧠 Trivia</SelectItem>
-                              <SelectItem value="guess_dish">🍽️ Adivinar plato</SelectItem>
-                              <SelectItem value="ingredient">🥄 Ingrediente</SelectItem>
-                              <SelectItem value="technique">👨‍🍳 Técnica</SelectItem>
-                              <SelectItem value="origin">🌍 Origen</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Título *</Label>
-                        <Input value={triviaForm.title} onChange={(e) => setTriviaForm({ ...triviaForm, title: e.target.value })} placeholder="Ej: Maestro de las especias" />
-                      </div>
-                      <div>
-                        <Label>Pregunta *</Label>
-                        <Textarea value={triviaForm.question} onChange={(e) => setTriviaForm({ ...triviaForm, question: e.target.value })} placeholder="¿Cuál es el ingrediente principal del...?" rows={2} />
-                      </div>
-                      <div>
-                        <Label>Opciones * (marca la correcta)</Label>
-                        <div className="space-y-2 mt-2">
-                          {triviaForm.options.map((opt, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <Button type="button" variant={triviaForm.correct_answer === idx ? "default" : "outline"} size="sm" onClick={() => setTriviaForm({ ...triviaForm, correct_answer: idx })} className="w-8 h-8 p-0">
-                                {String.fromCharCode(65 + idx)}
-                              </Button>
-                              <Input value={opt} onChange={(e) => { const newOpts = [...triviaForm.options]; newOpts[idx] = e.target.value; setTriviaForm({ ...triviaForm, options: newOpts }); }} placeholder={`Opción ${String.fromCharCode(65 + idx)}`} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Explicación *</Label>
-                        <Textarea value={triviaForm.explanation} onChange={(e) => setTriviaForm({ ...triviaForm, explanation: e.target.value })} placeholder="Por qué esta es la respuesta correcta..." rows={2} />
-                      </div>
-                      <div>
-                        <Label>Dato curioso *</Label>
-                        <Textarea value={triviaForm.fun_fact} onChange={(e) => setTriviaForm({ ...triviaForm, fun_fact: e.target.value })} placeholder="¿Sabías que...?" rows={2} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Dificultad</Label>
-                          <Select value={triviaForm.difficulty} onValueChange={(v) => setTriviaForm({ ...triviaForm, difficulty: v })}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="fácil">Fácil</SelectItem>
-                              <SelectItem value="medio">Medio</SelectItem>
-                              <SelectItem value="difícil">Difícil</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Energía</Label>
-                          <Input type="number" value={triviaForm.energy_reward} onChange={(e) => setTriviaForm({ ...triviaForm, energy_reward: parseInt(e.target.value) || 25 })} />
-                        </div>
-                      </div>
-                      <Button onClick={handleSaveTrivia} className="w-full">{editingTrivia ? 'Guardar cambios' : 'Guardar mini reto'}</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button onClick={() => { resetTriviaForm(); setIsTriviaDialogOpen(true); }} className="gap-2">
+                  <Plus className="w-4 h-4" />Nuevo Mini Reto
+                </Button>
               </div>
 
               {/* Trivias list - grouped by status */}
@@ -792,6 +717,83 @@ const Admin = () => {
           </Tabs>
         </div>
       </main>
+
+      {/* Trivia Dialog - outside tabs so it works from anywhere */}
+      <Dialog open={isTriviaDialogOpen} onOpenChange={(open) => { setIsTriviaDialogOpen(open); if (!open) resetTriviaForm(); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingTrivia ? 'Editar Mini Reto' : 'Nuevo Mini Reto Diario'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Fecha programada *</Label>
+                <Input type="date" value={triviaForm.scheduled_date} onChange={(e) => setTriviaForm({ ...triviaForm, scheduled_date: e.target.value })} />
+              </div>
+              <div>
+                <Label>Tipo</Label>
+                <Select value={triviaForm.trivia_type} onValueChange={(v) => setTriviaForm({ ...triviaForm, trivia_type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="trivia">🧠 Trivia</SelectItem>
+                    <SelectItem value="guess_dish">🍽️ Adivinar plato</SelectItem>
+                    <SelectItem value="ingredient">🥄 Ingrediente</SelectItem>
+                    <SelectItem value="technique">👨‍🍳 Técnica</SelectItem>
+                    <SelectItem value="origin">🌍 Origen</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Título *</Label>
+              <Input value={triviaForm.title} onChange={(e) => setTriviaForm({ ...triviaForm, title: e.target.value })} placeholder="Ej: Maestro de las especias" />
+            </div>
+            <div>
+              <Label>Pregunta *</Label>
+              <Textarea value={triviaForm.question} onChange={(e) => setTriviaForm({ ...triviaForm, question: e.target.value })} placeholder="¿Cuál es el ingrediente principal del...?" rows={2} />
+            </div>
+            <div>
+              <Label>Opciones * (marca la correcta)</Label>
+              <div className="space-y-2 mt-2">
+                {triviaForm.options.map((opt, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Button type="button" variant={triviaForm.correct_answer === idx ? "default" : "outline"} size="sm" onClick={() => setTriviaForm({ ...triviaForm, correct_answer: idx })} className="w-8 h-8 p-0">
+                      {String.fromCharCode(65 + idx)}
+                    </Button>
+                    <Input value={opt} onChange={(e) => { const newOpts = [...triviaForm.options]; newOpts[idx] = e.target.value; setTriviaForm({ ...triviaForm, options: newOpts }); }} placeholder={`Opción ${String.fromCharCode(65 + idx)}`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label>Explicación *</Label>
+              <Textarea value={triviaForm.explanation} onChange={(e) => setTriviaForm({ ...triviaForm, explanation: e.target.value })} placeholder="Por qué esta es la respuesta correcta..." rows={2} />
+            </div>
+            <div>
+              <Label>Dato curioso *</Label>
+              <Textarea value={triviaForm.fun_fact} onChange={(e) => setTriviaForm({ ...triviaForm, fun_fact: e.target.value })} placeholder="¿Sabías que...?" rows={2} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Dificultad</Label>
+                <Select value={triviaForm.difficulty} onValueChange={(v) => setTriviaForm({ ...triviaForm, difficulty: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fácil">Fácil</SelectItem>
+                    <SelectItem value="medio">Medio</SelectItem>
+                    <SelectItem value="difícil">Difícil</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Energía</Label>
+                <Input type="number" value={triviaForm.energy_reward} onChange={(e) => setTriviaForm({ ...triviaForm, energy_reward: parseInt(e.target.value) || 25 })} />
+              </div>
+            </div>
+            <Button onClick={handleSaveTrivia} className="w-full">{editingTrivia ? 'Guardar cambios' : 'Guardar mini reto'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
