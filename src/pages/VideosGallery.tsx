@@ -64,6 +64,56 @@ interface SubmissionWithProfile extends Submission {
   hasLiked?: boolean;
 }
 
+// Emoji avatars list - same as in ProfileCard
+const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '🍜', '🦪', '🍰', '🔪', '🍏', '🌯', '🍫', '🍔', '🧋', '🍝', '🍦', '🥘', '🍪'];
+
+// Helper to check if avatar is an emoji
+const isEmojiAvatar = (avatarUrl: string | null | undefined): boolean => {
+  return !!avatarUrl && EMOJI_AVATARS.includes(avatarUrl);
+};
+
+// Helper to render avatar properly
+const renderAvatar = (avatarUrl: string | null | undefined, size: 'sm' | 'md' = 'sm') => {
+  const sizeClasses = size === 'sm' ? 'w-7 h-7' : 'w-10 h-10';
+  const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5';
+  const emojiSize = size === 'sm' ? 'text-lg' : 'text-2xl';
+  
+  if (isEmojiAvatar(avatarUrl)) {
+    return (
+      <div className={`${sizeClasses} rounded-full bg-muted flex items-center justify-center flex-shrink-0`}>
+        <span className={emojiSize}>{avatarUrl}</span>
+      </div>
+    );
+  }
+  
+  if (avatarUrl && avatarUrl.startsWith('http')) {
+    return (
+      <div className={`${sizeClasses} rounded-full overflow-hidden bg-muted flex-shrink-0`}>
+        <img 
+          src={avatarUrl} 
+          alt="" 
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            // If image fails to load, replace with ChefHat icon
+            const parent = e.currentTarget.parentElement;
+            if (parent) {
+              e.currentTarget.style.display = 'none';
+              parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-primary/10"><svg class="${iconSize} text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></svg></div>`;
+            }
+          }}
+        />
+      </div>
+    );
+  }
+  
+  // Default: ChefHat icon
+  return (
+    <div className={`${sizeClasses} rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0`}>
+      <ChefHat className={`${iconSize} text-primary`} />
+    </div>
+  );
+};
+
 const VideosGallery = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -433,19 +483,7 @@ const VideosGallery = () => {
                     )}
                     
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                        {submission.profile?.avatar_url ? (
-                          <img 
-                            src={submission.profile.avatar_url} 
-                            alt="" 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <User className="w-3.5 h-3.5 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
+                      {renderAvatar(submission.profile?.avatar_url, 'sm')}
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-muted-foreground truncate">
                           {submission.profile?.display_name || 'Chef Anónimo'} · {new Date(submission.created_at).toLocaleDateString('es-ES', {
@@ -519,19 +557,7 @@ const VideosGallery = () => {
               )}
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                  {selectedVideo.profile?.avatar_url ? (
-                    <img 
-                      src={selectedVideo.profile.avatar_url} 
-                      alt="" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
+                {renderAvatar(selectedVideo.profile?.avatar_url, 'md')}
                 <div>
                   <p className="font-medium">
                     {selectedVideo.profile?.display_name || 'Chef Anónimo'}
