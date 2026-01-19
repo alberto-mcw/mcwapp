@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,11 +6,11 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Play, 
   Loader2, 
   Trophy, 
-  User,
   ArrowRight,
   Heart,
   Zap,
@@ -114,6 +114,151 @@ const renderAvatar = (avatarUrl: string | null | undefined, size: 'sm' | 'md' = 
   );
 };
 
+// VideoGrid component for reuse in tabs
+interface VideoGridProps {
+  videos: SubmissionWithProfile[];
+  user: { id: string } | null;
+  likingIds: Set<string>;
+  onVideoSelect: (video: SubmissionWithProfile) => void;
+  onLike: (id: string, e: React.MouseEvent) => void;
+  onShare: (id: string, e: React.MouseEvent) => void;
+  onRecipeView: (video: SubmissionWithProfile) => void;
+  getRecipeData: (data: unknown) => RecipeData | null;
+  showChallenge: boolean;
+}
+
+const VideoGrid = ({ 
+  videos, 
+  user,
+  likingIds, 
+  onVideoSelect, 
+  onLike, 
+  onShare, 
+  onRecipeView,
+  getRecipeData,
+  showChallenge 
+}: VideoGridProps) => {
+  if (videos.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        No hay vídeos en esta categoría
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {videos.map((submission, index) => {
+        const isOwnVideo = user?.id === submission.user_id;
+        
+        return (
+          <div 
+            key={submission.id}
+            className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/50 transition-all relative"
+          >
+            {/* Ranking badge for top 3 */}
+            {index < 3 && (
+              <div className={`absolute top-2 left-2 z-10 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
+                index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-amber-600'
+              }`}>
+                {index + 1}
+              </div>
+            )}
+            
+            <div className="relative aspect-[9/16] bg-black">
+              <video
+                src={submission.video_url}
+                className="w-full h-full object-contain"
+                onClick={() => onVideoSelect(submission)}
+              />
+              <button
+                onClick={() => onVideoSelect(submission)}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                  <Play className="w-5 h-5 text-white ml-1" />
+                </div>
+              </button>
+              
+              <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                <button
+                  onClick={(e) => onShare(submission.id, e)}
+                  className="flex items-center justify-center w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full hover:bg-black/80 transition-colors"
+                >
+                  <Share2 className="w-4 h-4 text-white" />
+                </button>
+                <button
+                  onClick={(e) => onLike(submission.id, e)}
+                  disabled={likingIds.has(submission.id) || isOwnVideo}
+                  className={`flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 transition-colors ${
+                    isOwnVideo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-black/80'
+                  }`}
+                  title={isOwnVideo ? 'No puedes darte like a ti mismo' : ''}
+                >
+                  <Heart 
+                    className={`w-4 h-4 transition-colors ${
+                      submission.hasLiked 
+                        ? 'fill-red-500 text-red-500' 
+                        : 'text-white'
+                    }`} 
+                  />
+                  <span className="text-white text-sm font-medium">
+                    {submission.likes_count}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-3">
+              {/* Challenge title - only show if showChallenge is true */}
+              {showChallenge && submission.challenges?.title && (
+                <p className="text-xs font-medium text-primary truncate mb-2">
+                  🏆 {submission.challenges.title}
+                </p>
+              )}
+              
+              {/* Description */}
+              {submission.description && (
+                <p className="text-sm text-foreground line-clamp-2 mb-2">
+                  {submission.description}
+                </p>
+              )}
+
+              {/* Ver Receta Button */}
+              {getRecipeData(submission.recipe_data) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRecipeView(submission);
+                  }}
+                  className="w-full mb-2 gap-2 text-xs border-primary/50 text-primary hover:bg-primary/10"
+                >
+                  <ChefHat className="w-3.5 h-3.5" />
+                  Ver receta
+                </Button>
+              )}
+              
+              <div className="flex items-center gap-2">
+                {renderAvatar(submission.profile?.avatar_url, 'sm')}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground truncate">
+                    {submission.profile?.display_name || 'Chef Anónimo'} · {new Date(submission.created_at).toLocaleDateString('es-ES', {
+                      day: 'numeric',
+                      month: 'short'
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const VideosGallery = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -124,6 +269,48 @@ const VideosGallery = () => {
   const [likingIds, setLikingIds] = useState<Set<string>>(new Set());
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
   const [recipeModal, setRecipeModal] = useState<SubmissionWithProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('all');
+
+  // Group submissions by challenge and sort by likes
+  const { challengeTabs, submissionsByChallenge } = useMemo(() => {
+    const grouped: Record<string, SubmissionWithProfile[]> = {};
+    const tabs: { id: string; title: string; count: number }[] = [];
+    
+    // Group by challenge_id
+    submissions.forEach(sub => {
+      const key = sub.challenge_id;
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push(sub);
+    });
+    
+    // Sort each group by likes (descending)
+    Object.keys(grouped).forEach(key => {
+      grouped[key].sort((a, b) => b.likes_count - a.likes_count);
+      const firstSub = grouped[key][0];
+      if (firstSub?.challenges?.title) {
+        tabs.push({
+          id: key,
+          title: firstSub.challenges.title,
+          count: grouped[key].length
+        });
+      }
+    });
+    
+    // Sort tabs by challenge end date (most recent first)
+    tabs.sort((a, b) => {
+      const aEnd = grouped[a.id][0]?.challenges?.ends_at || '';
+      const bEnd = grouped[b.id][0]?.challenges?.ends_at || '';
+      return bEnd.localeCompare(aEnd);
+    });
+    
+    // Create "all" sorted by likes
+    const allSorted = [...submissions].sort((a, b) => b.likes_count - a.likes_count);
+    grouped['all'] = allSorted;
+    
+    return { challengeTabs: tabs, submissionsByChallenge: grouped };
+  }, [submissions]);
 
   const getRecipeData = (data: unknown): RecipeData | null => {
     if (!data || typeof data !== 'object') return null;
@@ -223,14 +410,25 @@ const VideosGallery = () => {
       return;
     }
 
+    // Find the submission
+    const submission = submissions.find(s => s.id === submissionId);
+    if (!submission) return;
+
+    // Prevent self-likes
+    if (submission.user_id === user.id) {
+      toast({
+        title: 'No puedes darte like a ti mismo',
+        description: 'Los likes son para apoyar a otros chefs',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     if (likingIds.has(submissionId)) return;
 
     setLikingIds(prev => new Set(prev).add(submissionId));
 
     try {
-      const submission = submissions.find(s => s.id === submissionId);
-      if (!submission) return;
-
       if (submission.hasLiked) {
         await supabase
           .from('video_likes')
@@ -404,99 +602,55 @@ const VideosGallery = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {submissions.map((submission) => (
-                <div 
-                  key={submission.id}
-                  className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/50 transition-all"
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent p-0">
+                <TabsTrigger 
+                  value="all" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4"
                 >
-                  <div className="relative aspect-[9/16] bg-black">
-                    <video
-                      src={submission.video_url}
-                      className="w-full h-full object-contain"
-                      onClick={() => setSelectedVideo(submission)}
-                    />
-                    <button
-                      onClick={() => setSelectedVideo(submission)}
-                      className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-                        <Play className="w-5 h-5 text-white ml-1" />
-                      </div>
-                    </button>
-                    
-                    <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                      <button
-                        onClick={(e) => handleShare(submission.id, e)}
-                        className="flex items-center justify-center w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full hover:bg-black/80 transition-colors"
-                      >
-                        <Share2 className="w-4 h-4 text-white" />
-                      </button>
-                      <button
-                        onClick={(e) => handleLike(submission.id, e)}
-                        disabled={likingIds.has(submission.id)}
-                        className="flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 hover:bg-black/80 transition-colors"
-                      >
-                        <Heart 
-                          className={`w-4 h-4 transition-colors ${
-                            submission.hasLiked 
-                              ? 'fill-red-500 text-red-500' 
-                              : 'text-white'
-                          }`} 
-                        />
-                        <span className="text-white text-sm font-medium">
-                          {submission.likes_count}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
+                  🏆 Todos ({submissions.length})
+                </TabsTrigger>
+                {challengeTabs.map((tab) => (
+                  <TabsTrigger 
+                    key={tab.id} 
+                    value={tab.id}
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4"
+                  >
+                    {tab.title} ({tab.count})
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-                  <div className="p-3">
-                    {/* Challenge title */}
-                    {submission.challenges?.title && (
-                      <p className="text-xs font-medium text-primary truncate mb-2">
-                        🏆 {submission.challenges.title}
-                      </p>
-                    )}
-                    
-                    {/* Description */}
-                    {submission.description && (
-                      <p className="text-sm text-foreground line-clamp-2 mb-2">
-                        {submission.description}
-                      </p>
-                    )}
+              <TabsContent value="all" className="mt-6">
+                <VideoGrid 
+                  videos={submissionsByChallenge['all'] || []}
+                  user={user}
+                  likingIds={likingIds}
+                  onVideoSelect={setSelectedVideo}
+                  onLike={handleLike}
+                  onShare={handleShare}
+                  onRecipeView={setRecipeModal}
+                  getRecipeData={getRecipeData}
+                  showChallenge={true}
+                />
+              </TabsContent>
 
-                    {/* Ver Receta Button */}
-                    {getRecipeData(submission.recipe_data) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRecipeModal(submission);
-                        }}
-                        className="w-full mb-2 gap-2 text-xs border-primary/50 text-primary hover:bg-primary/10"
-                      >
-                        <ChefHat className="w-3.5 h-3.5" />
-                        Ver receta
-                      </Button>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                      {renderAvatar(submission.profile?.avatar_url, 'sm')}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground truncate">
-                          {submission.profile?.display_name || 'Chef Anónimo'} · {new Date(submission.created_at).toLocaleDateString('es-ES', {
-                            day: 'numeric',
-                            month: 'short'
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {challengeTabs.map((tab) => (
+                <TabsContent key={tab.id} value={tab.id} className="mt-6">
+                  <VideoGrid 
+                    videos={submissionsByChallenge[tab.id] || []}
+                    user={user}
+                    likingIds={likingIds}
+                    onVideoSelect={setSelectedVideo}
+                    onLike={handleLike}
+                    onShare={handleShare}
+                    onRecipeView={setRecipeModal}
+                    getRecipeData={getRecipeData}
+                    showChallenge={false}
+                  />
+                </TabsContent>
               ))}
-            </div>
+            </Tabs>
           )}
         </div>
       </main>
