@@ -40,6 +40,7 @@ interface Submission {
   id: string;
   video_url: string;
   description: string | null;
+  dish_name: string | null;
   created_at: string;
   challenge_id: string;
   user_id: string;
@@ -209,20 +210,35 @@ const VideoGrid = ({
               </div>
             </div>
 
-            <div className="p-3">
-              {/* Challenge title - only show if showChallenge is true */}
+            <div className="p-3 space-y-2">
+              {/* 1. Challenge title - only show if showChallenge is true */}
               {showChallenge && submission.challenges?.title && (
-                <p className="text-xs font-medium text-primary truncate mb-2">
+                <p className="text-xs font-bold text-primary truncate">
                   🏆 {submission.challenges.title}
                 </p>
               )}
               
-              {/* Description */}
-              {submission.description && (
-                <p className="text-sm text-foreground line-clamp-2 mb-2">
-                  {submission.description}
-                </p>
-              )}
+              {/* 2. Dish name */}
+              <p className="text-sm font-semibold text-foreground line-clamp-2">
+                {submission.dish_name || 'Nombre por determinar'}
+              </p>
+
+              {/* 3. Chef avatar and name */}
+              <div className="flex items-center gap-2">
+                {renderAvatar(submission.profile?.avatar_url, 'sm')}
+                <span className="text-xs text-muted-foreground truncate">
+                  {submission.profile?.display_name || 'Chef Anónimo'}
+                </span>
+              </div>
+
+              {/* 4. Upload date */}
+              <p className="text-xs text-muted-foreground">
+                {new Date(submission.created_at).toLocaleDateString('es-ES', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </p>
 
               {/* Ver Receta Button */}
               {getRecipeData(submission.recipe_data) && (
@@ -233,24 +249,12 @@ const VideoGrid = ({
                     e.stopPropagation();
                     onRecipeView(submission);
                   }}
-                  className="w-full mb-2 gap-2 text-xs border-primary/50 text-primary hover:bg-primary/10"
+                  className="w-full gap-2 text-xs border-primary/50 text-primary hover:bg-primary/10"
                 >
                   <ChefHat className="w-3.5 h-3.5" />
                   Ver receta
                 </Button>
               )}
-              
-              <div className="flex items-center gap-2">
-                {renderAvatar(submission.profile?.avatar_url, 'sm')}
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground truncate">
-                    {submission.profile?.display_name || 'Chef Anónimo'} · {new Date(submission.created_at).toLocaleDateString('es-ES', {
-                      day: 'numeric',
-                      month: 'short'
-                    })}
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         );
@@ -345,6 +349,7 @@ const VideosGallery = () => {
           id,
           video_url,
           description,
+          dish_name,
           created_at,
           challenge_id,
           user_id,
