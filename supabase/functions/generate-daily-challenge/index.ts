@@ -134,11 +134,24 @@ correct_answer es el índice (0-3) de la respuesta correcta.`;
     // Parse the JSON response
     let challenge;
     try {
-      // Remove markdown code blocks if present
-      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
+      // Remove markdown code blocks if present (handle various formats)
+      let cleanContent = content
+        .replace(/```json\s*/gi, '')
+        .replace(/```\s*/g, '')
+        .trim();
+      
+      // Try to extract JSON object if there's extra text
+      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanContent = jsonMatch[0];
+      }
+      
+      console.log("Attempting to parse:", cleanContent.substring(0, 200));
       challenge = JSON.parse(cleanContent);
     } catch (e) {
-      console.error("Error parsing AI response");
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      console.error("Error parsing AI response:", errorMessage);
+      console.error("Raw content:", content.substring(0, 500));
       throw new Error("Error procesando la respuesta");
     }
 
