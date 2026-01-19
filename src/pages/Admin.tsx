@@ -680,26 +680,23 @@ const Admin = () => {
 
                 {['pending', 'approved', 'rejected'].map((status) => (
                   <TabsContent key={status} value={status} className="mt-6">
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
                       {submissions.filter(s => s.status === status).map((submission) => (
-                        <Card key={submission.id}>
-                          <CardContent className="p-4">
-                            <div className="aspect-video rounded-lg overflow-hidden bg-muted mb-4">
+                        <Card key={submission.id} className="overflow-hidden">
+                          <CardContent className="p-2">
+                            <div className="aspect-[9/16] rounded-md overflow-hidden bg-muted mb-2">
                               <video src={submission.video_url} controls className="w-full h-full object-cover" />
                             </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium">{submission.profile?.display_name || submission.profile?.email || 'Usuario'}</span>
-                                <Badge variant={status === 'approved' ? 'default' : status === 'rejected' ? 'destructive' : 'secondary'}>
-                                  {status === 'pending' ? 'Pendiente' : status === 'approved' ? 'Aprobado' : 'Rechazado'}
-                                </Badge>
-                              </div>
-                              {submission.challenge && <p className="text-sm text-muted-foreground">Desafío: {submission.challenge.title}</p>}
-                              <p className="text-xs text-muted-foreground">{format(new Date(submission.created_at), "dd MMM yyyy 'a las' HH:mm", { locale: es })}</p>
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium truncate">{submission.profile?.display_name || submission.profile?.email || 'Usuario'}</p>
+                              {submission.challenge && <p className="text-[10px] text-muted-foreground truncate">{submission.challenge.title}</p>}
+                              <Badge variant={status === 'approved' ? 'default' : status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px] px-1.5 py-0">
+                                {status === 'pending' ? 'Pend.' : status === 'approved' ? 'OK' : 'Rech.'}
+                              </Badge>
                               {status === 'pending' && (
-                                <div className="flex gap-2 pt-2">
-                                  <Button size="sm" onClick={() => handleApproveSubmission(submission)} className="flex-1 gap-1"><Check className="w-4 h-4" />Aprobar</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => handleRejectSubmission(submission.id)} className="flex-1 gap-1"><X className="w-4 h-4" />Rechazar</Button>
+                                <div className="flex gap-1 pt-1">
+                                  <Button size="sm" onClick={() => handleApproveSubmission(submission)} className="flex-1 h-6 text-[10px] px-1"><Check className="w-3 h-3" /></Button>
+                                  <Button size="sm" variant="destructive" onClick={() => handleRejectSubmission(submission.id)} className="flex-1 h-6 text-[10px] px-1"><X className="w-3 h-3" /></Button>
                                 </div>
                               )}
                             </div>
