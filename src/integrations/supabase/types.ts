@@ -270,6 +270,51 @@ export type Database = {
         }
         Relationships: []
       }
+      trivia_completions: {
+        Row: {
+          completed_at: string
+          energy_earned: number
+          id: string
+          is_correct: boolean
+          selected_answer: number
+          trivia_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          energy_earned?: number
+          id?: string
+          is_correct: boolean
+          selected_answer: number
+          trivia_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          energy_earned?: number
+          id?: string
+          is_correct?: boolean
+          selected_answer?: number
+          trivia_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trivia_completions_trivia_id_fkey"
+            columns: ["trivia_id"]
+            isOneToOne: false
+            referencedRelation: "daily_trivias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trivia_completions_trivia_id_fkey"
+            columns: ["trivia_id"]
+            isOneToOne: false
+            referencedRelation: "daily_trivias_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
