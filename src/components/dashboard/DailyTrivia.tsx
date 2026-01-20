@@ -173,9 +173,40 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Migrate localStorage data to database (one-time migration)
+  const migrateLocalStorageToDb = async (savedResult: SavedResult) => {
+    if (!user || !savedResult.challenge.id) return;
+    
+    try {
+      // Check if already migrated
+      const { data: existing } = await supabase
+        .from('trivia_completions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('trivia_id', savedResult.challenge.id)
+        .maybeSingle();
+      
+      if (!existing) {
+        // Migrate to database
+        await supabase
+          .from('trivia_completions')
+          .insert({
+            user_id: user.id,
+            trivia_id: savedResult.challenge.id,
+            is_correct: savedResult.isCorrect,
+            selected_answer: savedResult.selectedAnswer,
+            energy_earned: savedResult.energyEarned
+          });
+        console.log('Migrated trivia completion to database:', savedResult.challenge.id);
+      }
+    } catch (e) {
+      console.error('Error migrating trivia completion:', e);
+    }
+  };
+
   // Check if user already completed today's trivia
   useEffect(() => {
-    const checkTodayCompletion = () => {
+    const checkTodayCompletion = async () => {
       const effectiveDate = getEffectiveTriviaDate();
       const storageKey = getStorageKey();
       const savedData = localStorage.getItem(storageKey);
@@ -185,6 +216,9 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           const parsed: SavedResult = JSON.parse(savedData);
           // Check if it's from the current effective date (8 AM CET cycle)
           if (parsed.effectiveDate === effectiveDate) {
+            // Migrate to database if needed
+            await migrateLocalStorageToDb(parsed);
+            
             // Restore the saved result
             setSavedResult(parsed);
             setChallenge(parsed.challenge);
@@ -197,11 +231,48 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
             setLoading(false);
             return;
           } else {
+            // Before clearing, try to migrate old result
+            if (parsed.challenge.id) {
+              await migrateLocalStorageToDb(parsed);
+            }
             // Clear old result
             localStorage.removeItem(storageKey);
           }
         } catch (e) {
           localStorage.removeItem(storageKey);
+        }
+      }
+      
+      // Also check database for today's completion
+      if (user) {
+        try {
+          const { data: dbCompletion } = await supabase
+            .from('trivia_completions')
+            .select('*, daily_trivias!inner(title, question, options, difficulty, energy_reward)')
+            .eq('user_id', user.id)
+            .eq('daily_trivias.scheduled_date', effectiveDate)
+            .maybeSingle();
+          
+          if (dbCompletion) {
+            // User already completed today's trivia (found in DB)
+            const triviaData = dbCompletion.daily_trivias as any;
+            setChallenge({
+              id: dbCompletion.trivia_id,
+              type: 'trivia',
+              title: triviaData.title,
+              question: triviaData.question,
+              options: triviaData.options,
+              difficulty: triviaData.difficulty,
+              energy_reward: triviaData.energy_reward
+            });
+            setSelectedAnswer(dbCompletion.selected_answer);
+            setIsCorrect(dbCompletion.is_correct);
+            setHasAnswered(true);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error('Error checking DB completion:', e);
         }
       }
       
