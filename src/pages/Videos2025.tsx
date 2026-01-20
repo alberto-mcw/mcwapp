@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SpainEventsMap } from "@/components/SpainEventsMap";
 import { Star, Calendar, Users, MapPin, ChefHat } from "lucide-react";
-
 // YouTube video IDs from the provided URLs
 const featuredVideos = [
   { id: "cTefyqAcbps", isShort: true },
@@ -80,6 +80,9 @@ const Videos2025 = () => {
               ))}
             </div>
           </div>
+
+          {/* Spain Events Map */}
+          <SpainEventsMap />
 
           {/* Coming Soon Notice */}
           <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
