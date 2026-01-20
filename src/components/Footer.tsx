@@ -22,11 +22,14 @@ export const Footer = () => {
             <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
               Privacidad
             </a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="/contacto" className="text-muted-foreground hover:text-primary transition-colors">
               Contacto
             </a>
             <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
               FAQ
+            </a>
+            <a href="/bases" className="text-muted-foreground hover:text-primary transition-colors">
+              Bases
             </a>
           </div>
 

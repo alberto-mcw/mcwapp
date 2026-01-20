@@ -10,8 +10,7 @@ const navItems = [
   { label: "Ranking", href: "/ranking" },
   { label: "Galería", href: "/videos" },
   { label: "Calendario", href: "/calendario" },
-  { label: "Bases", href: "/bases" },
-  { label: "Contacto", href: "/contacto" },
+  { label: "2025", href: "/2025" },
 ];
 
 export const Header = () => {
