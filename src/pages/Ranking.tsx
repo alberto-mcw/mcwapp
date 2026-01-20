@@ -68,10 +68,10 @@ const Ranking = () => {
       setLoadingStats(true);
       
       try {
-        // Fetch trivia completions (from challenge_completions where challenge is trivia type)
-        const { data: completions } = await supabase
-          .from('challenge_completions')
-          .select('id, challenge_id')
+        // Fetch trivia completions from the new trivia_completions table
+        const { data: triviaCompletions } = await supabase
+          .from('trivia_completions')
+          .select('is_correct')
           .eq('user_id', selectedProfile.user_id);
 
         // Fetch weekly challenges completed (approved submissions)
@@ -81,19 +81,13 @@ const Ranking = () => {
           .eq('user_id', selectedProfile.user_id)
           .eq('status', 'approved');
 
-        // For trivias, we count completions (each completion = 1 correct answer)
-        const triviaCorrect = completions?.length || 0;
-        
-        // Get total trivias the user could have participated in (past scheduled trivias)
-        const { count: totalTrivias } = await supabase
-          .from('daily_trivias')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'approved')
-          .lte('scheduled_date', new Date().toISOString().split('T')[0]);
+        // Calculate trivia stats
+        const triviaTotal = triviaCompletions?.length || 0;
+        const triviaCorrect = triviaCompletions?.filter(t => t.is_correct).length || 0;
 
         setProfileStats({
           triviaCorrect,
-          triviaTotal: totalTrivias || 0,
+          triviaTotal,
           challengesCompleted: submissions?.length || 0,
         });
       } catch (error) {

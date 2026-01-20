@@ -276,6 +276,23 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
       };
       localStorage.setItem(getStorageKey(), JSON.stringify(resultToSave));
 
+      // Save trivia completion to database
+      if (user && challenge.id) {
+        try {
+          await supabase
+            .from('trivia_completions')
+            .upsert({
+              user_id: user.id,
+              trivia_id: challenge.id,
+              is_correct: correct,
+              selected_answer: answerIndex,
+              energy_earned: energyEarned
+            }, { onConflict: 'user_id,trivia_id' });
+        } catch (e) {
+          console.error('Error saving trivia completion:', e);
+        }
+      }
+
       if (correct && user) {
         // Update energy in profiles
         try {
