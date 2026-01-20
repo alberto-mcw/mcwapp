@@ -12,7 +12,6 @@ import {
   Check, 
   Clock,
   Zap,
-  Sparkles,
   ChefHat,
   ChevronDown,
   ChevronUp,
@@ -52,7 +51,6 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
   const [uploading, setUploading] = useState(false);
   const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
-  const [processingAI, setProcessingAI] = useState(false);
   const [expanded, setExpanded] = useState(isActive);
 
   // Calculate if submission was on time (if exists)
@@ -94,79 +92,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
     });
   };
 
-  const processVideoWithAI = async (submissionId: string, videoUrl: string) => {
-    setProcessingAI(true);
-    try {
-      // Get user session for authorization
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error('No hay sesión activa');
-      }
-
-      toast({
-        title: '🎙️ Transcribiendo vídeo...',
-        description: 'La IA está escuchando tu receta'
-      });
-
-      const transcribeResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-video`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ submissionId, videoUrl })
-        }
-      );
-
-      if (!transcribeResponse.ok) {
-        const error = await transcribeResponse.json();
-        throw new Error(error.error || 'Error en la transcripción');
-      }
-
-      toast({
-        title: '🍳 Extrayendo receta...',
-        description: 'La IA está organizando los ingredientes y pasos'
-      });
-
-      const extractResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-recipe`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ submissionId })
-        }
-      );
-
-      if (!extractResponse.ok) {
-        const error = await extractResponse.json();
-        throw new Error(error.error || 'Error al extraer la receta');
-      }
-
-      toast({
-        title: '✨ ¡Receta extraída!',
-        description: 'Tu receta está lista para ser vista'
-      });
-
-      onSubmissionComplete();
-
-    } catch (error) {
-      console.error('AI processing error:', error);
-      toast({
-        title: 'Error de IA',
-        description: error instanceof Error ? error.message : 'No se pudo procesar el vídeo',
-        variant: 'destructive'
-      });
-    } finally {
-      setProcessingAI(false);
-    }
-  };
+  // AI transcription disabled - videos are reviewed manually by admins
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -243,10 +169,10 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
       toast({
         title: '🎬 ¡Vídeo subido!',
-        description: 'Procesando con IA...'
+        description: 'Pendiente de revisión por los administradores'
       });
 
-      await processVideoWithAI(newSubmission.id, publicUrl);
+      onSubmissionComplete();
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -382,23 +308,6 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                 </div>
               </div>
 
-              {(processingAI || submission.transcription_status === 'processing' || submission.transcription_status === 'transcribed') && (
-                <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-                  <span className="text-sm text-purple-400">
-                    {submission.transcription_status === 'transcribed' 
-                      ? 'Extrayendo receta...' 
-                      : 'Transcribiendo vídeo...'}
-                  </span>
-                </div>
-              )}
-
-              {submission.transcription_status === 'complete' && (
-                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-green-400">¡Receta extraída! Ver en galería</span>
-                </div>
-              )}
 
               <div className="flex justify-center">
                 <div className="w-full max-w-[200px] aspect-[9/16] rounded-xl overflow-hidden bg-black">

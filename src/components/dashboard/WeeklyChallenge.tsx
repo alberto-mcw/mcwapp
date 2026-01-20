@@ -8,13 +8,10 @@ import { Input } from '@/components/ui/input';
 import { 
   Trophy, 
   Upload, 
-  Video, 
   Loader2, 
   Check, 
-  Calendar,
   Zap,
   Clock,
-  Sparkles,
   ChefHat
 } from 'lucide-react';
 
@@ -44,7 +41,6 @@ export const WeeklyChallenge = () => {
   const [uploading, setUploading] = useState(false);
   const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
-  const [processingAI, setProcessingAI] = useState(false);
 
   useEffect(() => {
     fetchChallengeAndSubmission();
@@ -114,74 +110,7 @@ export const WeeklyChallenge = () => {
     });
   };
 
-  const processVideoWithAI = async (submissionId: string, videoUrl: string) => {
-    setProcessingAI(true);
-    try {
-      // Step 1: Transcribe the video
-      toast({
-        title: '🎙️ Transcribiendo vídeo...',
-        description: 'La IA está escuchando tu receta'
-      });
-
-      const transcribeResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-video`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ submissionId, videoUrl })
-        }
-      );
-
-      if (!transcribeResponse.ok) {
-        const error = await transcribeResponse.json();
-        throw new Error(error.error || 'Error en la transcripción');
-      }
-
-      // Step 2: Extract recipe from transcription
-      toast({
-        title: '🍳 Extrayendo receta...',
-        description: 'La IA está organizando los ingredientes y pasos'
-      });
-
-      const extractResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-recipe`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ submissionId })
-        }
-      );
-
-      if (!extractResponse.ok) {
-        const error = await extractResponse.json();
-        throw new Error(error.error || 'Error al extraer la receta');
-      }
-
-      toast({
-        title: '✨ ¡Receta extraída!',
-        description: 'Tu receta está lista para ser vista'
-      });
-
-      // Refresh submission to get updated status
-      fetchChallengeAndSubmission();
-
-    } catch (error) {
-      console.error('AI processing error:', error);
-      toast({
-        title: 'Error de IA',
-        description: error instanceof Error ? error.message : 'No se pudo procesar el vídeo',
-        variant: 'destructive'
-      });
-    } finally {
-      setProcessingAI(false);
-    }
-  };
+  // AI transcription disabled - videos are reviewed manually by admins
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,13 +194,11 @@ export const WeeklyChallenge = () => {
 
       toast({
         title: '🎬 ¡Vídeo subido!',
-        description: 'Procesando con IA...'
+        description: 'Pendiente de revisión por los administradores'
       });
 
       setSubmission(newSubmission);
-
-      // Process with AI (transcribe + extract recipe)
-      await processVideoWithAI(newSubmission.id, publicUrl);
+      fetchChallengeAndSubmission();
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -377,24 +304,6 @@ export const WeeklyChallenge = () => {
               </div>
             </div>
 
-            {/* AI Processing Status */}
-            {(processingAI || submission.transcription_status === 'processing' || submission.transcription_status === 'transcribed') && (
-              <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-                <span className="text-sm text-purple-400">
-                  {submission.transcription_status === 'transcribed' 
-                    ? 'Extrayendo receta...' 
-                    : 'Transcribiendo vídeo...'}
-                </span>
-              </div>
-            )}
-
-            {submission.transcription_status === 'complete' && (
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-green-400">¡Receta extraída! Ver en galería</span>
-              </div>
-            )}
 
             {/* Show submitted video in 9:16 aspect ratio */}
             <div className="flex justify-center">
