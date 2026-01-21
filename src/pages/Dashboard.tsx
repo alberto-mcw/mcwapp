@@ -10,6 +10,7 @@ import { EnergyStats } from '@/components/dashboard/EnergyStats';
 import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
 import { WeeklyChallenges } from '@/components/dashboard/WeeklyChallenges';
 import { QuickActions } from '@/components/dashboard/QuickActions';
+import { SuperLikeNotification } from '@/components/dashboard/SuperLikeNotification';
 import { Button } from '@/components/ui/button';
 import { Loader2, Video, Shield } from 'lucide-react';
 
@@ -55,6 +56,9 @@ const Dashboard = () => {
       
       <main className="flex-1 pt-20 pb-12">
         <div className="container mx-auto px-4">
+          {/* SuperLike Notification */}
+          <SuperLikeNotification userId={user.id} />
+
           {/* Welcome Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
