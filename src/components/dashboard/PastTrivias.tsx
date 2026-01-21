@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Zap, 
@@ -13,7 +12,8 @@ import {
   ChevronUp,
   History,
   Lightbulb,
-  Sparkles
+  Sparkles,
+  RotateCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -90,20 +90,23 @@ const getPastWeekDates = (): string[] => {
 const TriviaCard = ({ 
   trivia, 
   completion, 
-  onAnswer 
+  onAnswer,
+  canRetry = false
 }: { 
   trivia: PastTrivia; 
   completion: TriviaCompletion | null;
   onAnswer: (triviaId: string, answer: number) => Promise<void>;
+  canRetry?: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(completion?.selected_answer ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasAnswered, setHasAnswered] = useState(!!completion);
+  const [hasAnswered, setHasAnswered] = useState(!!completion && !canRetry);
   const [isCorrect, setIsCorrect] = useState(completion?.is_correct ?? false);
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string>('');
   const [funFact, setFunFact] = useState<string>('');
+  const [justAnswered, setJustAnswered] = useState(false);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -124,7 +127,7 @@ const TriviaCard = ({
   };
 
   const handleAnswer = async (answerIndex: number) => {
-    if (hasAnswered || isSubmitting) return;
+    if ((hasAnswered && !canRetry) || isSubmitting || justAnswered) return;
     
     setSelectedAnswer(answerIndex);
     setIsSubmitting(true);
@@ -145,6 +148,7 @@ const TriviaCard = ({
         setExplanation(result.explanation || '');
         setFunFact(result.fun_fact || '');
         setHasAnswered(true);
+        setJustAnswered(true);
       }
     } catch (error) {
       console.error('Error answering trivia:', error);
@@ -154,10 +158,25 @@ const TriviaCard = ({
     }
   };
 
-  // Calculate points for late trivia
-  const pointsToEarn = hasAnswered 
-    ? (isCorrect ? LATE_TRIVIA_CORRECT_POINTS : LATE_TRIVIA_WRONG_POINTS)
-    : LATE_TRIVIA_CORRECT_POINTS;
+  // Determine what points to show
+  const getPointsDisplay = () => {
+    if (justAnswered) {
+      // Just answered - show actual points earned
+      return isCorrect ? LATE_TRIVIA_CORRECT_POINTS : LATE_TRIVIA_WRONG_POINTS;
+    }
+    if (completion && !canRetry) {
+      // Already answered correctly before - show earned points
+      return completion.energy_earned;
+    }
+    if (canRetry) {
+      // Can retry (was wrong before) - show potential points
+      return LATE_TRIVIA_CORRECT_POINTS;
+    }
+    // Not answered - show potential points
+    return LATE_TRIVIA_CORRECT_POINTS;
+  };
+
+  const showAsCompleted = (completion && !canRetry) || justAnswered;
 
   return (
     <div className="border border-border rounded-xl overflow-hidden bg-card/50">
@@ -168,12 +187,14 @@ const TriviaCard = ({
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-            {hasAnswered ? (
-              isCorrect ? (
+            {showAsCompleted ? (
+              isCorrect || (completion?.is_correct && !canRetry) ? (
                 <Check className="w-4 h-4 text-green-500" />
               ) : (
                 <X className="w-4 h-4 text-red-500" />
               )
+            ) : canRetry ? (
+              <RotateCcw className="w-4 h-4 text-amber-500" />
             ) : (
               <History className="w-4 h-4 text-muted-foreground" />
             )}
@@ -190,14 +211,19 @@ const TriviaCard = ({
           )}>
             {trivia.difficulty}
           </span>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <div className={cn(
+            "flex items-center gap-1 text-xs",
+            showAsCompleted 
+              ? ((isCorrect || completion?.is_correct) ? "text-green-500" : "text-red-500")
+              : "text-muted-foreground"
+          )}>
             <Zap className="w-3 h-3" />
-            +{hasAnswered ? (isCorrect ? LATE_TRIVIA_CORRECT_POINTS : LATE_TRIVIA_WRONG_POINTS) : `${LATE_TRIVIA_WRONG_POINTS}-${LATE_TRIVIA_CORRECT_POINTS}`}
+            +{getPointsDisplay()}
           </div>
-          {hasAnswered && (
+          {showAsCompleted && (
             <div className={cn(
               "w-2 h-2 rounded-full",
-              isCorrect ? "bg-green-500" : "bg-red-500"
+              (isCorrect || completion?.is_correct) ? "bg-green-500" : "bg-red-500"
             )} />
           )}
           {expanded ? (
@@ -214,10 +240,13 @@ const TriviaCard = ({
           <p className="text-sm">{trivia.question}</p>
           
           {/* Info banner for late trivias */}
-          {!hasAnswered && (
+          {!showAsCompleted && (
             <div className="text-xs text-amber-500 bg-amber-500/10 p-2 rounded-lg flex items-center gap-2">
               <Clock className="w-3 h-3" />
-              Mini reto pasado: +{LATE_TRIVIA_CORRECT_POINTS} si aciertas, +{LATE_TRIVIA_WRONG_POINTS} si fallas
+              {canRetry 
+                ? `¡Segunda oportunidad! +${LATE_TRIVIA_CORRECT_POINTS} si aciertas`
+                : `Mini reto pasado: +${LATE_TRIVIA_CORRECT_POINTS} si aciertas, +${LATE_TRIVIA_WRONG_POINTS} si fallas`
+              }
             </div>
           )}
 
@@ -225,11 +254,12 @@ const TriviaCard = ({
           <div className="space-y-2">
             {trivia.options.map((option, index) => {
               const isSelected = selectedAnswer === index;
-              const isCorrectOption = hasAnswered && correctAnswer !== null && index === correctAnswer;
+              const showCorrectAnswer = showAsCompleted && correctAnswer !== null;
+              const isCorrectOption = showCorrectAnswer && index === correctAnswer;
               
               let optionClass = "w-full p-3 rounded-lg border text-left text-sm transition-all ";
               
-              if (hasAnswered) {
+              if (showAsCompleted) {
                 if (isCorrectOption) {
                   optionClass += "border-green-500 bg-green-500/10 text-green-500";
                 } else if (isSelected && !isCorrectOption) {
@@ -247,7 +277,7 @@ const TriviaCard = ({
                 <button
                   key={index}
                   onClick={() => handleAnswer(index)}
-                  disabled={hasAnswered || isSubmitting}
+                  disabled={showAsCompleted || isSubmitting}
                   className={optionClass}
                 >
                   <div className="flex items-center justify-between">
@@ -260,10 +290,10 @@ const TriviaCard = ({
                     {isSubmitting && isSelected && (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     )}
-                    {hasAnswered && isCorrectOption && (
+                    {showAsCompleted && isCorrectOption && (
                       <Check className="w-4 h-4 text-green-500" />
                     )}
-                    {hasAnswered && isSelected && !isCorrectOption && (
+                    {showAsCompleted && isSelected && !isCorrectOption && (
                       <X className="w-4 h-4 text-red-500" />
                     )}
                   </div>
@@ -273,17 +303,17 @@ const TriviaCard = ({
           </div>
 
           {/* Result */}
-          {hasAnswered && (
+          {showAsCompleted && (
             <div className="space-y-3 pt-2">
               <div className={cn(
                 "p-3 rounded-lg flex items-center gap-2",
-                isCorrect ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                (isCorrect || completion?.is_correct) ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
               )}>
-                {isCorrect ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                {(isCorrect || completion?.is_correct) ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                 <span className="text-sm font-medium">
-                  {isCorrect 
-                    ? `¡Correcto! +${LATE_TRIVIA_CORRECT_POINTS} energía` 
-                    : `Incorrecto. +${LATE_TRIVIA_WRONG_POINTS} energía de participación`}
+                  {(isCorrect || completion?.is_correct)
+                    ? `¡Correcto! +${justAnswered ? LATE_TRIVIA_CORRECT_POINTS : completion?.energy_earned} energía` 
+                    : `Incorrecto. +${justAnswered ? LATE_TRIVIA_WRONG_POINTS : completion?.energy_earned} energía de participación`}
                 </span>
               </div>
 
@@ -388,10 +418,13 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
       const result = data as any;
       const isCorrect = result.is_correct;
       
+      // Check if user already answered this (retry case)
+      const existingCompletion = completions.find(c => c.trivia_id === triviaId);
+      
       // Calculate late points (different from on-time points)
       const energyEarned = isCorrect ? LATE_TRIVIA_CORRECT_POINTS : LATE_TRIVIA_WRONG_POINTS;
 
-      // Save to trivia_completions
+      // Save to trivia_completions (upsert to handle retries)
       await supabase
         .from('trivia_completions')
         .upsert({
@@ -399,7 +432,9 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
           trivia_id: triviaId,
           is_correct: isCorrect,
           selected_answer: answerIndex,
-          energy_earned: energyEarned
+          energy_earned: existingCompletion 
+            ? existingCompletion.energy_earned + energyEarned 
+            : energyEarned
         }, { onConflict: 'user_id,trivia_id' });
 
       // Update user energy
@@ -442,13 +477,25 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
     return completions.find(c => c.trivia_id === triviaId) || null;
   };
 
-  // Filter out trivias already completed
+  // Separate into 3 groups: unanswered, wrong (can retry), correct
   const uncompletedTrivias = pastTrivias.filter(
     t => !completions.find(c => c.trivia_id === t.id)
   );
-  const completedTrivias = pastTrivias.filter(
-    t => completions.find(c => c.trivia_id === t.id)
+  const wrongTrivias = pastTrivias.filter(
+    t => {
+      const completion = completions.find(c => c.trivia_id === t.id);
+      return completion && !completion.is_correct;
+    }
   );
+  const correctTrivias = pastTrivias.filter(
+    t => {
+      const completion = completions.find(c => c.trivia_id === t.id);
+      return completion && completion.is_correct;
+    }
+  );
+
+  // Count actionable items (unanswered + wrong that can retry)
+  const actionableCount = uncompletedTrivias.length + wrongTrivias.length;
 
   if (loading) {
     return (
@@ -476,16 +523,16 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
           <div className="text-left">
             <h3 className="font-unbounded font-bold text-sm">Mini Retos Anteriores</h3>
             <p className="text-xs text-muted-foreground">
-              {uncompletedTrivias.length > 0 
-                ? `${uncompletedTrivias.length} pendiente${uncompletedTrivias.length > 1 ? 's' : ''} de responder`
-                : 'Todos completados esta semana'}
+              {actionableCount > 0 
+                ? `${actionableCount} disponible${actionableCount > 1 ? 's' : ''} para responder`
+                : 'Todos acertados esta semana'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {uncompletedTrivias.length > 0 && (
+          {actionableCount > 0 && (
             <span className="text-xs text-amber-500 bg-amber-500/10 px-2 py-1 rounded-full">
-              +{LATE_TRIVIA_WRONG_POINTS}-{LATE_TRIVIA_CORRECT_POINTS} pts
+              +{LATE_TRIVIA_CORRECT_POINTS} pts
             </span>
           )}
           {expanded ? (
@@ -513,21 +560,45 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
                   trivia={trivia}
                   completion={null}
                   onAnswer={handleAnswer}
+                  canRetry={false}
                 />
               ))}
             </div>
           )}
 
-          {/* Completed trivias */}
-          {completedTrivias.length > 0 && (
+          {/* Wrong trivias - can retry */}
+          {wrongTrivias.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Completados</p>
-              {completedTrivias.map(trivia => (
+              <p className="text-xs font-medium text-amber-500 flex items-center gap-1">
+                <RotateCcw className="w-3 h-3" />
+                Segunda oportunidad
+              </p>
+              {wrongTrivias.map(trivia => (
                 <TriviaCard
                   key={trivia.id}
                   trivia={trivia}
                   completion={getCompletionForTrivia(trivia.id)}
                   onAnswer={handleAnswer}
+                  canRetry={true}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Correct trivias */}
+          {correctTrivias.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-green-500 flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                Completados correctamente
+              </p>
+              {correctTrivias.map(trivia => (
+                <TriviaCard
+                  key={trivia.id}
+                  trivia={trivia}
+                  completion={getCompletionForTrivia(trivia.id)}
+                  onAnswer={handleAnswer}
+                  canRetry={false}
                 />
               ))}
             </div>
