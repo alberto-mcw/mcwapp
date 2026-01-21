@@ -8,6 +8,7 @@ import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
 import { EnergyStats } from '@/components/dashboard/EnergyStats';
 import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
+import { PastTrivias } from '@/components/dashboard/PastTrivias';
 import { WeeklyChallenges } from '@/components/dashboard/WeeklyChallenges';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { SuperLikeNotification } from '@/components/dashboard/SuperLikeNotification';
@@ -106,6 +107,9 @@ const Dashboard = () => {
                 <DailyTrivia onEnergyEarned={handleEnergyEarned} />
               </div>
 
+              {/* Past Trivias (last week) */}
+              <PastTrivias onEnergyEarned={handleEnergyEarned} />
+
               {/* Weekly Challenges */}
               <div>
                 <h2 className="font-unbounded text-xl font-bold flex items-center gap-2 mb-4">
@@ -125,18 +129,30 @@ const Dashboard = () => {
               {/* Info Card */}
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h3 className="font-unbounded font-bold mb-3">📱 ¿Cómo ganar más energía?</h3>
-                <ul className="space-y-2 text-muted-foreground">
+                <ul className="space-y-2 text-muted-foreground text-sm">
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Completa el trivia culinario diario (+25 energía)
+                    Mini Reto Diario a tiempo: +30 acertando, +2 fallando
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Participa en el desafío semanal con vídeo (+100 energía)
+                    Mini Reto Diario tardío: +15 acertando, +1 fallando
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Síguenos en Instagram para +50 energía
+                    Desafío Semanal a tiempo: +100 energía
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-primary">•</span>
+                    Desafío Semanal tardío: +50 energía
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-primary">•</span>
+                    Recibir likes en tus vídeos: +1 por like
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-primary">•</span>
+                    SuperLike de Admin (TOP): +50 energía
                   </li>
                 </ul>
               </div>

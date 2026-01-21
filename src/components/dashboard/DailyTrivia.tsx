@@ -14,6 +14,10 @@ import {
   Clock
 } from 'lucide-react';
 
+// Points for on-time trivias (from points document)
+const ON_TIME_TRIVIA_CORRECT_POINTS = 30;
+const ON_TIME_TRIVIA_WRONG_POINTS = 2;
+
 interface Challenge {
   id?: string;
   type: string;
@@ -317,14 +321,15 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
         resultCorrectAnswer = rpcResult.correct_answer;
         resultExplanation = rpcResult.explanation;
         resultFunFact = rpcResult.fun_fact;
-        energyEarned = rpcResult.energy_reward;
+        // Use standardized points (30 correct / 2 wrong)
+        energyEarned = correct ? ON_TIME_TRIVIA_CORRECT_POINTS : ON_TIME_TRIVIA_WRONG_POINTS;
       } else {
         // AI-generated challenge
         correct = answerIndex === challenge.correct_answer;
         resultCorrectAnswer = challenge.correct_answer!;
         resultExplanation = challenge.explanation || '';
         resultFunFact = challenge.fun_fact || '';
-        energyEarned = correct ? challenge.energy_reward : 0;
+        energyEarned = correct ? ON_TIME_TRIVIA_CORRECT_POINTS : ON_TIME_TRIVIA_WRONG_POINTS;
       }
 
       setHasAnswered(true);
@@ -364,8 +369,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
         }
       }
 
-      if (correct && user) {
-        // Update energy in profiles
+      if (user) {
+        // Update energy in profiles (both correct and wrong get points now)
         try {
           const { data: profile } = await supabase
             .from('profiles')
@@ -377,29 +382,34 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
             await supabase
               .from('profiles')
               .update({ 
-                total_energy: profile.total_energy + challenge.energy_reward,
+                total_energy: profile.total_energy + energyEarned,
                 updated_at: new Date().toISOString()
               })
               .eq('user_id', user.id);
           }
           
-          onEnergyEarned?.(challenge.energy_reward);
-          toast({
-            title: '🎉 ¡Correcto!',
-            description: `Has ganado +${challenge.energy_reward} de energía`
-          });
+          onEnergyEarned?.(energyEarned);
+          
+          if (correct) {
+            toast({
+              title: '🎉 ¡Correcto!',
+              description: `Has ganado +${energyEarned} de energía`
+            });
+          } else {
+            toast({
+              title: '❌ Incorrecto',
+              description: `+${energyEarned} energía de participación. ¡Mañana hay otro reto!`
+            });
+          }
         } catch (e) {
           console.error('Error updating energy:', e);
           toast({
-            title: '🎉 ¡Correcto!',
-            description: `Has ganado +${challenge.energy_reward} de energía`
+            title: correct ? '🎉 ¡Correcto!' : '❌ Incorrecto',
+            description: correct 
+              ? `Has ganado +${energyEarned} de energía`
+              : `+${energyEarned} energía de participación`
           });
         }
-      } else if (!correct) {
-        toast({
-          title: '❌ Incorrecto',
-          description: 'No te preocupes, ¡mañana hay otro reto!'
-        });
       }
     } catch (error) {
       console.error('Error handling answer:', error);
@@ -484,7 +494,10 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           </div>
           <div className="flex items-center gap-1 text-primary font-bold">
             <Zap className="w-4 h-4" />
-            +{challenge.energy_reward}
+            +{ON_TIME_TRIVIA_CORRECT_POINTS}
+            <span className="text-xs font-normal text-muted-foreground ml-1">
+              (+{ON_TIME_TRIVIA_WRONG_POINTS} si fallas)
+            </span>
           </div>
         </div>
       </div>
@@ -509,8 +522,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
               </p>
               <p className="text-sm text-muted-foreground">
                 {isCorrect 
-                  ? `Ganaste +${challenge.energy_reward} de energía` 
-                  : 'Vuelve mañana para un nuevo reto'}
+                  ? `Ganaste +${ON_TIME_TRIVIA_CORRECT_POINTS} de energía` 
+                  : `+${ON_TIME_TRIVIA_WRONG_POINTS} energía de participación`}
               </p>
             </div>
           </div>
