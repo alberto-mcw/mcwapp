@@ -13,7 +13,7 @@ import {
   History,
   Lightbulb,
   Sparkles,
-  RotateCcw
+  Timer
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -39,11 +39,25 @@ interface TriviaCompletion {
   is_correct: boolean;
   selected_answer: number;
   energy_earned: number;
+  completed_at: string;
 }
 
 interface PastTriviasProps {
   onEnergyEarned?: (amount: number) => void;
 }
+
+// Check if a completion was on-time (same day before 8 AM next day)
+const wasCompletedOnTime = (completedAt: string, scheduledDate: string): boolean => {
+  const completed = new Date(completedAt);
+  const scheduled = new Date(scheduledDate);
+  
+  // On-time means completed on the scheduled date or before 8 AM the next day
+  const deadlineDate = new Date(scheduled);
+  deadlineDate.setDate(deadlineDate.getDate() + 1);
+  deadlineDate.setHours(8, 0, 0, 0);
+  
+  return completed <= deadlineDate;
+};
 
 // Get the effective trivia date based on 8 AM CET reset
 const getEffectiveTriviaDate = (): string => {
@@ -90,23 +104,23 @@ const getPastWeekDates = (): string[] => {
 const TriviaCard = ({ 
   trivia, 
   completion, 
-  onAnswer,
-  canRetry = false
+  onAnswer
 }: { 
   trivia: PastTrivia; 
   completion: TriviaCompletion | null;
   onAnswer: (triviaId: string, answer: number) => Promise<void>;
-  canRetry?: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(completion?.selected_answer ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasAnswered, setHasAnswered] = useState(!!completion && !canRetry);
+  const [hasAnswered, setHasAnswered] = useState(!!completion);
   const [isCorrect, setIsCorrect] = useState(completion?.is_correct ?? false);
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string>('');
   const [funFact, setFunFact] = useState<string>('');
   const [justAnswered, setJustAnswered] = useState(false);
+  
+  const wasOnTime = completion ? wasCompletedOnTime(completion.completed_at, trivia.scheduled_date) : false;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -127,7 +141,7 @@ const TriviaCard = ({
   };
 
   const handleAnswer = async (answerIndex: number) => {
-    if ((hasAnswered && !canRetry) || isSubmitting || justAnswered) return;
+    if (hasAnswered || isSubmitting || justAnswered) return;
     
     setSelectedAnswer(answerIndex);
     setIsSubmitting(true);
@@ -164,19 +178,15 @@ const TriviaCard = ({
       // Just answered - show actual points earned
       return isCorrect ? LATE_TRIVIA_CORRECT_POINTS : LATE_TRIVIA_WRONG_POINTS;
     }
-    if (completion && !canRetry) {
-      // Already answered correctly before - show earned points
+    if (completion) {
+      // Already answered before - show earned points
       return completion.energy_earned;
-    }
-    if (canRetry) {
-      // Can retry (was wrong before) - show potential points
-      return LATE_TRIVIA_CORRECT_POINTS;
     }
     // Not answered - show potential points
     return LATE_TRIVIA_CORRECT_POINTS;
   };
 
-  const showAsCompleted = (completion && !canRetry) || justAnswered;
+  const showAsCompleted = !!completion || justAnswered;
 
   return (
     <div className="border border-border rounded-xl overflow-hidden bg-card/50">
@@ -188,13 +198,11 @@ const TriviaCard = ({
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
             {showAsCompleted ? (
-              isCorrect || (completion?.is_correct && !canRetry) ? (
+              isCorrect || completion?.is_correct ? (
                 <Check className="w-4 h-4 text-green-500" />
               ) : (
                 <X className="w-4 h-4 text-red-500" />
               )
-            ) : canRetry ? (
-              <RotateCcw className="w-4 h-4 text-amber-500" />
             ) : (
               <History className="w-4 h-4 text-muted-foreground" />
             )}
@@ -211,6 +219,25 @@ const TriviaCard = ({
           )}>
             {trivia.difficulty}
           </span>
+          
+          {/* Status indicators for answered trivias: correctness + timing */}
+          {showAsCompleted && (
+            <div className="flex items-center gap-1">
+              {/* First emoji: correctness */}
+              {(isCorrect || completion?.is_correct) ? (
+                <Check className="w-4 h-4 text-green-500" />
+              ) : (
+                <X className="w-4 h-4 text-red-500" />
+              )}
+              {/* Second emoji: timing */}
+              {wasOnTime ? (
+                <Check className="w-4 h-4 text-green-500" />
+              ) : (
+                <Timer className="w-4 h-4 text-amber-500" />
+              )}
+            </div>
+          )}
+          
           <div className={cn(
             "flex items-center gap-1 text-xs",
             showAsCompleted 
@@ -220,12 +247,6 @@ const TriviaCard = ({
             <Zap className="w-3 h-3" />
             +{getPointsDisplay()}
           </div>
-          {showAsCompleted && (
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              (isCorrect || completion?.is_correct) ? "bg-green-500" : "bg-red-500"
-            )} />
-          )}
           {expanded ? (
             <ChevronUp className="w-4 h-4 text-muted-foreground" />
           ) : (
@@ -243,10 +264,7 @@ const TriviaCard = ({
           {!showAsCompleted && (
             <div className="text-xs text-amber-500 bg-amber-500/10 p-2 rounded-lg flex items-center gap-2">
               <Clock className="w-3 h-3" />
-              {canRetry 
-                ? `¡Segunda oportunidad! +${LATE_TRIVIA_CORRECT_POINTS} si aciertas`
-                : `Mini reto pasado: +${LATE_TRIVIA_CORRECT_POINTS} si aciertas, +${LATE_TRIVIA_WRONG_POINTS} si fallas`
-              }
+              Mini reto pasado: +{LATE_TRIVIA_CORRECT_POINTS} si aciertas, +{LATE_TRIVIA_WRONG_POINTS} si fallas
             </div>
           )}
 
@@ -383,7 +401,7 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
         if (triviaIds.length > 0) {
           const { data: userCompletions } = await supabase
             .from('trivia_completions')
-            .select('trivia_id, is_correct, selected_answer, energy_earned')
+            .select('trivia_id, is_correct, selected_answer, energy_earned, completed_at')
             .eq('user_id', user.id)
             .in('trivia_id', triviaIds);
 
@@ -477,25 +495,16 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
     return completions.find(c => c.trivia_id === triviaId) || null;
   };
 
-  // Separate into 3 groups: unanswered, wrong (can retry), correct
+  // Separate into 2 groups: unanswered and answered (all responses, regardless of correctness)
   const uncompletedTrivias = pastTrivias.filter(
     t => !completions.find(c => c.trivia_id === t.id)
   );
-  const wrongTrivias = pastTrivias.filter(
-    t => {
-      const completion = completions.find(c => c.trivia_id === t.id);
-      return completion && !completion.is_correct;
-    }
-  );
-  const correctTrivias = pastTrivias.filter(
-    t => {
-      const completion = completions.find(c => c.trivia_id === t.id);
-      return completion && completion.is_correct;
-    }
+  const answeredTrivias = pastTrivias.filter(
+    t => completions.find(c => c.trivia_id === t.id)
   );
 
-  // Count actionable items (unanswered + wrong that can retry)
-  const actionableCount = uncompletedTrivias.length + wrongTrivias.length;
+  // Count actionable items (only unanswered - no retries allowed)
+  const actionableCount = uncompletedTrivias.length;
 
   if (loading) {
     return (
@@ -525,7 +534,7 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
             <p className="text-xs text-muted-foreground">
               {actionableCount > 0 
                 ? `${actionableCount} disponible${actionableCount > 1 ? 's' : ''} para responder`
-                : 'Todos acertados esta semana'}
+                : 'Todos respondidos esta semana'}
             </p>
           </div>
         </div>
@@ -560,45 +569,24 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
                   trivia={trivia}
                   completion={null}
                   onAnswer={handleAnswer}
-                  canRetry={false}
                 />
               ))}
             </div>
           )}
 
-          {/* Wrong trivias - can retry */}
-          {wrongTrivias.length > 0 && (
+          {/* Answered trivias - all responses shown with status indicators */}
+          {answeredTrivias.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-amber-500 flex items-center gap-1">
-                <RotateCcw className="w-3 h-3" />
-                Segunda oportunidad
+              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <History className="w-3 h-3" />
+                Mini Retos respondidos
               </p>
-              {wrongTrivias.map(trivia => (
+              {answeredTrivias.map(trivia => (
                 <TriviaCard
                   key={trivia.id}
                   trivia={trivia}
                   completion={getCompletionForTrivia(trivia.id)}
                   onAnswer={handleAnswer}
-                  canRetry={true}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Correct trivias */}
-          {correctTrivias.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-green-500 flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                Completados correctamente
-              </p>
-              {correctTrivias.map(trivia => (
-                <TriviaCard
-                  key={trivia.id}
-                  trivia={trivia}
-                  completion={getCompletionForTrivia(trivia.id)}
-                  onAnswer={handleAnswer}
-                  canRetry={false}
                 />
               ))}
             </div>
