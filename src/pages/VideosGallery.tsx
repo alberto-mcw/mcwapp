@@ -2,11 +2,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SuperLikeButton } from '@/components/gallery/SuperLikeButton';
 import { 
   Play, 
   Loader2, 
@@ -19,7 +21,8 @@ import {
   X,
   ChefHat,
   UtensilsCrossed,
-  ListOrdered
+  ListOrdered,
+  Star
 } from 'lucide-react';
 import {
   Dialog,
@@ -63,6 +66,7 @@ interface Profile {
 interface SubmissionWithProfile extends Submission {
   profile?: Profile | null;
   hasLiked?: boolean;
+  hasSuperLike?: boolean;
 }
 
 // Emoji avatars list - same as in ProfileCard
@@ -119,11 +123,13 @@ const renderAvatar = (avatarUrl: string | null | undefined, size: 'sm' | 'md' = 
 interface VideoGridProps {
   videos: SubmissionWithProfile[];
   user: { id: string } | null;
+  isAdmin: boolean;
   likingIds: Set<string>;
   onVideoSelect: (video: SubmissionWithProfile) => void;
   onLike: (id: string, e: React.MouseEvent) => void;
   onShare: (id: string, e: React.MouseEvent) => void;
   onRecipeView: (video: SubmissionWithProfile) => void;
+  onSuperLikeChange: (submissionId: string, hasSuperLike: boolean) => void;
   getRecipeData: (data: unknown) => RecipeData | null;
   showChallenge: boolean;
 }
@@ -131,11 +137,13 @@ interface VideoGridProps {
 const VideoGrid = ({ 
   videos, 
   user,
+  isAdmin,
   likingIds, 
   onVideoSelect, 
   onLike, 
   onShare, 
   onRecipeView,
+  onSuperLikeChange,
   getRecipeData,
   showChallenge 
 }: VideoGridProps) => {
@@ -155,8 +163,20 @@ const VideoGrid = ({
         return (
           <div 
             key={submission.id}
-            className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/50 transition-all relative"
+            className={`bg-card border rounded-2xl overflow-hidden group transition-all relative ${
+              submission.hasSuperLike 
+                ? 'border-yellow-500/70 ring-2 ring-yellow-500/30' 
+                : 'border-border hover:border-primary/50'
+            }`}
           >
+            {/* SuperLike badge */}
+            {submission.hasSuperLike && (
+              <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                <Star className="w-3 h-3 fill-white" />
+                TOP
+              </div>
+            )}
+            
             {/* Ranking badge for top 3 */}
             {index < 3 && (
               <div className={`absolute top-2 left-2 z-10 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
@@ -260,6 +280,20 @@ const VideoGrid = ({
                   Ver receta
                 </Button>
               )}
+
+              {/* Admin SuperLike Button */}
+              {isAdmin && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <SuperLikeButton
+                    submissionId={submission.id}
+                    hasSuperLike={submission.hasSuperLike || false}
+                    isAdmin={isAdmin}
+                    onSuperLikeChange={(hasSuperLike) => onSuperLikeChange(submission.id, hasSuperLike)}
+                    chefName={submission.profile?.display_name || 'Chef Anónimo'}
+                    dishName={submission.dish_name || 'Plato sin nombre'}
+                  />
+                </div>
+              )}
             </div>
           </div>
         );
@@ -270,6 +304,7 @@ const VideoGrid = ({
 
 const VideosGallery = () => {
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [submissions, setSubmissions] = useState<SubmissionWithProfile[]>([]);
@@ -394,10 +429,20 @@ const VideosGallery = () => {
         userLikes = likesData?.map(l => l.submission_id) || [];
       }
 
+      // Fetch superlikes
+      const submissionIds = submissionsData.map(s => s.id);
+      const { data: superLikesData } = await supabase
+        .from('super_likes')
+        .select('submission_id')
+        .in('submission_id', submissionIds);
+      
+      const superLikedIds = superLikesData?.map(sl => sl.submission_id) || [];
+
       const submissionsWithProfiles = submissionsData.map(submission => ({
         ...submission,
         profile: profiles?.find(p => p.user_id === submission.user_id) || null,
-        hasLiked: userLikes.includes(submission.id)
+        hasLiked: userLikes.includes(submission.id),
+        hasSuperLike: superLikedIds.includes(submission.id)
       }));
 
       setSubmissions(submissionsWithProfiles);
@@ -635,11 +680,17 @@ const VideosGallery = () => {
                 <VideoGrid 
                   videos={submissionsByChallenge['all'] || []}
                   user={user}
+                  isAdmin={isAdmin}
                   likingIds={likingIds}
                   onVideoSelect={setSelectedVideo}
                   onLike={handleLike}
                   onShare={handleShare}
                   onRecipeView={setRecipeModal}
+                  onSuperLikeChange={(submissionId, hasSuperLike) => {
+                    setSubmissions(prev => prev.map(s => 
+                      s.id === submissionId ? { ...s, hasSuperLike } : s
+                    ));
+                  }}
                   getRecipeData={getRecipeData}
                   showChallenge={true}
                 />
@@ -650,11 +701,17 @@ const VideosGallery = () => {
                   <VideoGrid 
                     videos={submissionsByChallenge[tab.id] || []}
                     user={user}
+                    isAdmin={isAdmin}
                     likingIds={likingIds}
                     onVideoSelect={setSelectedVideo}
                     onLike={handleLike}
                     onShare={handleShare}
                     onRecipeView={setRecipeModal}
+                    onSuperLikeChange={(submissionId, hasSuperLike) => {
+                      setSubmissions(prev => prev.map(s => 
+                        s.id === submissionId ? { ...s, hasSuperLike } : s
+                      ));
+                    }}
                     getRecipeData={getRecipeData}
                     showChallenge={false}
                   />

@@ -270,6 +270,38 @@ export type Database = {
         }
         Relationships: []
       }
+      super_likes: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          energy_awarded: number
+          id: string
+          submission_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          energy_awarded?: number
+          id?: string
+          submission_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          energy_awarded?: number
+          id?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_likes_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "challenge_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trivia_completions: {
         Row: {
           completed_at: string
