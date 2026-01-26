@@ -54,13 +54,18 @@ export type Database = {
           dish_name: string | null
           id: string
           likes_count: number
+          likes_from_metrics: number | null
+          metrics_energy_earned: number | null
+          metrics_screenshot_url: string | null
           recipe_data: Json | null
+          reel_url: string | null
           status: string
           thumbnail_url: string | null
           transcription: string | null
           transcription_status: string | null
           user_id: string
           video_url: string
+          views_count: number | null
         }
         Insert: {
           challenge_id: string
@@ -69,13 +74,18 @@ export type Database = {
           dish_name?: string | null
           id?: string
           likes_count?: number
+          likes_from_metrics?: number | null
+          metrics_energy_earned?: number | null
+          metrics_screenshot_url?: string | null
           recipe_data?: Json | null
+          reel_url?: string | null
           status?: string
           thumbnail_url?: string | null
           transcription?: string | null
           transcription_status?: string | null
           user_id: string
           video_url: string
+          views_count?: number | null
         }
         Update: {
           challenge_id?: string
@@ -84,13 +94,18 @@ export type Database = {
           dish_name?: string | null
           id?: string
           likes_count?: number
+          likes_from_metrics?: number | null
+          metrics_energy_earned?: number | null
+          metrics_screenshot_url?: string | null
           recipe_data?: Json | null
+          reel_url?: string | null
           status?: string
           thumbnail_url?: string | null
           transcription?: string | null
           transcription_status?: string | null
           user_id?: string
           video_url?: string
+          views_count?: number | null
         }
         Relationships: [
           {
