@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { 
@@ -12,10 +11,13 @@ import {
   Check, 
   Clock,
   Zap,
-  ChefHat,
   ChevronDown,
   ChevronUp,
-  History
+  History,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Eye,
+  Heart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,9 +35,13 @@ interface Submission {
   id: string;
   challenge_id: string;
   video_url: string;
+  reel_url: string | null;
   status: string;
   created_at: string;
-  transcription_status?: string;
+  views_count: number | null;
+  likes_from_metrics: number | null;
+  metrics_energy_earned: number | null;
+  metrics_screenshot_url: string | null;
 }
 
 interface ChallengeCardProps {
@@ -49,8 +55,14 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
   const { user } = useAuth();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
-  const [dishName, setDishName] = useState('');
-  const [description, setDescription] = useState('');
+  const [analyzing, setAnalyzing] = useState(false);
+  const [reelUrl, setReelUrl] = useState('');
+  const [metricsPreview, setMetricsPreview] = useState<string | null>(null);
+  const [analyzedMetrics, setAnalyzedMetrics] = useState<{
+    views: number;
+    likes: number;
+    totalEnergy: number;
+  } | null>(null);
   const [expanded, setExpanded] = useState(isActive);
 
   // Calculate if submission was on time (if exists)
@@ -66,71 +78,29 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
   
   const showHalfLabel = submission ? !wasSubmittedOnTime : !isActive;
 
-  const validateVideoAspectRatio = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      
-      video.onloadedmetadata = () => {
-        URL.revokeObjectURL(video.src);
-        const width = video.videoWidth;
-        const height = video.videoHeight;
-        const aspectRatio = width / height;
-        const targetRatio = 9 / 16;
-        const tolerance = 0.1;
-        
-        const isValid = Math.abs(aspectRatio - targetRatio) <= tolerance;
-        resolve(isValid);
-      };
-      
-      video.onerror = () => {
-        URL.revokeObjectURL(video.src);
-        resolve(false);
-      };
-      
-      video.src = URL.createObjectURL(file);
-    });
+  const validateReelUrl = (url: string): boolean => {
+    const instagramPattern = /^https?:\/\/(www\.)?(instagram\.com|instagr\.am)\/(reel|p)\/[\w-]+/i;
+    const tiktokPattern = /^https?:\/\/(www\.)?(tiktok\.com|vm\.tiktok\.com)\/@?[\w.-]+\/(video\/\d+|[\w-]+)/i;
+    return instagramPattern.test(url) || tiktokPattern.test(url);
   };
 
-  // AI transcription disabled - videos are reviewed manually by admins
-
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMetricsUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (!dishName.trim()) {
-      toast({
-        title: 'Nombre del plato requerido',
-        description: 'Por favor escribe el nombre de tu plato antes de subir el vídeo',
-        variant: 'destructive'
-      });
-      e.target.value = '';
-      return;
-    }
-
-    if (!file.type.startsWith('video/')) {
+    if (!file.type.startsWith('image/')) {
       toast({
         title: 'Formato no válido',
-        description: 'Por favor sube un archivo de vídeo',
+        description: 'Por favor sube una imagen (captura de pantalla)',
         variant: 'destructive'
       });
       return;
     }
 
-    if (file.size > 100 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       toast({
         title: 'Archivo demasiado grande',
-        description: 'El vídeo debe ser menor a 100MB',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    const isValidAspect = await validateVideoAspectRatio(file);
-    if (!isValidAspect) {
-      toast({
-        title: 'Formato de vídeo incorrecto',
-        description: 'El vídeo debe estar en formato vertical 9:16 (como TikTok o Reels)',
+        description: 'La imagen debe ser menor a 10MB',
         variant: 'destructive'
       });
       return;
@@ -140,7 +110,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${challenge.id}/video.${fileExt}`;
+      const fileName = `${user.id}/${challenge.id}/metrics.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('challenge-videos')
@@ -152,33 +122,97 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
         .from('challenge-videos')
         .getPublicUrl(fileName);
 
-      const { data: newSubmission, error: submitError } = await supabase
+      setMetricsPreview(publicUrl);
+      
+      // Analyze the screenshot with AI
+      setAnalyzing(true);
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-metrics`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+        },
+        body: JSON.stringify({ imageUrl: publicUrl })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error analyzing metrics');
+      }
+
+      const metrics = await response.json();
+      setAnalyzedMetrics({
+        views: metrics.views,
+        likes: metrics.likes,
+        totalEnergy: metrics.totalEnergy
+      });
+
+      toast({
+        title: '📊 ¡Métricas analizadas!',
+        description: `${metrics.views.toLocaleString()} views, ${metrics.likes.toLocaleString()} likes = +${metrics.totalEnergy} energía`
+      });
+
+    } catch (error) {
+      console.error('Upload/analyze error:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'No se pudo analizar la captura',
+        variant: 'destructive'
+      });
+      setMetricsPreview(null);
+    } finally {
+      setUploading(false);
+      setAnalyzing(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!user || !reelUrl || !metricsPreview || !analyzedMetrics) return;
+
+    if (!validateReelUrl(reelUrl)) {
+      toast({
+        title: 'Enlace no válido',
+        description: 'Por favor introduce un enlace válido de Instagram Reel o TikTok',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const { error: submitError } = await supabase
         .from('challenge_submissions')
         .insert({
           user_id: user.id,
           challenge_id: challenge.id,
-          video_url: publicUrl,
-          dish_name: dishName.trim(),
-          description: description || null,
-          transcription_status: 'pending'
-        })
-        .select('id, video_url, status, created_at, transcription_status')
-        .single();
+          video_url: reelUrl,
+          reel_url: reelUrl,
+          metrics_screenshot_url: metricsPreview,
+          views_count: analyzedMetrics.views,
+          likes_from_metrics: analyzedMetrics.likes,
+          metrics_energy_earned: analyzedMetrics.totalEnergy,
+          status: 'pending'
+        });
 
       if (submitError) throw submitError;
 
       toast({
-        title: '🎬 ¡Vídeo subido!',
+        title: '🎬 ¡Reel enviado!',
         description: 'Pendiente de revisión por los administradores'
       });
 
       onSubmissionComplete();
+      setReelUrl('');
+      setMetricsPreview(null);
+      setAnalyzedMetrics(null);
 
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Submit error:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo subir el vídeo. Inténtalo de nuevo.',
+        description: 'No se pudo enviar. Inténtalo de nuevo.',
         variant: 'destructive'
       });
     } finally {
@@ -282,102 +316,206 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
           {submission ? (
             <div className="space-y-4">
-              <div className={`p-4 rounded-xl border ${
+              <div className={cn(
+                "p-4 rounded-xl border",
                 submission.status === 'approved' 
-                  ? 'border-green-500/50 bg-green-500/10' 
+                  ? 'border-accent bg-accent/10' 
                   : submission.status === 'rejected'
-                  ? 'border-red-500/50 bg-red-500/10'
-                  : 'border-yellow-500/50 bg-yellow-500/10'
-              }`}>
+                  ? 'border-destructive/50 bg-destructive/10'
+                  : 'border-primary/50 bg-primary/10'
+              )}>
                 <div className="flex items-center gap-2">
                   {submission.status === 'approved' ? (
                     <>
-                      <Check className="w-5 h-5 text-green-500" />
-                      <span className="font-medium text-green-500">
+                      <Check className="w-5 h-5 text-accent-foreground" />
+                      <span className="font-medium text-accent-foreground">
                         ¡Aprobado! +{effectiveReward} energía
                       </span>
                     </>
                   ) : submission.status === 'rejected' ? (
-                    <span className="font-medium text-red-500">No aprobado</span>
+                    <span className="font-medium text-destructive">No aprobado</span>
                   ) : (
                     <>
-                      <Loader2 className="w-5 h-5 text-yellow-500 animate-spin" />
-                      <span className="font-medium text-yellow-500">Pendiente de revisión</span>
+                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                      <span className="font-medium text-primary">Pendiente de revisión</span>
                     </>
                   )}
                 </div>
               </div>
 
-
-              <div className="flex justify-center">
-                <div className="w-full max-w-[200px] aspect-[9/16] rounded-xl overflow-hidden bg-black">
-                  <video 
-                    src={submission.video_url} 
-                    controls 
-                    className="w-full h-full object-contain"
-                  />
+              {/* Show submitted info */}
+              <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <LinkIcon className="w-4 h-4 text-primary" />
+                  <a 
+                    href={submission.reel_url || submission.video_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline truncate"
+                  >
+                    {submission.reel_url || submission.video_url}
+                  </a>
                 </div>
+                
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="bg-background rounded-lg p-3">
+                    <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+                      <Eye className="w-4 h-4" />
+                    </div>
+                    <p className="font-bold text-lg">{submission.views_count?.toLocaleString() || 0}</p>
+                    <p className="text-xs text-muted-foreground">views</p>
+                  </div>
+                  <div className="bg-background rounded-lg p-3">
+                    <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                    <p className="font-bold text-lg">{submission.likes_from_metrics?.toLocaleString() || 0}</p>
+                    <p className="text-xs text-muted-foreground">likes</p>
+                  </div>
+                  <div className="bg-background rounded-lg p-3">
+                    <div className="flex items-center justify-center gap-1 text-primary mb-1">
+                      <Zap className="w-4 h-4" />
+                    </div>
+                    <p className="font-bold text-lg text-primary">+{submission.metrics_energy_earned || 0}</p>
+                    <p className="text-xs text-muted-foreground">energía</p>
+                  </div>
+                </div>
+
+                {submission.metrics_screenshot_url && (
+                  <div className="mt-3">
+                    <img 
+                      src={submission.metrics_screenshot_url} 
+                      alt="Captura de métricas" 
+                      className="w-full max-h-48 object-contain rounded-lg"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           ) : (
             <div className="space-y-4">
+              {/* Reel URL input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <ChefHat className="w-4 h-4 text-primary" />
-                  Nombre del plato <span className="text-destructive">*</span>
+                  <LinkIcon className="w-4 h-4 text-primary" />
+                  Enlace al reel <span className="text-destructive">*</span>
                 </label>
                 <Input
-                  placeholder="Ej: Paella valenciana, Tortilla española..."
-                  value={dishName}
-                  onChange={(e) => setDishName(e.target.value)}
+                  placeholder="https://instagram.com/reel/... o https://tiktok.com/..."
+                  value={reelUrl}
+                  onChange={(e) => setReelUrl(e.target.value)}
                   className="bg-background"
-                  maxLength={100}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Pega el enlace de tu Reel de Instagram o vídeo de TikTok
+                </p>
               </div>
 
-              <Textarea
-                placeholder="Describe tu creación (opcional)..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="bg-background resize-none"
-                rows={2}
-              />
-
-              <label className="block">
-                <input
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoUpload}
-                  className="hidden"
-                  disabled={uploading || !dishName.trim()}
-                />
-                <Button 
-                  asChild 
-                  className={cn(
-                    "w-full gap-2",
-                    !dishName.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  )}
-                  disabled={uploading || !dishName.trim()}
-                >
-                  <span>
-                    {uploading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Subiendo vídeo...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4" />
-                        Subir mi vídeo
-                      </>
+              {/* Metrics screenshot upload */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-primary" />
+                  Captura de métricas <span className="text-destructive">*</span>
+                </label>
+                
+                {metricsPreview ? (
+                  <div className="relative">
+                    <img 
+                      src={metricsPreview} 
+                      alt="Captura de métricas" 
+                      className="w-full max-h-48 object-contain rounded-lg border border-border"
+                    />
+                    {analyzing && (
+                      <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
+                        <div className="text-center">
+                          <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto mb-2" />
+                          <p className="text-sm">Analizando métricas...</p>
+                        </div>
+                      </div>
                     )}
-                  </span>
-                </Button>
-              </label>
+                    {analyzedMetrics && (
+                      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                        <div className="bg-muted rounded-lg p-2">
+                          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                            <Eye className="w-3 h-3" />
+                            Views
+                          </div>
+                          <p className="font-bold">{analyzedMetrics.views.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-muted rounded-lg p-2">
+                          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                            <Heart className="w-3 h-3" />
+                            Likes
+                          </div>
+                          <p className="font-bold">{analyzedMetrics.likes.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-primary/10 rounded-lg p-2">
+                          <div className="flex items-center justify-center gap-1 text-xs text-primary">
+                            <Zap className="w-3 h-3" />
+                            Energía
+                          </div>
+                          <p className="font-bold text-primary">+{analyzedMetrics.totalEnergy}</p>
+                        </div>
+                      </div>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2 w-full"
+                      onClick={() => {
+                        setMetricsPreview(null);
+                        setAnalyzedMetrics(null);
+                      }}
+                    >
+                      Cambiar captura
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMetricsUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    <div className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                      {uploading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Sube una captura de las métricas de tu reel
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            (donde se vean views y likes)
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                )}
+              </div>
 
-              <p className="text-xs text-muted-foreground text-center">
-                📱 Formato vertical 9:16 (como TikTok/Reels) · Máximo 100MB
-              </p>
+              {/* Submit button */}
+              <Button 
+                className="w-full gap-2"
+                disabled={uploading || !reelUrl || !metricsPreview || !analyzedMetrics}
+                onClick={handleSubmit}
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4" />
+                    Enviar mi reel
+                  </>
+                )}
+              </Button>
 
               {!isActive && !submission && (
                 <p className="text-xs text-center text-amber-500 bg-amber-500/10 p-2 rounded-lg">
@@ -435,12 +573,12 @@ export const WeeklyChallenges = () => {
           if (challengeIds.length > 0) {
             const { data: userSubmissions } = await supabase
               .from('challenge_submissions')
-              .select('id, challenge_id, video_url, status, created_at, transcription_status')
+              .select('id, challenge_id, video_url, reel_url, status, created_at, views_count, likes_from_metrics, metrics_energy_earned, metrics_screenshot_url')
               .eq('user_id', user.id)
               .in('challenge_id', challengeIds);
 
             if (userSubmissions) {
-              setSubmissions(userSubmissions);
+              setSubmissions(userSubmissions as Submission[]);
             }
           }
         }
