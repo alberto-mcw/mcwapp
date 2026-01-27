@@ -152,7 +152,7 @@ const Dashboard = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    SuperLike de Admin (TOP): +50 energía
+                    SuperLike recibido: +50 energía
                   </li>
                 </ul>
               </div>
