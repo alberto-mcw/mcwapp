@@ -117,20 +117,25 @@ El reto debe ser:
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Servicio temporalmente no disponible. Inténtalo en unos minutos." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 402 || response.status === 500) {
         return new Response(
-          JSON.stringify({ error: "Servicio temporalmente no disponible." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Servicio de IA temporalmente no disponible. Inténtalo en unos minutos." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      console.error("AI gateway error:", response.status);
-      throw new Error("Error en el servicio de generación");
+      return new Response(
+        JSON.stringify({ error: "Error en el servicio de generación. Inténtalo de nuevo." }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
