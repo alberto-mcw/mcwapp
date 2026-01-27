@@ -785,7 +785,7 @@ const Admin = () => {
                               {submission.dish_name && <p className="text-[10px] text-primary font-medium truncate">{submission.dish_name}</p>}
                               {submission.challenge && <p className="text-[10px] text-muted-foreground truncate">{submission.challenge.title}</p>}
                               <Badge variant={status === 'approved' ? 'default' : status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px] px-1.5 py-0">
-                                {status === 'pending' ? 'Pend.' : status === 'approved' ? 'OK' : 'Rech.'}
+                                {status === 'pending' ? 'Pend.' : status === 'approved' ? 'Aprobado' : 'Rech.'}
                               </Badge>
                               {status === 'pending' && (
                                 <div className="flex gap-1 pt-1">
