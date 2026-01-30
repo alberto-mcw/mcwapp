@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const MOBILE_BREAKPOINT = 768;
-
 export const useMobileRedirect = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,13 +11,13 @@ export const useMobileRedirect = () => {
       return;
     }
 
-    // Check if user agent is mobile OR viewport is mobile-sized
+    // ONLY check for actual mobile devices via user agent
+    // This does NOT affect desktop responsive behavior
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
     );
-    const isMobileViewport = window.innerWidth < MOBILE_BREAKPOINT;
 
-    if (isMobileDevice || isMobileViewport) {
+    if (isMobileDevice) {
       // Map desktop routes to mobile routes
       const routeMap: Record<string, string> = {
         '/': '/app',
@@ -38,12 +36,3 @@ export const useMobileRedirect = () => {
   }, [location.pathname, navigate]);
 };
 
-// HOC to wrap pages that should redirect to mobile
-export const withMobileRedirect = <P extends object>(
-  Component: React.ComponentType<P>
-) => {
-  return function WithMobileRedirect(props: P) {
-    useMobileRedirect();
-    return <Component {...props} />;
-  };
-};
