@@ -24,6 +24,7 @@ import AppCalendar from "./pages/app/AppCalendar";
 import AppGallery from "./pages/app/AppGallery";
 import AppProfile from "./pages/app/AppProfile";
 import AppAuth from "./pages/app/AppAuth";
+import AppRanking from "./pages/app/AppRanking";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/app/galeria" element={<AppGallery />} />
             <Route path="/app/perfil" element={<AppProfile />} />
             <Route path="/app/auth" element={<AppAuth />} />
+            <Route path="/app/ranking" element={<AppRanking />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

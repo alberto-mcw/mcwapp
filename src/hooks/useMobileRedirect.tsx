@@ -26,6 +26,7 @@ export const useMobileRedirect = () => {
         '/videos': '/app/galeria',
         '/profile': '/app/perfil',
         '/auth': '/app/auth',
+        '/ranking': '/app/ranking',
       };
 
       const mobileRoute = routeMap[location.pathname];
