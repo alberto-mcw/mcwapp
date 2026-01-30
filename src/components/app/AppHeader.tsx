@@ -10,10 +10,15 @@ interface AppHeaderProps {
 
 export const AppHeader = ({ title, subtitle, rightAction, className }: AppHeaderProps) => {
   return (
-    <header className={cn(
-      "sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3",
-      className
-    )}>
+    <header 
+      className={cn(
+        "sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3",
+        className
+      )}
+      style={{
+        paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))'
+      }}
+    >
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-unbounded text-lg font-bold text-foreground">

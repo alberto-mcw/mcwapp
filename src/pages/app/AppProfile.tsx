@@ -292,7 +292,7 @@ const AppProfile = () => {
         {/* Actions */}
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <Link 
-            to="/ranking"
+            to="/app/ranking"
             className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
           >
             <div className="flex items-center gap-3">
