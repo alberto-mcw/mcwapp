@@ -251,3 +251,19 @@
 .stagger-3 { animation-delay: 0.3s; }
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
+
+/* iOS Safe Area Padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Mobile App specific styles */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-app-container {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

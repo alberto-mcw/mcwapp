@@ -18,6 +18,13 @@ import Videos2025 from "./pages/Videos2025";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
+// Mobile App Pages
+import AppChallenges from "./pages/app/AppChallenges";
+import AppCalendar from "./pages/app/AppCalendar";
+import AppGallery from "./pages/app/AppGallery";
+import AppProfile from "./pages/app/AppProfile";
+import AppAuth from "./pages/app/AppAuth";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -40,6 +47,14 @@ const App = () => (
             <Route path="/videos" element={<VideosGallery />} />
             <Route path="/2025" element={<Videos2025 />} />
             <Route path="/admin" element={<Admin />} />
+            
+            {/* Mobile App Routes */}
+            <Route path="/app" element={<AppChallenges />} />
+            <Route path="/app/calendario" element={<AppCalendar />} />
+            <Route path="/app/galeria" element={<AppGallery />} />
+            <Route path="/app/perfil" element={<AppProfile />} />
+            <Route path="/app/auth" element={<AppAuth />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

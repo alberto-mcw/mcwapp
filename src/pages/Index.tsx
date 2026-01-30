@@ -9,8 +9,10 @@ import { AppSection } from "@/components/AppSection";
 import { InstagramSection } from "@/components/InstagramSection";
 import { RegistrationSection } from "@/components/RegistrationSection";
 import { Footer } from "@/components/Footer";
+import { useMobileRedirect } from "@/hooks/useMobileRedirect";
 
 const Index = () => {
+  useMobileRedirect();
   return (
     <div className="min-h-screen bg-background">
       <Header />
