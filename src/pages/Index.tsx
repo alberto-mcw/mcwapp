@@ -1,14 +1,10 @@
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
-import { WhatIsSection } from "@/components/WhatIsSection";
-import { TimelineSection } from "@/components/TimelineSection";
-import { EnergySection } from "@/components/EnergySection";
-import { RankingSection } from "@/components/RankingSection";
-import { ExperiencesSection } from "@/components/ExperiencesSection";
-import { AppSection } from "@/components/AppSection";
-import { InstagramSection } from "@/components/InstagramSection";
+import { TeaserSection } from "@/components/TeaserSection";
+import { TeamLeaderVote } from "@/components/TeamLeaderVote";
 import { RegistrationSection } from "@/components/RegistrationSection";
-import { Footer } from "@/components/Footer";
+import { EmotionalCounter } from "@/components/EmotionalCounter";
+import { TeaserFooter } from "@/components/TeaserFooter";
 import { useMobileRedirect } from "@/hooks/useMobileRedirect";
 
 const Index = () => {
@@ -18,15 +14,11 @@ const Index = () => {
       <Header />
       <main className="pt-16">
         <HeroSection />
-        <WhatIsSection />
-        <TimelineSection />
-        <EnergySection />
-        <RankingSection />
-        <ExperiencesSection />
-        <AppSection />
-        <InstagramSection />
+        <TeaserSection />
+        <TeamLeaderVote />
         <RegistrationSection />
-        <Footer />
+        <EmotionalCounter />
+        <TeaserFooter />
       </main>
     </div>
   );
