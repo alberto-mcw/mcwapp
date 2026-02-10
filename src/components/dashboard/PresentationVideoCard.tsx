@@ -43,7 +43,7 @@ export const PresentationVideoCard = () => {
     const StatusIcon = statusConfig.icon;
 
     return (
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-4">
+      <div className="glass-card glow-soft p-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
             <Video className="w-5 h-5 text-primary" />
@@ -62,7 +62,7 @@ export const PresentationVideoCard = () => {
 
   // No video yet - show upload CTA
   return (
-    <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-4 text-primary-foreground">
+    <div className="bg-gradient-primary rounded-[2rem] p-4 text-primary-foreground glow-medium">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
           <Video className="w-5 h-5" />

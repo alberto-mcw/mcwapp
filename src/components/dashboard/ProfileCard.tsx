@@ -14,11 +14,11 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
   const isEmojiAvatar = profile.avatar_url && EMOJI_AVATARS.includes(profile.avatar_url);
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6">
+    <div className="glass-card p-6">
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
         <div className="relative group mb-4">
-          <div className="w-20 h-20 rounded-full overflow-hidden bg-muted border-2 border-primary/30 ring-4 ring-primary/10 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full overflow-hidden bg-muted glow-border ring-4 ring-primary/10 flex items-center justify-center">
             {profile.avatar_url ? (
               isEmojiAvatar ? (
                 <span className="text-4xl">{profile.avatar_url}</span>

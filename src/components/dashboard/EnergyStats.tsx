@@ -10,7 +10,7 @@ export const EnergyStats = ({ totalEnergy }: EnergyStatsProps) => {
   const progressToNextLevel = (totalEnergy % 500) / 500 * 100;
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6">
+    <div className="glass-card p-6">
       <h3 className="font-unbounded font-bold mb-4 flex items-center gap-2">
         <Flame className="w-5 h-5 text-primary" />
         Tu Energía
@@ -18,7 +18,7 @@ export const EnergyStats = ({ totalEnergy }: EnergyStatsProps) => {
 
       {/* Main Energy Display */}
       <div className="text-center mb-4">
-        <div className="text-4xl font-unbounded font-bold text-gradient-fire">
+        <div className="text-4xl font-display font-bold text-gradient-primary">
           {totalEnergy.toLocaleString()}
         </div>
         <p className="text-sm text-muted-foreground">puntos de energía</p>
@@ -37,7 +37,7 @@ export const EnergyStats = ({ totalEnergy }: EnergyStatsProps) => {
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-primary to-orange-400 transition-all duration-500"
+            className="h-full energy-bar transition-all duration-500"
             style={{ width: `${progressToNextLevel}%` }}
           />
         </div>

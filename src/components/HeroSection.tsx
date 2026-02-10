@@ -16,10 +16,11 @@ export const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-background px-4 py-20">
-      {/* Subtle background elements */}
+      {/* Glow background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 right-[10%] w-[300px] h-[300px] rounded-full border border-border/50 opacity-30" />
-        <div className="absolute bottom-1/3 left-[5%] w-[500px] h-[500px] rounded-full border border-border/30 opacity-20" />
+        <div className="absolute top-1/4 right-[10%] w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute bottom-1/3 left-[5%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/8 blur-[80px]" />
         {/* Subtle manopla in corner */}
         <div className="absolute top-24 right-8 md:right-16 opacity-[0.06] rotate-12">
           <Manopla className="w-32 h-32 md:w-48 md:h-48" />
@@ -40,13 +41,13 @@ export const HeroSection = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[0.95] mb-6 animate-slide-up text-foreground">
+        <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-black mb-6 animate-slide-up text-foreground">
           Algo grande se está{" "}
           <span className="text-gradient-primary">cocinando</span>
         </h1>
 
         {/* Subheadline */}
-        <p className="text-base md:text-lg text-muted-foreground max-w-lg mx-auto mb-12 animate-slide-up stagger-1 leading-relaxed">
+        <p className="font-body text-base md:text-lg text-muted-foreground max-w-lg mx-auto mb-12 animate-slide-up stagger-1 leading-relaxed">
           La competición gastronómica vuelve en 2026.
           <br className="hidden sm:block" />
           Y esta vez empieza antes.
