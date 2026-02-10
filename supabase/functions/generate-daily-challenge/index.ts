@@ -45,6 +45,15 @@ serve(async (req) => {
       );
     }
 
+    // Parse request body for optional context
+    let context = '';
+    try {
+      const body = await req.json();
+      context = body?.context || '';
+    } catch {
+      // No body or invalid JSON, that's fine
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY not configured");
@@ -56,6 +65,10 @@ serve(async (req) => {
 
     // Pick a random challenge type
     const challengeType = CHALLENGE_TYPES[Math.floor(Math.random() * CHALLENGE_TYPES.length)];
+
+    const brandInstructions = context
+      ? `\n\nCONTEXTO DE MARCA/PATROCINIO: El reto está patrocinado o relacionado con "${context}". Integra la marca de forma natural en el título (ej: "Mini Reto ${context.split('(')[0].trim()}") y en el contenido del reto. Las preguntas deben estar relacionadas con el producto o temática de la marca.`
+      : '';
 
     const systemPrompt = `Eres un experto chef y educador culinario. Genera retos diarios divertidos y educativos sobre gastronomía.
 
@@ -70,9 +83,9 @@ El reto debe ser:
 - Completable en 1-2 minutos
 - Educativo pero divertido
 - Variado (cocinas del mundo, no solo española)
-- Con nivel de dificultad medio`;
+- Con nivel de dificultad medio${brandInstructions}`;
 
-    const userPrompt = `Genera un reto tipo "${challengeType}" para hoy. Devuelve SOLO el JSON sin explicaciones.`;
+    const userPrompt = `Genera un reto tipo "${challengeType}" para hoy.${context ? ` Contexto de marca: "${context}".` : ''} Devuelve SOLO el JSON sin explicaciones.`;
 
     // Use tool calling for structured output
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
