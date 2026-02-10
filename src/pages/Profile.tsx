@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile, Profile } from '@/hooks/useProfile';
+import { usePresentationVideo } from '@/hooks/usePresentationVideo';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -39,14 +40,21 @@ import {
   Instagram, 
   Loader2, 
   Save,
-  ArrowLeft
+  ArrowLeft,
+  Video,
+  Upload,
+  Check,
+  Clock
 } from 'lucide-react';
 
 const ProfilePage = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, updateProfile } = useProfile();
+  const { video: presentationVideo, loading: videoLoading, uploadVideo } = usePresentationVideo();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const videoFileRef = useRef<HTMLInputElement>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   
   const [formData, setFormData] = useState({
     display_name: '',
@@ -132,7 +140,74 @@ const ProfilePage = () => {
           </Button>
 
           <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
-            <h1 className="font-unbounded text-2xl font-bold mb-6">Editar Perfil</h1>
+            <h1 className="font-unbounded text-2xl font-bold mb-6">Editar perfil</h1>
+
+            {/* Presentation Video Section */}
+            <div className="mb-8 border border-border rounded-xl p-4">
+              <h3 className="font-unbounded font-bold mb-3 flex items-center gap-2">
+                <Video className="w-5 h-5 text-primary" />
+                Vídeo de presentación
+              </h3>
+              {presentationVideo ? (
+                <div className="space-y-3">
+                  <video
+                    src={presentationVideo.video_url}
+                    controls
+                    className="w-full rounded-lg max-h-64 bg-black"
+                  />
+                  <div className="flex items-center gap-2 text-sm">
+                    {presentationVideo.status === 'approved' ? (
+                      <span className="flex items-center gap-1 text-green-500">
+                        <Check className="w-4 h-4" /> Aprobado · +100 energía
+                      </span>
+                    ) : presentationVideo.status === 'rejected' ? (
+                      <span className="text-destructive">No aprobado</span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-yellow-500">
+                        <Clock className="w-4 h-4" /> Pendiente de revisión
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Cuéntanos quién eres y tu conexión con la cocina y MasterChef. Gana +100 energía al ser aprobado.
+                  </p>
+                  <input
+                    ref={videoFileRef}
+                    type="file"
+                    accept="video/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 100 * 1024 * 1024) {
+                        toast({ title: 'Máximo 100MB', variant: 'destructive' });
+                        return;
+                      }
+                      setUploadingVideo(true);
+                      const { error } = await uploadVideo(file);
+                      setUploadingVideo(false);
+                      if (error) {
+                        toast({ title: 'Error al subir', variant: 'destructive' });
+                      } else {
+                        toast({ title: '🎬 ¡Vídeo enviado!', description: 'Un admin lo revisará' });
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() => videoFileRef.current?.click()}
+                    disabled={uploadingVideo}
+                    variant="outline"
+                    className="w-full gap-2"
+                  >
+                    {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {uploadingVideo ? 'Subiendo...' : 'Subir vídeo de presentación'}
+                  </Button>
+                </div>
+              )}
+            </div>
 
             {/* Avatar Section */}
             <div className="mb-8">

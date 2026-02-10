@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { AdminCalendar } from '@/components/admin/AdminCalendar';
+import { AdminPresentationVideos } from '@/components/admin/AdminPresentationVideos';
 import { SuperLikeButton } from '@/components/gallery/SuperLikeButton';
 
 interface Challenge {
@@ -497,7 +498,7 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="calendario" className="space-y-6">
-            <TabsList className="grid w-full max-w-2xl grid-cols-4">
+            <TabsList className="grid w-full max-w-3xl grid-cols-5">
               <TabsTrigger value="calendario" className="gap-2">
                 <CalendarDays className="w-4 h-4" />
                 Calendario
@@ -515,6 +516,9 @@ const Admin = () => {
                 <Video className="w-4 h-4" />
                 Vídeos
                 {pendingSubmissions.length > 0 && <Badge variant="secondary" className="ml-1">{pendingSubmissions.length}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="presentaciones" className="gap-2">
+                🎬 Present.
               </TabsTrigger>
             </TabsList>
 
@@ -827,6 +831,11 @@ const Admin = () => {
                   </TabsContent>
                 )})}
               </Tabs>
+            </TabsContent>
+
+            {/* PRESENTATION VIDEOS TAB */}
+            <TabsContent value="presentaciones" className="space-y-6">
+              <AdminPresentationVideos />
             </TabsContent>
           </Tabs>
         </div>

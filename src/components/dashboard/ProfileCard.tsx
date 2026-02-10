@@ -61,7 +61,7 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
         <Button asChild variant="outline" size="sm" className="mt-4 w-full gap-2">
           <Link to="/profile">
             <Settings className="w-4 h-4" />
-            Editar Perfil
+            Editar perfil
           </Link>
         </Button>
       </div>

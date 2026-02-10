@@ -6,6 +6,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
+import { PresentationVideoCard } from '@/components/dashboard/PresentationVideoCard';
 import { EnergyStats } from '@/components/dashboard/EnergyStats';
 import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
 import { PastTrivias } from '@/components/dashboard/PastTrivias';
@@ -93,6 +94,7 @@ const Dashboard = () => {
             {/* Left Column - Profile & Stats */}
             <div className="lg:col-span-1 space-y-6">
               <ProfileCard profile={profile} />
+              <PresentationVideoCard />
               <EnergyStats totalEnergy={localEnergy} />
               <QuickActions />
             </div>
@@ -153,6 +155,10 @@ const Dashboard = () => {
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
                     SuperLike recibido: +50 energía
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-primary">•</span>
+                    Vídeo de presentación aprobado: +100 energía
                   </li>
                 </ul>
               </div>
