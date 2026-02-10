@@ -201,10 +201,16 @@ const Admin = () => {
   };
 
   // Generate trivia suggestions with AI
+  const [brandContext, setBrandContext] = useState('');
+  const [showBrandInput, setShowBrandInput] = useState(false);
+
   const generateTriviaSuggestion = async () => {
     setGeneratingTrivia(true);
+    setShowBrandInput(false);
     try {
-      const response = await supabase.functions.invoke('generate-daily-challenge');
+      const response = await supabase.functions.invoke('generate-daily-challenge', {
+        body: { context: brandContext || undefined }
+      });
       
       if (response.error) throw new Error(response.error.message);
       
@@ -570,11 +576,33 @@ const Admin = () => {
                 }}
               />
 
-              <div className="flex gap-2 justify-end">
-                <Button onClick={generateTriviaSuggestion} disabled={generatingTrivia} variant="outline" className="gap-2">
-                  {generatingTrivia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Generar Mini Reto con IA
-                </Button>
+              <div className="flex gap-2 justify-end items-end">
+                <div className="flex flex-col gap-2">
+                  {showBrandInput && (
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        placeholder="Ej: Mini Reto SOS (marca de arroz)"
+                        value={brandContext}
+                        onChange={(e) => setBrandContext(e.target.value)}
+                        className="w-72 text-sm"
+                      />
+                      <Button size="sm" variant="ghost" onClick={() => setShowBrandInput(false)}>
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => showBrandInput ? generateTriviaSuggestion() : setShowBrandInput(true)}
+                      disabled={generatingTrivia}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      {generatingTrivia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                      Generar Mini Reto con IA
+                    </Button>
+                  </div>
+                </div>
                 <Button onClick={() => setIsTriviaDialogOpen(true)} className="gap-2">
                   <Plus className="w-4 h-4" />
                   Nuevo Mini Reto
@@ -589,10 +617,30 @@ const Admin = () => {
             {/* TRIVIAS TAB */}
             <TabsContent value="trivias" className="space-y-6">
               <div className="flex gap-2 justify-end">
-                <Button onClick={generateTriviaSuggestion} disabled={generatingTrivia} variant="outline" className="gap-2">
-                  {generatingTrivia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Generar con IA
-                </Button>
+                <div className="flex flex-col gap-2 items-end">
+                  {showBrandInput && (
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        placeholder="Ej: Mini Reto SOS (marca de arroz)"
+                        value={brandContext}
+                        onChange={(e) => setBrandContext(e.target.value)}
+                        className="w-72 text-sm"
+                      />
+                      <Button size="sm" variant="ghost" onClick={() => setShowBrandInput(false)}>
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+                  <Button
+                    onClick={() => showBrandInput ? generateTriviaSuggestion() : setShowBrandInput(true)}
+                    disabled={generatingTrivia}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    {generatingTrivia ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    Generar con IA
+                  </Button>
+                </div>
                 <Button onClick={() => { resetTriviaForm(); setIsTriviaDialogOpen(true); }} className="gap-2">
                   <Plus className="w-4 h-4" />Nuevo Mini Reto
                 </Button>
