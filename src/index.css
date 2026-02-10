@@ -1,4 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800;900&display=swap');
+@import '@fontsource/onest/400.css';
+@import '@fontsource/onest/500.css';
+@import '@fontsource/onest/600.css';
+@import '@fontsource/onest/700.css';
 
 @tailwind base;
 @tailwind components;
@@ -6,62 +10,64 @@
 
 @layer base {
   :root {
-    /* MasterChef El Reto 2026 - Light Theme Design System */
-    --brand-orange: 17 97% 50%;
-    --brand-black: 220 10% 15%;
+    /* El Reto 2026 — Brand System */
+    --brand-orange: 16 96% 60%;
+    --brand-black: 220 15% 8%;
     --brand-white: 0 0% 100%;
     
     --background: 0 0% 100%;
-    --foreground: 220 10% 15%;
+    --foreground: 220 15% 8%;
 
-    --card: 220 10% 98%;
-    --card-foreground: 220 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 10% 15%;
+    --popover-foreground: 220 15% 8%;
 
-    --primary: 17 97% 50%;
+    --primary: 16 96% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 10% 95%;
-    --secondary-foreground: 220 10% 25%;
+    --secondary-foreground: 220 15% 15%;
 
-    --muted: 220 10% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 220 10% 93%;
+    --muted-foreground: 220 10% 42%;
 
-    --accent: 17 97% 50%;
+    --accent: 16 96% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 10% 88%;
-    --input: 220 10% 92%;
-    --ring: 17 97% 50%;
+    --border: 220 10% 90%;
+    --input: 220 10% 93%;
+    --ring: 16 96% 60%;
 
-    --radius: 0.75rem;
+    --radius: 2rem;
 
-    /* Warm Glow Effects */
-    --warm-glow: 0 0 20px hsl(17 97% 50% / 0.15), 0 0 40px hsl(17 97% 50% / 0.08);
-    --warm-glow-intense: 0 0 30px hsl(17 97% 50% / 0.25), 0 0 60px hsl(17 97% 50% / 0.12);
+    /* Glows — atmosphere, never noise */
+    --glow-soft: 0 0 30px hsl(16 96% 60% / 0.12), 0 0 60px hsl(16 96% 60% / 0.06);
+    --glow-medium: 0 0 40px hsl(16 96% 60% / 0.20), 0 0 80px hsl(16 96% 60% / 0.10);
+    --glow-intense: 0 0 50px hsl(16 96% 60% / 0.30), 0 0 100px hsl(16 96% 60% / 0.15);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(17 97% 50%) 0%, hsl(30 100% 50%) 100%);
-    --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 10% 98%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(16 96% 55%) 0%, hsl(30 100% 55%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(16 96% 55%) 0%, hsl(25 100% 45%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 10% 97%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 10% 98%) 100%);
   }
 
   .dark {
-    --background: 220 15% 10%;
+    --background: 220 15% 6%;
     --foreground: 0 0% 98%;
-    --card: 220 15% 12%;
+    --card: 220 15% 9%;
     --card-foreground: 0 0% 98%;
-    --primary: 17 97% 55%;
-    --secondary: 220 15% 18%;
-    --muted: 220 15% 22%;
-    --muted-foreground: 220 10% 65%;
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
+    --primary: 16 96% 60%;
+    --secondary: 220 15% 14%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 60%;
+    --border: 220 15% 16%;
+    --input: 220 15% 14%;
   }
 }
 
@@ -75,15 +81,38 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Onest', sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  /* Unbounded for headings — display font with tight kerning */
+  h1, h2, h3, h4, h5, h6 {
     font-family: 'Unbounded', sans-serif;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
   }
 }
 
 @layer components {
-  /* Modern Card Effect */
+  /* Glass Card — 32px radius, subtle border + blur */
+  .glass-card {
+    @apply relative bg-card/80 backdrop-blur-md border border-border/50;
+    border-radius: 2rem;
+    box-shadow: 0 4px 24px hsl(220 10% 50% / 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 8px 32px hsl(220 10% 50% / 0.08);
+    transform: translateY(-2px);
+  }
+
+  /* Modern Card — solid variant */
   .modern-card {
-    @apply relative rounded-2xl bg-card border border-border;
+    @apply relative bg-card border border-border;
+    border-radius: 2rem;
     box-shadow: 0 4px 20px hsl(220 10% 50% / 0.06);
     transition: all 0.3s ease;
   }
@@ -93,73 +122,81 @@
     transform: translateY(-2px);
   }
 
-  /* Warm Glow Circle */
+  /* Glow Circle */
   .glow-circle {
     @apply relative rounded-full;
-    box-shadow: var(--warm-glow);
+    box-shadow: var(--glow-soft);
   }
 
   .glow-border {
     @apply border-2 border-primary;
-    box-shadow: var(--warm-glow);
+    box-shadow: var(--glow-soft);
   }
 
   /* Energy Bar */
   .energy-bar {
     @apply relative overflow-hidden rounded-full;
     background: var(--gradient-primary);
-    box-shadow: var(--warm-glow);
+    box-shadow: var(--glow-soft);
   }
 
   /* Feature Panel */
   .feature-panel {
-    @apply relative bg-card border border-border rounded-2xl p-6;
+    @apply relative bg-card border border-border p-6;
+    border-radius: 2rem;
     box-shadow: 0 4px 20px hsl(220 10% 50% / 0.06);
   }
 
-  /* Button Variants */
+  /* Button Variants — pill shape */
   .btn-primary {
-    @apply relative overflow-hidden font-bold tracking-wide transition-all duration-300 rounded-xl;
+    @apply relative overflow-hidden font-bold tracking-wide transition-all duration-300;
+    border-radius: 9999px;
     background: var(--gradient-primary);
-    box-shadow: 0 4px 15px hsl(17 97% 50% / 0.25);
+    box-shadow: 0 4px 20px hsl(16 96% 60% / 0.3);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: var(--warm-glow-intense);
+    box-shadow: var(--glow-medium);
   }
 
   .btn-outline {
-    @apply border-2 border-primary bg-transparent font-bold tracking-wide transition-all duration-300 rounded-xl text-primary;
+    @apply border-2 border-primary bg-transparent font-bold tracking-wide transition-all duration-300 text-primary;
+    border-radius: 9999px;
   }
 
   .btn-outline:hover {
     @apply bg-primary text-primary-foreground;
   }
 
-  /* Badge Styles */
+  /* Badge — pill shape */
   .badge-primary {
-    @apply inline-flex items-center px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full;
-    background: hsl(17 97% 50% / 0.1);
-    border: 1px solid hsl(17 97% 50% / 0.3);
-    color: hsl(17 97% 45%);
+    @apply inline-flex items-center px-4 py-1.5 text-xs font-bold uppercase tracking-wider;
+    border-radius: 9999px;
+    background: hsl(16 96% 60% / 0.1);
+    border: 1px solid hsl(16 96% 60% / 0.3);
+    color: hsl(16 96% 55%);
   }
 
   .badge-muted {
-    @apply inline-flex items-center px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full;
-    background: hsl(220 10% 92%);
-    border: 1px solid hsl(220 10% 85%);
-    color: hsl(220 10% 45%);
+    @apply inline-flex items-center px-4 py-1.5 text-xs font-bold uppercase tracking-wider;
+    border-radius: 9999px;
+    background: hsl(220 10% 93%);
+    border: 1px solid hsl(220 10% 87%);
+    color: hsl(220 10% 42%);
   }
 
-  /* Section Title - Now sentence case friendly */
+  /* Section Title */
   .section-title {
     @apply text-2xl md:text-4xl font-bold tracking-tight text-foreground;
+    font-family: 'Unbounded', sans-serif;
+    letter-spacing: -0.04em;
   }
 
   /* Ranking Number */
   .ranking-number {
     @apply font-black tabular-nums text-primary;
+    font-family: 'Unbounded', sans-serif;
   }
 }
 
@@ -175,16 +212,35 @@
     background: var(--gradient-primary);
   }
 
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
   .bg-gradient-soft {
     background: var(--gradient-soft);
   }
 
-  .glow-warm {
-    box-shadow: var(--warm-glow);
+  .glow-soft {
+    box-shadow: var(--glow-soft);
   }
 
-  .glow-warm-intense {
-    box-shadow: var(--warm-glow-intense);
+  .glow-medium {
+    box-shadow: var(--glow-medium);
+  }
+
+  .glow-intense {
+    box-shadow: var(--glow-intense);
+  }
+
+  /* Font utilities */
+  .font-display {
+    font-family: 'Unbounded', sans-serif;
+    letter-spacing: -0.04em;
+  }
+
+  .font-body {
+    font-family: 'Onest', sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 

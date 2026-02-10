@@ -14,7 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Unbounded', 'sans-serif'],
+        sans: ['Onest', 'sans-serif'],
+        display: ['Unbounded', 'sans-serif'],
+        body: ['Onest', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -73,8 +75,8 @@ export default {
           "50%": { opacity: "0.8", transform: "scale(1.05)" },
         },
         "glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(17 97% 60% / 0.4)" },
-          "50%": { boxShadow: "0 0 40px hsl(17 97% 60% / 0.7)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(16 96% 60% / 0.4)" },
+          "50%": { boxShadow: "0 0 40px hsl(16 96% 60% / 0.7)" },
         },
       },
       animation: {
