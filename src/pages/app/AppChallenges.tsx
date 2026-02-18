@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
+import { SectionTitle } from '@/components/app/SectionTitle';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
@@ -31,9 +32,11 @@ const AppChallenges = () => {
     <MobileAppLayout>
       {user && <SuperLikeNotification userId={user.id} />}
       
-      <AppHeader 
-        title={`Hola, ${profile?.display_name || 'Chef'}`}
-        subtitle="Tus retos de hoy"
+      <AppHeader />
+      <SectionTitle
+        topLabel={`Hola,`}
+        title={profile?.display_name || 'Chef'}
+        subtitle="Bienvenido a tu zona de entrenamiento"
       />
 
       <div className="px-4 py-4 space-y-6">

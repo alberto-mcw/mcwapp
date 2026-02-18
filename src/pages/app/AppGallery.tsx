@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
+import { SectionTitle } from '@/components/app/SectionTitle';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -316,7 +317,9 @@ const AppGallery = () => {
 
   return (
     <MobileAppLayout>
-      <AppHeader 
+      <AppHeader />
+      <SectionTitle
+        topLabel="2026"
         title="Galería"
         subtitle={`${submissions.length} vídeos`}
       />

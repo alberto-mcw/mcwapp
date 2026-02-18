@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
+import { SectionTitle } from '@/components/app/SectionTitle';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -126,8 +127,7 @@ const AppProfile = () => {
 
   return (
     <MobileAppLayout>
-      <AppHeader 
-        title="Perfil"
+      <AppHeader
         rightAction={
           <button
             onClick={() => setShowEditForm(!showEditForm)}
@@ -137,6 +137,7 @@ const AppProfile = () => {
           </button>
         }
       />
+      <SectionTitle title="Perfil" />
 
       <div className="px-4 py-4 space-y-4">
         {/* Profile Card */}

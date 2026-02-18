@@ -24,7 +24,7 @@ export const BottomNav = () => {
       className="fixed bottom-0 left-0 right-0 z-50 px-4"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
     >
-      <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg">
+      <div className="bg-card/90 backdrop-blur-xl border border-border/40 rounded-2xl shadow-lg">
         <div className="flex items-center justify-around h-14">
           {navItems.map((item) => {
             const active = isActive(item.path);
@@ -33,16 +33,23 @@ export const BottomNav = () => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors",
+                  "relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors",
                   active ? "text-primary" : "text-muted-foreground"
                 )}
               >
+                {/* Active glow behind the icon */}
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute top-1 w-8 h-8 rounded-full bg-primary/25 blur-lg"
+                  />
+                )}
                 <item.icon
-                  className="w-5 h-5"
+                  className="relative z-10 w-5 h-5"
                   strokeWidth={active ? 2.5 : 1.5}
                 />
                 <span className={cn(
-                  "text-[10px] leading-none",
+                  "relative z-10 text-[10px] leading-none",
                   active ? "font-bold" : "font-medium"
                 )}>
                   {item.label}

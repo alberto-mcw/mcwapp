@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
+import { SectionTitle } from '@/components/app/SectionTitle';
 import { FireCircle } from '@/components/FireCircle';
 import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -121,9 +122,7 @@ const AppRanking = () => {
 
   return (
     <MobileAppLayout>
-      <AppHeader 
-        title="Ranking"
-        subtitle="Clasificación en vivo"
+      <AppHeader
         rightAction={
           <Button 
             variant="ghost" 
@@ -134,6 +133,11 @@ const AppRanking = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         }
+      />
+      <SectionTitle
+        topLabel="2026"
+        title="Ranking"
+        subtitle="Clasificación en vivo"
       />
 
       <div className="px-4 py-4 space-y-4">

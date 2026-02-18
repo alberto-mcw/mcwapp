@@ -7,15 +7,13 @@ import logoLight from '@/assets/logo-light.png';
 import { AnimatedGlow } from './AnimatedGlow';
 
 interface AppHeaderProps {
-  title?: string;
-  subtitle?: string;
   rightAction?: ReactNode;
   className?: string;
 }
 
 const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '🍜', '🦪', '🍰', '🔪', '🍏', '🌯', '🍫', '🍔', '🧋', '🍝', '🍦', '🥘', '🍪'];
 
-export const AppHeader = ({ title, subtitle, rightAction, className }: AppHeaderProps) => {
+export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
   const { profile } = useProfile();
 
   const avatarUrl = profile?.avatar_url;
@@ -70,20 +68,10 @@ export const AppHeader = ({ title, subtitle, rightAction, className }: AppHeader
         </div>
       </div>
 
-      {/* Page title + optional action */}
-      {(title || rightAction) && (
-        <div className="relative z-10 flex items-center justify-between pb-3">
-          <div>
-            {title && (
-              <h1 className="font-display text-xl font-bold text-foreground leading-tight">
-                {title}
-              </h1>
-            )}
-            {subtitle && (
-              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-            )}
-          </div>
-          {rightAction && <div>{rightAction}</div>}
+      {/* Optional right action */}
+      {rightAction && (
+        <div className="relative z-10 flex items-center justify-end pb-2">
+          {rightAction}
         </div>
       )}
     </header>

@@ -1,5 +1,6 @@
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
+import { SectionTitle } from '@/components/app/SectionTitle';
 import { FireCircle } from '@/components/FireCircle';
 import { CheckCircle2, Lock, Unlock } from 'lucide-react';
 
@@ -58,9 +59,11 @@ const timelineEvents = [
 const AppCalendar = () => {
   return (
     <MobileAppLayout>
-      <AppHeader 
+      <AppHeader />
+      <SectionTitle
+        topLabel="2026"
         title="Calendario"
-        subtitle="Tu camino hacia la cima"
+        subtitle="Tu camino hacia la cima empieza aquí"
       />
 
       <div className="px-4 py-4">
