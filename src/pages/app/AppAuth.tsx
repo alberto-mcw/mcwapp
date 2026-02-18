@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { useSystemTheme } from '@/hooks/useSystemTheme';
 
 const CHEF_AVATARS = [
   { emoji: '🍕', label: 'Pizza' },
@@ -59,6 +60,7 @@ const AppAuth = () => {
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  useSystemTheme();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

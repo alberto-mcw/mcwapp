@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { BottomNav } from './BottomNav';
+import { useSystemTheme } from '@/hooks/useSystemTheme';
 import { Loader2 } from 'lucide-react';
 
 interface MobileAppLayoutProps {
@@ -12,6 +13,7 @@ interface MobileAppLayoutProps {
 export const MobileAppLayout = ({ children, showNav = true }: MobileAppLayoutProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  useSystemTheme();
 
   useEffect(() => {
     if (!loading && !user) {

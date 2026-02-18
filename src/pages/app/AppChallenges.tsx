@@ -8,7 +8,7 @@ import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
 import { PastTrivias } from '@/components/dashboard/PastTrivias';
 import { WeeklyChallenges } from '@/components/dashboard/WeeklyChallenges';
 import { SuperLikeNotification } from '@/components/dashboard/SuperLikeNotification';
-import { Zap, ChefHat } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 const AppChallenges = () => {
   const { user } = useAuth();
@@ -26,35 +26,6 @@ const AppChallenges = () => {
     setTimeout(() => refetch(), 1000);
   };
 
-  // Emoji avatars list - same as in ProfileCard
-  const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '🍜', '🦪', '🍰', '🔪', '🍏', '🌯', '🍫', '🍔', '🧋', '🍝', '🍦', '🥘', '🍪'];
-  const isEmojiAvatar = (avatarUrl: string | null | undefined): boolean => {
-    return !!avatarUrl && EMOJI_AVATARS.includes(avatarUrl);
-  };
-
-  const renderAvatar = () => {
-    if (isEmojiAvatar(profile?.avatar_url)) {
-      return (
-        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-          <span className="text-2xl">{profile?.avatar_url}</span>
-        </div>
-      );
-    }
-    
-    if (profile?.avatar_url && profile.avatar_url.startsWith('http')) {
-      return (
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
-          <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-        </div>
-      );
-    }
-    
-    return (
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-        <ChefHat className="w-5 h-5 text-primary" />
-      </div>
-    );
-  };
 
   return (
     <MobileAppLayout>
@@ -63,7 +34,6 @@ const AppChallenges = () => {
       <AppHeader 
         title={`Hola, ${profile?.display_name || 'Chef'}`}
         subtitle="Tus retos de hoy"
-        rightAction={renderAvatar()}
       />
 
       <div className="px-4 py-4 space-y-6">
