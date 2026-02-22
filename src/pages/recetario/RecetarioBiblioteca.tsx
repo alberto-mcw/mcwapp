@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil } from "lucide-react";
+import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -669,7 +670,8 @@ export default function RecetarioBiblioteca() {
         <div className="flex items-center">
           <img src={recetarioLogo} alt="Mi Recetario Eterno" className="h-56 sm:h-64 -my-[50px]" />
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
+          <RecetarioAccountMenu />
           <Button
             variant="outline"
             size="sm"

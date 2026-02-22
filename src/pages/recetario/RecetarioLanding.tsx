@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { BookOpen, Camera, Sparkles, Download, Heart, Share2, ChefHat, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 
 const steps = [
   { icon: Camera, title: "Sube tu receta", desc: "Haz una foto de la receta manuscrita de tu abuela o de cualquier libro antiguo." },
@@ -33,13 +34,16 @@ export default function RecetarioLanding() {
         <div className="flex items-center">
           <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-12" />
         </div>
-        <Button
-          variant="ghost"
-          className="text-recetario-primary hover:text-recetario-primary-hover text-sm font-medium"
-          onClick={() => navigate("/recetario/biblioteca")}
-        >
-          Mi Biblioteca
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            className="text-recetario-primary hover:text-recetario-primary-hover text-sm font-medium"
+            onClick={() => navigate("/recetario/biblioteca")}
+          >
+            Mi Biblioteca
+          </Button>
+          <RecetarioAccountMenu />
+        </div>
       </header>
 
       {/* Hero */}
