@@ -248,15 +248,27 @@ export default function RecetarioBiblioteca() {
 
       let coverY = 30;
 
+      // Determine cover photo: manual upload takes priority, then collection cover
+      let finalCoverPhoto = coverPhoto;
+      let finalCoverDims = coverPhotoDims;
+      if (!finalCoverPhoto && pdfCollectionId) {
+        const selectedCol = collections.find((c) => c.id === pdfCollectionId);
+        if (selectedCol?.cover_photo_url) {
+          const result = await loadImageAsBase64WithDims(selectedCol.cover_photo_url);
+          if (result) {
+            finalCoverPhoto = result.base64;
+            finalCoverDims = { w: result.w, h: result.h };
+          }
+        }
+      }
+
       // Cover photo — circular portrait
-      if (coverPhoto && coverPhotoDims) {
+      if (finalCoverPhoto && finalCoverDims) {
         const photoSize = 50;
         const photoX = w / 2 - photoSize / 2;
-        // Draw circular clip using a filled circle behind
         doc.setFillColor(199, 91, 42);
         doc.circle(w / 2, coverY + photoSize / 2, photoSize / 2 + 1.5, "F");
-        doc.addImage(coverPhoto, "JPEG", photoX, coverY, photoSize, photoSize);
-        // Decorative ring
+        doc.addImage(finalCoverPhoto, "JPEG", photoX, coverY, photoSize, photoSize);
         doc.setDrawColor(199, 91, 42);
         doc.setLineWidth(1);
         doc.circle(w / 2, coverY + photoSize / 2, photoSize / 2 + 2, "S");
