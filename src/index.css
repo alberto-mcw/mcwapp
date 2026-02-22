@@ -55,6 +55,19 @@
     --gradient-hero: linear-gradient(180deg, hsl(21 100% 45%) 0%, hsl(25 100% 40%) 100%);
     --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 10% 97%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 10% 98%) 100%);
+
+    /* Recetario Eterno — warm sub-brand */
+    --recetario-bg: 30 100% 97%;        /* #FFF8F0 */
+    --recetario-fg: 20 31% 16%;         /* #3D2B1F */
+    --recetario-primary: 18 67% 47%;    /* #C75B2A terracotta */
+    --recetario-primary-hover: 18 67% 38%; /* #A04520 */
+    --recetario-muted: 25 19% 40%;      /* #6B5744 */
+    --recetario-muted-light: 30 22% 47%; /* #8B7355 */
+    --recetario-surface: 30 37% 92%;    /* #F5E6D3 */
+    --recetario-border: 28 35% 84%;     /* #E8D5C4 */
+    --recetario-card: 0 0% 100%;
+    --recetario-healthy: 113 24% 41%;   /* #558250 */
+    --recetario-healthy-bg: 120 38% 93%; /* #E8F5E8 */
   }
 
   .dark {

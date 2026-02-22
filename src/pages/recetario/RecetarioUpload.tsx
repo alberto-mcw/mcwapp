@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
 export default function RecetarioUpload() {
@@ -45,20 +45,16 @@ export default function RecetarioUpload() {
     if (f) handleFile(f);
   }, [handleFile]);
 
-  // Redirect if no lead
   if (!leadId || !email) {
     navigate("/recetario");
     return null;
   }
-
-  // handleFile and handleDrop moved above early return
 
   const handleSubmit = async () => {
     if (!file) return;
     setLoading(true);
 
     try {
-      // 1. Upload image to storage
       const ext = file.name.split(".").pop() || "jpg";
       const fileName = `${leadId}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage
@@ -73,7 +69,6 @@ export default function RecetarioUpload() {
 
       const imageUrl = urlData.publicUrl;
 
-      // 2. Create recipe record
       const recipeId = crypto.randomUUID();
       const { error: insertError } = await supabase
         .from("recipes")
@@ -86,7 +81,6 @@ export default function RecetarioUpload() {
 
       if (insertError) throw insertError;
 
-      // 3. Call AI processing
       const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", {
         body: { imageUrl, recipeId, action: "full-process" },
       });
@@ -105,19 +99,19 @@ export default function RecetarioUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0] flex flex-col">
+    <div className="min-h-screen bg-recetario-bg flex flex-col">
       {/* Header */}
       <header className="px-6 py-4 flex items-center gap-2">
-        <BookOpen className="w-6 h-6 text-[#C75B2A]" />
-        <span className="font-serif text-lg font-bold text-[#3D2B1F]">El Recetario Eterno</span>
+        <BookOpen className="w-6 h-6 text-recetario-primary" />
+        <span className="font-display text-lg font-bold text-recetario-fg">El Recetario Eterno</span>
       </header>
 
       <div className="flex-1 flex items-center justify-center px-6 pb-12">
         <div className="w-full max-w-lg">
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-center text-[#3D2B1F] mb-2">
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-center text-recetario-fg mb-2">
             Sube tu receta manuscrita
           </h1>
-          <p className="text-center text-[#6B5744] text-sm mb-8">
+          <p className="text-center text-recetario-muted text-sm mb-8 font-body">
             Haz una foto o sube la imagen de la receta que quieres preservar.
           </p>
 
@@ -130,17 +124,17 @@ export default function RecetarioUpload() {
               onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-3xl p-12 text-center cursor-pointer transition-all ${
                 dragOver
-                  ? "border-[#C75B2A] bg-[#C75B2A]/5"
-                  : "border-[#C75B2A]/30 bg-white hover:border-[#C75B2A]/50 hover:bg-[#FFF8F0]"
+                  ? "border-recetario-primary bg-recetario-primary/5"
+                  : "border-recetario-primary/30 bg-recetario-card hover:border-recetario-primary/50 hover:bg-recetario-bg"
               }`}
             >
-              <div className="w-16 h-16 bg-[#C75B2A]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Upload className="w-7 h-7 text-[#C75B2A]" />
+              <div className="w-16 h-16 bg-recetario-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Upload className="w-7 h-7 text-recetario-primary" />
               </div>
-              <p className="font-serif text-lg font-bold text-[#3D2B1F] mb-1">
+              <p className="font-display text-lg font-bold text-recetario-fg mb-1">
                 Arrastra tu imagen aquí
               </p>
-              <p className="text-sm text-[#8B7355]">
+              <p className="text-sm text-recetario-muted-light font-body">
                 o haz clic para seleccionar · JPG, PNG, WebP o PDF · Máx. 10MB
               </p>
               <input
@@ -155,24 +149,24 @@ export default function RecetarioUpload() {
               />
             </div>
           ) : (
-            <div className="bg-white rounded-3xl p-6 border border-[#E8D5C4] shadow-lg">
+            <div className="bg-recetario-card rounded-3xl p-6 border border-recetario-border shadow-lg">
               {/* Preview */}
               <div className="relative mb-6">
                 {preview ? (
                   <img
                     src={preview}
                     alt="Preview"
-                    className="w-full max-h-80 object-contain rounded-2xl bg-[#FFF8F0]"
+                    className="w-full max-h-80 object-contain rounded-2xl bg-recetario-bg"
                   />
                 ) : (
-                  <div className="w-full h-40 bg-[#FFF8F0] rounded-2xl flex items-center justify-center">
-                    <Image className="w-8 h-8 text-[#8B7355]" />
-                    <span className="ml-2 text-sm text-[#8B7355]">{file.name}</span>
+                  <div className="w-full h-40 bg-recetario-bg rounded-2xl flex items-center justify-center">
+                    <Image className="w-8 h-8 text-recetario-muted-light" />
+                    <span className="ml-2 text-sm text-recetario-muted-light font-body">{file.name}</span>
                   </div>
                 )}
                 <button
                   onClick={() => { setFile(null); setPreview(null); }}
-                  className="absolute top-2 right-2 w-8 h-8 bg-[#3D2B1F]/70 text-white rounded-full flex items-center justify-center hover:bg-[#3D2B1F]"
+                  className="absolute top-2 right-2 w-8 h-8 bg-recetario-fg/70 text-white rounded-full flex items-center justify-center hover:bg-recetario-fg"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -181,7 +175,7 @@ export default function RecetarioUpload() {
               <Button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full h-12 bg-[#C75B2A] hover:bg-[#A04520] text-white rounded-full text-base font-medium shadow-lg shadow-[#C75B2A]/20"
+                className="w-full h-12 bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-base font-medium shadow-lg shadow-recetario-primary/20"
               >
                 {loading ? (
                   <>
@@ -197,7 +191,7 @@ export default function RecetarioUpload() {
               </Button>
 
               {loading && (
-                <p className="text-center text-xs text-[#8B7355] mt-4">
+                <p className="text-center text-xs text-recetario-muted-light mt-4 font-body">
                   Esto puede tardar unos segundos. La IA está leyendo e interpretando tu receta...
                 </p>
               )}

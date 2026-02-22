@@ -27,16 +27,16 @@ export default function RecetarioLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0] text-[#3D2B1F]">
+    <div className="min-h-screen bg-recetario-bg text-recetario-fg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-7 h-7 text-[#C75B2A]" />
-          <span className="font-serif text-xl font-bold tracking-tight text-[#3D2B1F]">El Recetario Eterno</span>
+          <BookOpen className="w-7 h-7 text-recetario-primary" />
+          <span className="font-display text-xl font-bold tracking-tight text-recetario-fg">El Recetario Eterno</span>
         </div>
         <Button
           variant="ghost"
-          className="text-[#C75B2A] hover:text-[#A04520] text-sm font-medium"
+          className="text-recetario-primary hover:text-recetario-primary-hover text-sm font-medium"
           onClick={() => navigate("/recetario/biblioteca")}
         >
           Mi Biblioteca
@@ -45,20 +45,20 @@ export default function RecetarioLanding() {
 
       {/* Hero */}
       <section className="px-6 pt-12 pb-16 max-w-3xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 bg-[#C75B2A]/10 text-[#C75B2A] px-4 py-1.5 rounded-full text-sm font-medium mb-8">
+        <div className="inline-flex items-center gap-2 bg-recetario-primary/10 text-recetario-primary px-4 py-1.5 rounded-full text-sm font-medium mb-8">
           <Heart className="w-4 h-4" />
           Preserva la memoria culinaria de tu familia
         </div>
-        <h1 className="font-serif text-4xl md:text-6xl font-bold leading-[1.05] mb-6 text-[#3D2B1F]">
+        <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05] mb-6 text-recetario-fg">
           Las recetas que se escriben a mano<br />
-          <span className="text-[#C75B2A]">no deberían perderse.</span>
+          <span className="text-recetario-primary">no deberían perderse.</span>
         </h1>
-        <p className="text-lg md:text-xl text-[#6B5744] max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-lg md:text-xl text-recetario-muted max-w-xl mx-auto mb-10 leading-relaxed font-body">
           Convierte las recetas de tu abuela en un libro eterno con inteligencia artificial. Gratis, privado y para siempre.
         </p>
         <Button
           onClick={handleCTA}
-          className="bg-[#C75B2A] hover:bg-[#A04520] text-white text-lg px-8 py-6 rounded-full shadow-lg shadow-[#C75B2A]/25 transition-all hover:shadow-xl hover:shadow-[#C75B2A]/30 hover:scale-[1.02]"
+          className="bg-recetario-primary hover:bg-recetario-primary-hover text-white text-lg px-8 py-6 rounded-full shadow-lg shadow-recetario-primary/25 transition-all hover:shadow-xl hover:shadow-recetario-primary/30 hover:scale-[1.02]"
         >
           Digitalizar mi receta
           <ArrowRight className="w-5 h-5 ml-2" />
@@ -68,19 +68,19 @@ export default function RecetarioLanding() {
       {/* Before/After Visual */}
       <section className="px-6 pb-16 max-w-4xl mx-auto">
         <div className="grid md:grid-cols-2 gap-6 items-center">
-          <div className="bg-[#F5E6D3] rounded-2xl p-8 border-2 border-dashed border-[#C75B2A]/30 text-center">
-            <p className="font-serif text-lg italic text-[#6B5744] mb-2">📝 Receta manuscrita</p>
-            <p className="text-sm text-[#8B7355]">Letra de abuela, manchas de aceite, papel amarillento...</p>
-            <div className="mt-4 h-32 bg-[#EED9C4] rounded-lg flex items-center justify-center">
-              <span className="font-serif text-2xl text-[#6B5744]/50 italic">Cocido madrileño...</span>
+          <div className="bg-recetario-surface rounded-2xl p-8 border-2 border-dashed border-recetario-primary/30 text-center">
+            <p className="font-display text-lg italic text-recetario-muted mb-2">📝 Receta manuscrita</p>
+            <p className="text-sm text-recetario-muted-light font-body">Letra de abuela, manchas de aceite, papel amarillento...</p>
+            <div className="mt-4 h-32 bg-recetario-border rounded-lg flex items-center justify-center">
+              <span className="font-display text-2xl text-recetario-muted/50 italic">Cocido madrileño...</span>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-[#E8D5C4]">
-            <p className="font-serif text-lg text-[#3D2B1F] font-bold mb-2">✨ Receta digitalizada</p>
-            <p className="text-sm text-[#8B7355] mb-4">Ingredientes, pasos, raciones, lista de la compra...</p>
+          <div className="bg-recetario-card rounded-2xl p-8 shadow-lg border border-recetario-border">
+            <p className="font-display text-lg text-recetario-fg font-bold mb-2">✨ Receta digitalizada</p>
+            <p className="text-sm text-recetario-muted-light mb-4 font-body">Ingredientes, pasos, raciones, lista de la compra...</p>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm"><ChefHat className="w-4 h-4 text-[#C75B2A]" /><span className="font-medium">Cocido Madrileño</span></div>
-              <div className="flex items-center gap-2 text-sm text-[#6B5744]"><span>⏱ 3 horas</span><span>·</span><span>Media</span><span>·</span><span>4 personas</span></div>
+              <div className="flex items-center gap-2 text-sm"><ChefHat className="w-4 h-4 text-recetario-primary" /><span className="font-medium">Cocido Madrileño</span></div>
+              <div className="flex items-center gap-2 text-sm text-recetario-muted"><span>⏱ 3 horas</span><span>·</span><span>Media</span><span>·</span><span>4 personas</span></div>
             </div>
           </div>
         </div>
@@ -88,18 +88,18 @@ export default function RecetarioLanding() {
 
       {/* Steps */}
       <section className="px-6 pb-20 max-w-4xl mx-auto">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold text-center mb-12 text-[#3D2B1F]">
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-12 text-recetario-fg">
           Así de fácil funciona
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, i) => (
             <div key={i} className="text-center">
-              <div className="w-16 h-16 bg-[#C75B2A]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <step.icon className="w-7 h-7 text-[#C75B2A]" />
+              <div className="w-16 h-16 bg-recetario-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <step.icon className="w-7 h-7 text-recetario-primary" />
               </div>
-              <div className="text-xs font-bold text-[#C75B2A] mb-2">PASO {i + 1}</div>
-              <h3 className="font-serif text-lg font-bold mb-2 text-[#3D2B1F]">{step.title}</h3>
-              <p className="text-sm text-[#6B5744] leading-relaxed">{step.desc}</p>
+              <div className="text-xs font-bold text-recetario-primary mb-2 font-display uppercase tracking-wider">Paso {i + 1}</div>
+              <h3 className="font-display text-lg font-bold mb-2 text-recetario-fg">{step.title}</h3>
+              <p className="text-sm text-recetario-muted leading-relaxed font-body">{step.desc}</p>
             </div>
           ))}
         </div>
@@ -107,8 +107,8 @@ export default function RecetarioLanding() {
 
       {/* Benefits */}
       <section className="px-6 pb-20 max-w-4xl mx-auto">
-        <div className="bg-[#3D2B1F] rounded-3xl p-8 md:p-12 text-[#FFF8F0]">
-          <h2 className="font-serif text-2xl md:text-3xl font-bold mb-8 text-center">Todo lo que incluye</h2>
+        <div className="bg-recetario-fg rounded-3xl p-8 md:p-12 text-recetario-bg">
+          <h2 className="font-display text-2xl md:text-3xl font-bold mb-8 text-center">Todo lo que incluye</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
               "Digitalización con IA avanzada",
@@ -121,10 +121,10 @@ export default function RecetarioLanding() {
               "Compartir con enlace único",
             ].map((b, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#C75B2A] flex items-center justify-center flex-shrink-0">
+                <div className="w-5 h-5 rounded-full bg-recetario-primary flex items-center justify-center flex-shrink-0">
                   <span className="text-white text-xs">✓</span>
                 </div>
-                <span className="text-sm">{b}</span>
+                <span className="text-sm font-body">{b}</span>
               </div>
             ))}
           </div>
@@ -133,12 +133,12 @@ export default function RecetarioLanding() {
 
       {/* Final CTA */}
       <section className="px-6 pb-20 text-center">
-        <p className="font-serif text-xl md:text-2xl text-[#6B5744] mb-6 max-w-lg mx-auto">
+        <p className="font-display text-xl md:text-2xl text-recetario-muted mb-6 max-w-lg mx-auto">
           Cada receta manuscrita es un tesoro. <br />No dejes que se pierda.
         </p>
         <Button
           onClick={handleCTA}
-          className="bg-[#C75B2A] hover:bg-[#A04520] text-white text-lg px-8 py-6 rounded-full shadow-lg shadow-[#C75B2A]/25"
+          className="bg-recetario-primary hover:bg-recetario-primary-hover text-white text-lg px-8 py-6 rounded-full shadow-lg shadow-recetario-primary/25"
         >
           Digitalizar mi receta
           <ArrowRight className="w-5 h-5 ml-2" />
@@ -146,7 +146,7 @@ export default function RecetarioLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-[#E8D5C4] text-center text-sm text-[#8B7355]">
+      <footer className="px-6 py-8 border-t border-recetario-border text-center text-sm text-recetario-muted-light font-body">
         <p>El Recetario Eterno · Preservando la memoria culinaria familiar</p>
       </footer>
     </div>

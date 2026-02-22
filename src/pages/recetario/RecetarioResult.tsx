@@ -221,7 +221,6 @@ export default function RecetarioResult() {
         doc.text(storyLines, w / 2, 160, { align: "center" });
       }
 
-      // Recipe page
       doc.addPage();
       doc.setFillColor(255, 248, 240);
       doc.rect(0, 0, w, doc.internal.pageSize.getHeight(), "F");
@@ -240,7 +239,6 @@ export default function RecetarioResult() {
       }
       y += 12;
 
-      // Ingredients
       doc.setFontSize(14);
       doc.setTextColor(199, 91, 42);
       doc.text("Ingredientes", margin, y);
@@ -255,7 +253,6 @@ export default function RecetarioResult() {
       }
       y += 5;
 
-      // Steps
       doc.setFontSize(14);
       doc.setTextColor(199, 91, 42);
       doc.text("Preparación", margin, y);
@@ -270,7 +267,6 @@ export default function RecetarioResult() {
         y += lines.length * 5 + 3;
       });
 
-      // Shopping list
       if (shoppingList) {
         y += 5;
         if (y > 240) { doc.addPage(); y = 25; }
@@ -296,7 +292,6 @@ export default function RecetarioResult() {
         }
       }
 
-      // Healthy version
       if (healthyVersion && recipe.healthy_version_active) {
         doc.addPage();
         doc.setFillColor(255, 248, 240);
@@ -314,7 +309,6 @@ export default function RecetarioResult() {
         doc.text(`~${healthyVersion.calorias_por_racion} kcal/ración`, margin, y);
       }
 
-      // Final tip
       if (recipeData.consejo_final) {
         y += 15;
         if (y > 250) { doc.addPage(); y = 25; }
@@ -340,49 +334,49 @@ export default function RecetarioResult() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#C75B2A]" />
+      <div className="min-h-screen bg-recetario-bg flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-recetario-primary" />
       </div>
     );
   }
 
   if (!recipeData) {
     return (
-      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
-        <p className="text-[#6B5744]">Receta no encontrada o en procesamiento...</p>
+      <div className="min-h-screen bg-recetario-bg flex items-center justify-center">
+        <p className="text-recetario-muted font-body">Receta no encontrada o en procesamiento...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0]">
+    <div className="min-h-screen bg-recetario-bg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-[#C75B2A]" />
-          <span className="font-serif text-lg font-bold text-[#3D2B1F]">El Recetario Eterno</span>
+          <BookOpen className="w-6 h-6 text-recetario-primary" />
+          <span className="font-display text-lg font-bold text-recetario-fg">El Recetario Eterno</span>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/recetario/biblioteca")} className="text-[#C75B2A]">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/recetario/biblioteca")} className="text-recetario-primary">
           Mi Biblioteca
         </Button>
       </header>
 
       <div className="max-w-3xl mx-auto px-6 pb-20">
         {/* Back */}
-        <button onClick={() => navigate("/recetario/subir")} className="flex items-center gap-1 text-sm text-[#8B7355] mb-6 hover:text-[#C75B2A]">
+        <button onClick={() => navigate("/recetario/subir")} className="flex items-center gap-1 text-sm text-recetario-muted-light mb-6 hover:text-recetario-primary transition-colors font-body">
           <ArrowLeft className="w-4 h-4" /> Nueva receta
         </button>
 
         {/* Story */}
         {recipeData.historia_emocional && (
-          <div className="bg-[#F5E6D3] rounded-2xl p-6 mb-6 border border-[#E8D5C4]">
-            <p className="font-serif italic text-[#6B5744] text-sm leading-relaxed">{recipeData.historia_emocional}</p>
+          <div className="bg-recetario-surface rounded-2xl p-6 mb-6 border border-recetario-border">
+            <p className="font-display italic text-recetario-muted text-sm leading-relaxed">{recipeData.historia_emocional}</p>
           </div>
         )}
 
         {/* Title & meta */}
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#3D2B1F] mb-3">{recipeData.titulo}</h1>
-        <div className="flex flex-wrap gap-3 mb-8 text-sm text-[#6B5744]">
+        <h1 className="font-display text-3xl md:text-4xl font-bold text-recetario-fg mb-3">{recipeData.titulo}</h1>
+        <div className="flex flex-wrap gap-3 mb-8 text-sm text-recetario-muted font-body">
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{recipeData.tiempo_estimado}</span>
           <span className="flex items-center gap-1"><Flame className="w-4 h-4" />{recipeData.dificultad}</span>
           <span className="flex items-center gap-1"><ChefHat className="w-4 h-4" />{recipeData.tipo_receta}</span>
@@ -392,8 +386,8 @@ export default function RecetarioResult() {
         </div>
 
         {/* Servings selector */}
-        <div className="bg-white rounded-2xl p-5 border border-[#E8D5C4] mb-6">
-          <p className="text-sm font-medium text-[#3D2B1F] mb-3">
+        <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
+          <p className="text-sm font-medium text-recetario-fg mb-3 font-body">
             <Users className="w-4 h-4 inline mr-1" /> Raciones
           </p>
           <div className="flex gap-2">
@@ -402,43 +396,43 @@ export default function RecetarioResult() {
                 key={s}
                 onClick={() => handleServingsChange(s)}
                 disabled={loadingServings}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`flex-1 py-2 rounded-full text-sm font-medium transition-all ${
                   servings === s
-                    ? "bg-[#C75B2A] text-white shadow-md"
-                    : "bg-[#FFF8F0] text-[#6B5744] hover:bg-[#F5E6D3]"
+                    ? "bg-recetario-primary text-white shadow-md"
+                    : "bg-recetario-bg text-recetario-muted hover:bg-recetario-surface"
                 }`}
               >
                 {s}
               </button>
             ))}
           </div>
-          {loadingServings && <p className="text-xs text-[#8B7355] mt-2 text-center">Recalculando...</p>}
+          {loadingServings && <p className="text-xs text-recetario-muted-light mt-2 text-center font-body">Recalculando...</p>}
         </div>
 
         {/* Ingredients */}
-        <div className="bg-white rounded-2xl p-5 border border-[#E8D5C4] mb-6">
-          <h2 className="font-serif text-xl font-bold text-[#3D2B1F] mb-4">Ingredientes</h2>
+        <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
+          <h2 className="font-display text-xl font-bold text-recetario-fg mb-4">Ingredientes</h2>
           <ul className="space-y-2">
             {recipeData.ingredientes.map((ing, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm text-[#3D2B1F]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#C75B2A] flex-shrink-0" />
+              <li key={i} className="flex items-center gap-2 text-sm text-recetario-fg font-body">
+                <span className="w-1.5 h-1.5 rounded-full bg-recetario-primary flex-shrink-0" />
                 <span className="font-medium">{ing.cantidad} {ing.unidad}</span>
-                <span className="text-[#6B5744]">{ing.nombre}</span>
+                <span className="text-recetario-muted">{ing.nombre}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Steps */}
-        <div className="bg-white rounded-2xl p-5 border border-[#E8D5C4] mb-6">
-          <h2 className="font-serif text-xl font-bold text-[#3D2B1F] mb-4">Preparación</h2>
+        <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
+          <h2 className="font-display text-xl font-bold text-recetario-fg mb-4">Preparación</h2>
           <ol className="space-y-4">
             {recipeData.pasos.map((paso, i) => (
               <li key={i} className="flex gap-3">
-                <span className="w-7 h-7 rounded-full bg-[#C75B2A]/10 text-[#C75B2A] flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                <span className="w-7 h-7 rounded-full bg-recetario-primary/10 text-recetario-primary flex items-center justify-center flex-shrink-0 text-sm font-bold font-display">
                   {i + 1}
                 </span>
-                <p className="text-sm text-[#3D2B1F] leading-relaxed pt-1">{paso}</p>
+                <p className="text-sm text-recetario-fg leading-relaxed pt-1 font-body">{paso}</p>
               </li>
             ))}
           </ol>
@@ -446,9 +440,9 @@ export default function RecetarioResult() {
 
         {/* Final tip */}
         {recipeData.consejo_final && (
-          <div className="bg-[#C75B2A]/5 rounded-2xl p-5 border border-[#C75B2A]/15 mb-6">
-            <p className="text-sm text-[#C75B2A] font-medium mb-1">💡 Consejo de la abuela</p>
-            <p className="text-sm text-[#6B5744] italic">{recipeData.consejo_final}</p>
+          <div className="bg-recetario-primary/5 rounded-2xl p-5 border border-recetario-primary/15 mb-6">
+            <p className="text-sm text-recetario-primary font-medium mb-1">💡 Consejo de la abuela</p>
+            <p className="text-sm text-recetario-muted italic font-body">{recipeData.consejo_final}</p>
           </div>
         )}
 
@@ -457,22 +451,22 @@ export default function RecetarioResult() {
           {/* Shopping list toggle */}
           <button
             onClick={() => setShowShoppingList(!showShoppingList)}
-            className="w-full bg-white rounded-2xl p-4 border border-[#E8D5C4] flex items-center justify-between hover:bg-[#FFF8F0] transition-all"
+            className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
           >
-            <span className="flex items-center gap-2 text-sm font-medium text-[#3D2B1F]">
-              <ShoppingCart className="w-5 h-5 text-[#C75B2A]" /> Lista de la compra
+            <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
+              <ShoppingCart className="w-5 h-5 text-recetario-primary" /> Lista de la compra
             </span>
-            {showShoppingList ? <ChevronUp className="w-4 h-4 text-[#8B7355]" /> : <ChevronDown className="w-4 h-4 text-[#8B7355]" />}
+            {showShoppingList ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />}
           </button>
           {showShoppingList && shoppingList && (
-            <div className="bg-white rounded-2xl p-5 border border-[#E8D5C4]">
+            <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border">
               {Object.entries(shoppingList).map(([cat, items]) => {
                 if (!items || items.length === 0) return null;
                 return (
                   <div key={cat} className="mb-4 last:mb-0">
-                    <p className="text-sm font-medium text-[#C75B2A] mb-2">{categoryLabels[cat] || cat}</p>
+                    <p className="text-sm font-medium text-recetario-primary mb-2 font-body">{categoryLabels[cat] || cat}</p>
                     {items.map((item: any, i: number) => (
-                      <p key={i} className="text-sm text-[#3D2B1F] ml-2 mb-1">
+                      <p key={i} className="text-sm text-recetario-fg ml-2 mb-1 font-body">
                         ☐ {item.cantidad} {item.unidad} {item.nombre}
                       </p>
                     ))}
@@ -486,23 +480,23 @@ export default function RecetarioResult() {
           <button
             onClick={handleAlternatives}
             disabled={loadingAlts}
-            className="w-full bg-white rounded-2xl p-4 border border-[#E8D5C4] flex items-center justify-between hover:bg-[#FFF8F0] transition-all"
+            className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
           >
-            <span className="flex items-center gap-2 text-sm font-medium text-[#3D2B1F]">
-              {loadingAlts ? <Loader2 className="w-5 h-5 animate-spin text-[#C75B2A]" /> : <span className="text-lg">🔄</span>}
+            <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
+              {loadingAlts ? <Loader2 className="w-5 h-5 animate-spin text-recetario-primary" /> : <span className="text-lg">🔄</span>}
               Alternativas de ingredientes
             </span>
-            {alternatives && (showAlternatives ? <ChevronUp className="w-4 h-4 text-[#8B7355]" /> : <ChevronDown className="w-4 h-4 text-[#8B7355]" />)}
+            {alternatives && (showAlternatives ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />)}
           </button>
           {showAlternatives && alternatives?.alternativas && (
-            <div className="bg-white rounded-2xl p-5 border border-[#E8D5C4] space-y-4">
+            <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border space-y-4">
               {alternatives.alternativas.map((alt, i) => (
-                <div key={i} className="text-sm">
-                  <p className="font-medium text-[#3D2B1F] mb-1">{alt.ingrediente_original}</p>
+                <div key={i} className="text-sm font-body">
+                  <p className="font-medium text-recetario-fg mb-1">{alt.ingrediente_original}</p>
                   <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="bg-[#E8F5E8] rounded-lg p-2"><span className="block text-[#558250] font-medium mb-0.5">Saludable</span>{alt.alternativa_saludable}</div>
-                    <div className="bg-[#FFF3E0] rounded-lg p-2"><span className="block text-[#C75B2A] font-medium mb-0.5">Económica</span>{alt.alternativa_economica}</div>
-                    <div className="bg-[#F5E6D3] rounded-lg p-2"><span className="block text-[#8B7355] font-medium mb-0.5">Tradicional</span>{alt.alternativa_tradicional}</div>
+                    <div className="bg-recetario-healthy-bg rounded-lg p-2"><span className="block text-recetario-healthy font-medium mb-0.5">Saludable</span>{alt.alternativa_saludable}</div>
+                    <div className="bg-recetario-primary/10 rounded-lg p-2"><span className="block text-recetario-primary font-medium mb-0.5">Económica</span>{alt.alternativa_economica}</div>
+                    <div className="bg-recetario-surface rounded-lg p-2"><span className="block text-recetario-muted-light font-medium mb-0.5">Tradicional</span>{alt.alternativa_tradicional}</div>
                   </div>
                 </div>
               ))}
@@ -513,40 +507,40 @@ export default function RecetarioResult() {
           <button
             onClick={handleHealthy}
             disabled={loadingHealthy}
-            className="w-full bg-white rounded-2xl p-4 border border-[#E8D5C4] flex items-center justify-between hover:bg-[#FFF8F0] transition-all"
+            className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
           >
-            <span className="flex items-center gap-2 text-sm font-medium text-[#3D2B1F]">
-              {loadingHealthy ? <Loader2 className="w-5 h-5 animate-spin text-[#558250]" /> : <Leaf className="w-5 h-5 text-[#558250]" />}
+            <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
+              {loadingHealthy ? <Loader2 className="w-5 h-5 animate-spin text-recetario-healthy" /> : <Leaf className="w-5 h-5 text-recetario-healthy" />}
               Versión saludable
             </span>
-            {healthyVersion && (showHealthy ? <ChevronUp className="w-4 h-4 text-[#8B7355]" /> : <ChevronDown className="w-4 h-4 text-[#8B7355]" />)}
+            {healthyVersion && (showHealthy ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />)}
           </button>
           {showHealthy && healthyVersion && (
-            <div className="bg-white rounded-2xl p-5 border border-[#558250]/20">
+            <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-healthy/20">
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs bg-[#E8F5E8] text-[#558250] px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-recetario-healthy-bg text-recetario-healthy px-2 py-1 rounded-full font-medium">
                   ~{healthyVersion.calorias_por_racion} kcal/ración
                 </span>
                 {recipeData.calorias_por_racion && (
-                  <span className="text-xs text-[#8B7355] line-through">
+                  <span className="text-xs text-recetario-muted-light line-through">
                     {recipeData.calorias_por_racion} kcal
                   </span>
                 )}
               </div>
-              <p className="text-sm text-[#558250] mb-4 italic">{healthyVersion.resumen_cambios}</p>
-              <h3 className="text-sm font-medium text-[#3D2B1F] mb-2">Ingredientes adaptados:</h3>
+              <p className="text-sm text-recetario-healthy mb-4 italic font-body">{healthyVersion.resumen_cambios}</p>
+              <h3 className="text-sm font-medium text-recetario-fg mb-2 font-body">Ingredientes adaptados:</h3>
               <ul className="space-y-1 mb-4">
                 {healthyVersion.ingredientes.map((ing, i) => (
-                  <li key={i} className="text-sm text-[#3D2B1F]">
+                  <li key={i} className="text-sm text-recetario-fg font-body">
                     • {ing.cantidad} {ing.unidad} {ing.nombre}
-                    {ing.cambio && <span className="text-xs text-[#558250] ml-1">({ing.cambio})</span>}
+                    {ing.cambio && <span className="text-xs text-recetario-healthy ml-1">({ing.cambio})</span>}
                   </li>
                 ))}
               </ul>
-              <h3 className="text-sm font-medium text-[#3D2B1F] mb-2">Pasos:</h3>
+              <h3 className="text-sm font-medium text-recetario-fg mb-2 font-body">Pasos:</h3>
               <ol className="space-y-2">
                 {healthyVersion.pasos.map((p, i) => (
-                  <li key={i} className="text-sm text-[#3D2B1F]">{i + 1}. {p}</li>
+                  <li key={i} className="text-sm text-recetario-fg font-body">{i + 1}. {p}</li>
                 ))}
               </ol>
             </div>
@@ -558,7 +552,7 @@ export default function RecetarioResult() {
           <Button
             onClick={generatePDF}
             disabled={loadingPdf}
-            className="bg-[#C75B2A] hover:bg-[#A04520] text-white rounded-xl h-12"
+            className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full h-12"
           >
             {loadingPdf ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
             Descargar PDF
@@ -566,7 +560,7 @@ export default function RecetarioResult() {
           <Button
             onClick={handleShare}
             variant="outline"
-            className="border-[#C75B2A] text-[#C75B2A] hover:bg-[#C75B2A]/5 rounded-xl h-12"
+            className="border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 rounded-full h-12"
           >
             {copied ? <Check className="w-4 h-4 mr-2" /> : <Share2 className="w-4 h-4 mr-2" />}
             {copied ? "¡Copiado!" : "Compartir"}
