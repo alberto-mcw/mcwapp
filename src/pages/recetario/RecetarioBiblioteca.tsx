@@ -87,7 +87,7 @@ export default function RecetarioBiblioteca() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
-  const loadImageAsBase64 = (url: string): Promise<string | null> => {
+  const loadImageAsBase64WithDims = (url: string): Promise<{ base64: string; w: number; h: number } | null> => {
     return new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -98,7 +98,7 @@ export default function RecetarioBiblioteca() {
         const ctx = canvas.getContext("2d");
         if (!ctx) { resolve(null); return; }
         ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
+        resolve({ base64: canvas.toDataURL("image/jpeg", 0.8), w: img.naturalWidth, h: img.naturalHeight });
       };
       img.onerror = () => resolve(null);
       img.src = url;
@@ -114,11 +114,15 @@ export default function RecetarioBiblioteca() {
     try {
       // Pre-load all recipe images
       const imageMap = new Map<string, string>();
+      const imageDimensions = new Map<string, { w: number; h: number }>();
       const imagePromises = recipes.map(async (recipe) => {
         const imgUrl = (recipe.structured_data as any)?.generated_image_url;
         if (imgUrl) {
-          const base64 = await loadImageAsBase64(imgUrl);
-          if (base64) imageMap.set(recipe.id, base64);
+          const result = await loadImageAsBase64WithDims(imgUrl);
+          if (result) {
+            imageMap.set(recipe.id, result.base64);
+            imageDimensions.set(recipe.id, { w: result.w, h: result.h });
+          }
         }
       });
       await Promise.all(imagePromises);
@@ -214,12 +218,25 @@ export default function RecetarioBiblioteca() {
         doc.rect(0, 0, w, h, "F");
         let y = 15;
 
-        // Recipe image
+        // Recipe image (maintain aspect ratio, max height 70mm)
         const imgBase64 = imageMap.get(recipe.id);
         if (imgBase64) {
-          const imgW = contentW;
-          const imgH = 55;
-          doc.addImage(imgBase64, "JPEG", margin, y, imgW, imgH);
+          const imgEl = imageDimensions.get(recipe.id);
+          const maxW = contentW;
+          const maxH = 70;
+          let imgW = maxW;
+          let imgH = maxH;
+          if (imgEl) {
+            const ratio = imgEl.w / imgEl.h;
+            imgW = maxW;
+            imgH = maxW / ratio;
+            if (imgH > maxH) {
+              imgH = maxH;
+              imgW = maxH * ratio;
+            }
+          }
+          const imgX = margin + (contentW - imgW) / 2;
+          doc.addImage(imgBase64, "JPEG", imgX, y, imgW, imgH);
           y += imgH + 6;
         }
 
