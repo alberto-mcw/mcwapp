@@ -194,49 +194,109 @@ async function handleFullProcessAudio(audioUrl: string, recipeId: string, apiKey
   return handleFullProcessText(recipeText, recipeId, apiKey, supabase);
 }
 
+async function scrapeWithFirecrawl(url: string): Promise<string | null> {
+  const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
+  if (!FIRECRAWL_API_KEY) return null;
+
+  try {
+    console.log("Trying Firecrawl for:", url);
+    const resp = await fetch("https://api.firecrawl.dev/v1/scrape", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: true, waitFor: 3000 }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.log("Firecrawl failed:", errText);
+      return null;
+    }
+
+    const data = await resp.json();
+    const markdown = data?.data?.markdown || data?.markdown || "";
+    const title = data?.data?.metadata?.title || data?.metadata?.title || "";
+    const description = data?.data?.metadata?.description || data?.metadata?.description || "";
+    const combined = [title, description, markdown].filter(Boolean).join("\n\n");
+    return combined.trim() || null;
+  } catch (e) {
+    console.log("Firecrawl exception:", e);
+    return null;
+  }
+}
+
+async function scrapeWithOEmbed(url: string): Promise<string | null> {
+  try {
+    const isInstagram = /instagram\.com|instagr\.am/i.test(url);
+    const isYouTube = /youtube\.com|youtu\.be/i.test(url);
+    const isTikTok = /tiktok\.com/i.test(url);
+
+    let oembedUrl = "";
+    if (isInstagram) {
+      oembedUrl = `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(url)}`;
+    } else if (isYouTube) {
+      oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+    } else if (isTikTok) {
+      oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
+    } else {
+      return null;
+    }
+
+    console.log("Trying oEmbed for:", url);
+    const resp = await fetch(oembedUrl);
+    if (!resp.ok) {
+      console.log("oEmbed failed:", resp.status);
+      await resp.text();
+      return null;
+    }
+
+    const data = await resp.json();
+    const title = data.title || "";
+    const authorName = data.author_name || "";
+    const html = data.html || "";
+
+    // Extract caption from Instagram HTML embed if available
+    let caption = "";
+    const captionMatch = html.match(/class="Caption"[^>]*>([\s\S]*?)<\/div>/i);
+    if (captionMatch) caption = captionMatch[1].replace(/<[^>]+>/g, "").trim();
+
+    const parts = [
+      title && `Título: ${title}`,
+      authorName && `Autor: ${authorName}`,
+      caption && `Descripción: ${caption}`,
+    ].filter(Boolean);
+
+    return parts.length > 0 ? parts.join("\n") : null;
+  } catch (e) {
+    console.log("oEmbed exception:", e);
+    return null;
+  }
+}
+
 async function handleFullProcessUrl(videoUrl: string, recipeId: string, apiKey: string, supabase: any) {
   if (!videoUrl) throw new Error("No URL provided");
 
-  const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
-  if (!FIRECRAWL_API_KEY) throw new Error("FIRECRAWL_API_KEY is not configured");
+  console.log("Processing URL:", videoUrl);
 
-  // Scrape the URL with Firecrawl to get text content
-  console.log("Scraping URL:", videoUrl);
-  const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      url: videoUrl,
-      formats: ["markdown"],
-      onlyMainContent: true,
-      waitFor: 3000,
-    }),
-  });
+  // Strategy 1: Try Firecrawl (works for YouTube and many sites)
+  let content = await scrapeWithFirecrawl(videoUrl);
 
-  if (!scrapeResponse.ok) {
-    const errorText = await scrapeResponse.text();
-    console.error("Firecrawl error:", errorText);
-    throw new Error("No se pudo leer el contenido de la URL");
+  // Strategy 2: Try oEmbed (works for Instagram, YouTube, TikTok)
+  if (!content) {
+    content = await scrapeWithOEmbed(videoUrl);
   }
 
-  const scrapeData = await scrapeResponse.json();
-  const markdown = scrapeData?.data?.markdown || scrapeData?.markdown || "";
-  const title = scrapeData?.data?.metadata?.title || scrapeData?.metadata?.title || "";
-  const description = scrapeData?.data?.metadata?.description || scrapeData?.metadata?.description || "";
-
-  const fullContent = [title, description, markdown].filter(Boolean).join("\n\n");
-  
-  if (!fullContent.trim()) {
-    throw new Error("No se pudo extraer contenido de la URL");
+  // Strategy 3: If we at least have the URL, ask AI to work with what we have
+  if (!content) {
+    content = `URL del vídeo de cocina: ${videoUrl}\n\nNota: No se pudo extraer el contenido automáticamente. Por favor, intenta generar una receta basándote en cualquier información disponible en la URL (nombre del vídeo, canal, etc.).`;
+    console.log("Using URL-only fallback");
   }
 
-  console.log("Scraped content length:", fullContent.length);
+  console.log("Content extracted, length:", content.length);
 
-  // Process as text with extra context about the source
-  const recipeText = `Contenido extraído de un vídeo/reel de cocina (${videoUrl}):\n\n${fullContent}`;
+  const recipeText = `Contenido extraído de un vídeo/reel de cocina (${videoUrl}):\n\n${content}`;
   return handleFullProcessText(recipeText, recipeId, apiKey, supabase);
 }
 
