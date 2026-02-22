@@ -120,6 +120,15 @@ async function callAIWithTools(messages: any[], tools: any[], toolChoice: any, L
   }
 }
 
+const AVAILABLE_TAGS = [
+  "express", "saludable", "sin gluten", "sin lactosa", "vegano", "vegetariano",
+  "desayuno", "almuerzo", "merienda", "cena", "postre", "entrante", "aperitivo",
+  "thermomix", "airfryer", "horno", "microondas", "sin horno", "batch cooking",
+  "bajo en calorías", "alto en proteínas", "comfort food", "para niños",
+  "económica", "gourmet", "tradicional", "fusión", "navidad", "verano",
+  "picnic", "tupper", "1 ingrediente", "5 ingredientes", "meal prep",
+];
+
 const recipeStructureTool = {
   type: "function" as const,
   function: {
@@ -151,8 +160,13 @@ const recipeStructureTool = {
         calorias_por_racion: { type: "number" },
         historia_emocional: { type: "string", description: "A brief emotional story about this type of traditional recipe, 2-3 sentences" },
         consejo_final: { type: "string", description: "A final tip or advice from a grandmother" },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: `Smart tags for this recipe. Choose ALL that apply from: ${AVAILABLE_TAGS.join(", ")}. Apply 'express' if total time <= 15 min, 'saludable' if healthy, 'sin gluten' if no gluten, etc. Be generous assigning tags.`,
+        },
       },
-      required: ["titulo", "ingredientes", "pasos", "tiempo_estimado", "dificultad", "tipo_receta", "raciones"],
+      required: ["titulo", "ingredientes", "pasos", "tiempo_estimado", "dificultad", "tipo_receta", "raciones", "tags"],
     },
   },
 };
@@ -356,6 +370,7 @@ Responde SIEMPRE en español.`,
       shopping_list: shoppingList,
       ai_story: structured.historia_emocional,
       calories_per_serving: structured.calorias_por_racion,
+      tags: structured.tags || [],
       status: "completed",
     })
     .eq("id", recipeId);
@@ -438,6 +453,7 @@ Responde SIEMPRE en español.`,
       shopping_list: shoppingList,
       ai_story: structured.historia_emocional,
       calories_per_serving: structured.calorias_por_racion,
+      tags: structured.tags || [],
       status: "completed",
     })
     .eq("id", recipeId);

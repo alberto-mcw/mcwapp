@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil, UtensilsCrossed } from "lucide-react";
+import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil, UtensilsCrossed, Tag } from "lucide-react";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ export default function RecetarioBiblioteca() {
   const [assignMenuRecipeId, setAssignMenuRecipeId] = useState<string | null>(null);
   const [pdfCollectionId, setPdfCollectionId] = useState<string | null>(null);
   const [uploadingCollectionPhoto, setUploadingCollectionPhoto] = useState(false);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
   const { collections, createCollection, updateCollection, deleteCollection, addRecipeToCollection, removeRecipeFromCollection } = useCollections();
 
   const leadId = sessionStorage.getItem("recetario_lead_id");
@@ -168,11 +169,20 @@ export default function RecetarioBiblioteca() {
 
   const activeCollection = collections.find((c) => c.id === activeCollectionId);
 
+  // Collect all unique tags from recipes
+  const allTags = Array.from(
+    new Set(recipes.flatMap((r) => (r.tags as string[]) || []))
+  ).sort();
+
   const filteredRecipes = recipes
     .filter((r) => {
       // Filter by active collection
       if (activeCollectionId && activeCollection) {
         if (!activeCollection.recipe_ids.includes(r.id)) return false;
+      }
+      // Filter by active tag
+      if (activeTag) {
+        if (!(r.tags as string[] || []).includes(activeTag)) return false;
       }
       if (!search) return true;
       const title = (r.structured_data?.titulo || r.title || "").toLowerCase();
@@ -962,6 +972,35 @@ export default function RecetarioBiblioteca() {
           )}
         </div>
 
+        {/* Tag filters */}
+        {allTags.length > 0 && (
+          <div className="flex gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+            <button
+              onClick={() => setActiveTag(null)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-body whitespace-nowrap transition-colors ${
+                !activeTag
+                  ? "bg-recetario-primary text-white"
+                  : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
+              }`}
+            >
+              <Tag className="w-3 h-3" /> Todos
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                className={`px-3 py-1.5 rounded-full text-xs font-body whitespace-nowrap transition-colors capitalize ${
+                  activeTag === tag
+                    ? "bg-recetario-primary text-white"
+                    : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Recipe grid */}
         {loading ? (
           <div className="flex justify-center py-12">
@@ -1006,6 +1045,22 @@ export default function RecetarioBiblioteca() {
                       )}
                       <span className="flex items-center gap-1"><ChefHat className="w-3 h-3" />{recipe.recipe_type}</span>
                     </div>
+                    {/* Tags */}
+                    {(recipe.tags as string[] || []).length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {(recipe.tags as string[]).slice(0, 4).map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="text-[10px] bg-recetario-surface text-recetario-primary px-2 py-0.5 rounded-full font-body capitalize"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {(recipe.tags as string[]).length > 4 && (
+                          <span className="text-[10px] text-recetario-muted-light font-body">+{(recipe.tags as string[]).length - 4}</span>
+                        )}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex gap-2 flex-wrap">
                         <span className="text-xs bg-recetario-bg text-recetario-primary px-2 py-1 rounded-full font-medium">{recipe.servings} pers.</span>
