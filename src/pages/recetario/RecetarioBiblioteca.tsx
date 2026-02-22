@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus } from "lucide-react";
+import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import { useCollections } from "@/hooks/useCollections";
 
 type SortBy = "date" | "favorites" | "type";
 
@@ -21,6 +22,12 @@ export default function RecetarioBiblioteca() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
   const [coverPhotoDims, setCoverPhotoDims] = useState<{ w: number; h: number } | null>(null);
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
+  const [showNewCollection, setShowNewCollection] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [assignMenuRecipeId, setAssignMenuRecipeId] = useState<string | null>(null);
+  const [pdfCollectionId, setPdfCollectionId] = useState<string | null>(null);
+  const { collections, createCollection, deleteCollection, addRecipeToCollection, removeRecipeFromCollection } = useCollections();
 
   const leadId = sessionStorage.getItem("recetario_lead_id");
   const email = sessionStorage.getItem("recetario_email");
@@ -102,8 +109,14 @@ export default function RecetarioBiblioteca() {
     }
   };
 
+  const activeCollection = collections.find((c) => c.id === activeCollectionId);
+
   const filteredRecipes = recipes
     .filter((r) => {
+      // Filter by active collection
+      if (activeCollectionId && activeCollection) {
+        if (!activeCollection.recipe_ids.includes(r.id)) return false;
+      }
       if (!search) return true;
       const title = (r.structured_data?.titulo || r.title || "").toLowerCase();
       return title.includes(search.toLowerCase());
@@ -113,6 +126,10 @@ export default function RecetarioBiblioteca() {
       if (sortBy === "type") return (a.recipe_type || "").localeCompare(b.recipe_type || "");
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
+
+  const pdfRecipes = pdfCollectionId
+    ? recipes.filter((r) => collections.find((c) => c.id === pdfCollectionId)?.recipe_ids.includes(r.id))
+    : recipes;
 
   const loadImageAsBase64WithDims = (url: string): Promise<{ base64: string; w: number; h: number } | null> => {
     return new Promise((resolve) => {
@@ -148,7 +165,7 @@ export default function RecetarioBiblioteca() {
   };
 
   const generateFullPdf = async () => {
-    if (recipes.length === 0) {
+    if (pdfRecipes.length === 0) {
       toast.error("No hay recetas para exportar");
       return;
     }
@@ -157,7 +174,7 @@ export default function RecetarioBiblioteca() {
       // Pre-load all recipe images
       const imageMap = new Map<string, string>();
       const imageDimensions = new Map<string, { w: number; h: number }>();
-      const imagePromises = recipes.map(async (recipe) => {
+      const imagePromises = pdfRecipes.map(async (recipe) => {
         const imgUrl = (recipe.structured_data as any)?.generated_image_url;
         if (imgUrl) {
           const result = await loadImageAsBase64WithDims(imgUrl);
@@ -217,7 +234,7 @@ export default function RecetarioBiblioteca() {
 
       doc.setFontSize(11);
       doc.setTextColor(139, 115, 85);
-      doc.text(`${recipes.length} recetas`, w / 2, coverY, { align: "center" });
+      doc.text(`${pdfRecipes.length} recetas`, w / 2, coverY, { align: "center" });
       doc.text("Edición 2026", w / 2, coverY + 8, { align: "center" });
 
       doc.setFontSize(9);
@@ -239,7 +256,7 @@ export default function RecetarioBiblioteca() {
 
       let indexY = 45;
       doc.setFontSize(10);
-      recipes.forEach((recipe, i) => {
+      pdfRecipes.forEach((recipe, i) => {
         const data = recipe.structured_data as any;
         const title = data?.titulo || recipe.title || "Sin título";
         if (indexY > h - 25) {
@@ -271,7 +288,7 @@ export default function RecetarioBiblioteca() {
       });
 
       // ── Recipe pages ──
-      for (const recipe of recipes) {
+      for (const recipe of pdfRecipes) {
         const data = recipe.structured_data as any;
         if (!data) continue;
 
@@ -505,6 +522,92 @@ export default function RecetarioBiblioteca() {
           </div>
         </div>
 
+        {/* Collections */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display text-sm font-bold text-recetario-fg">Colecciones</h3>
+            <button
+              onClick={() => setShowNewCollection(true)}
+              className="text-xs text-recetario-primary hover:text-recetario-primary-hover flex items-center gap-1 font-body"
+            >
+              <FolderPlus className="w-3.5 h-3.5" /> Nueva colección
+            </button>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setActiveCollectionId(null)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                !activeCollectionId
+                  ? "bg-recetario-primary text-white"
+                  : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
+              }`}
+            >
+              Todas
+            </button>
+            {collections.map((col) => (
+              <div key={col.id} className="relative group/col">
+                <button
+                  onClick={() => setActiveCollectionId(activeCollectionId === col.id ? null : col.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
+                    activeCollectionId === col.id
+                      ? "bg-recetario-primary text-white"
+                      : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
+                  }`}
+                >
+                  <Folder className="w-3 h-3" /> {col.name} ({col.recipe_ids.length})
+                </button>
+                <button
+                  onClick={() => deleteCollection(col.id)}
+                  className="absolute -top-1 -right-1 bg-recetario-fg text-recetario-bg rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* New collection inline form */}
+          {showNewCollection && (
+            <div className="mt-3 flex gap-2">
+              <Input
+                value={newCollectionName}
+                onChange={(e) => setNewCollectionName(e.target.value)}
+                placeholder="Ej: Recetas de la abuela María"
+                className="h-9 rounded-xl border-recetario-border bg-recetario-card text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newCollectionName.trim()) {
+                    createCollection(newCollectionName.trim());
+                    setNewCollectionName("");
+                    setShowNewCollection(false);
+                  }
+                }}
+              />
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (newCollectionName.trim()) {
+                    createCollection(newCollectionName.trim());
+                    setNewCollectionName("");
+                    setShowNewCollection(false);
+                  }
+                }}
+                className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-xs h-9 px-4"
+              >
+                Crear
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setShowNewCollection(false); setNewCollectionName(""); }}
+                className="rounded-full text-xs h-9 border-recetario-border text-recetario-muted"
+              >
+                Cancelar
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Recipe grid */}
         {loading ? (
           <div className="flex justify-center py-12">
@@ -590,13 +693,60 @@ export default function RecetarioBiblioteca() {
                       )}
                       <span className="flex items-center gap-1"><ChefHat className="w-3 h-3" />{recipe.recipe_type}</span>
                     </div>
-                    <div className="flex gap-2">
-                      <span className="text-xs bg-recetario-bg text-recetario-primary px-2 py-1 rounded-full font-medium">{recipe.servings} pers.</span>
-                      {recipe.healthy_version_active && (
-                        <span className="text-xs bg-recetario-healthy-bg text-recetario-healthy px-2 py-1 rounded-full font-medium">Saludable</span>
-                      )}
-                      {recipe.visibility === "shared" && (
-                        <span className="text-xs bg-recetario-surface text-recetario-muted px-2 py-1 rounded-full font-medium">Compartida</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2 flex-wrap">
+                        <span className="text-xs bg-recetario-bg text-recetario-primary px-2 py-1 rounded-full font-medium">{recipe.servings} pers.</span>
+                        {recipe.healthy_version_active && (
+                          <span className="text-xs bg-recetario-healthy-bg text-recetario-healthy px-2 py-1 rounded-full font-medium">Saludable</span>
+                        )}
+                        {recipe.visibility === "public" && (
+                          <span className="text-xs bg-recetario-surface text-recetario-muted px-2 py-1 rounded-full font-medium">Pública</span>
+                        )}
+                      </div>
+                      {/* Add to collection */}
+                      {collections.length > 0 && (
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAssignMenuRecipeId(assignMenuRecipeId === recipe.id ? null : recipe.id);
+                            }}
+                            className="text-recetario-muted-light hover:text-recetario-primary transition-colors"
+                            title="Añadir a colección"
+                          >
+                            <FolderPlus className="w-4 h-4" />
+                          </button>
+                          {assignMenuRecipeId === recipe.id && (
+                            <div
+                              className="absolute bottom-full right-0 mb-1 bg-recetario-card border border-recetario-border rounded-xl shadow-lg p-2 z-10 min-w-[160px]"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {collections.map((col) => {
+                                const isIn = col.recipe_ids.includes(recipe.id);
+                                return (
+                                  <button
+                                    key={col.id}
+                                    onClick={() => {
+                                      if (isIn) {
+                                        removeRecipeFromCollection(col.id, recipe.id);
+                                      } else {
+                                        addRecipeToCollection(col.id, recipe.id);
+                                      }
+                                      setAssignMenuRecipeId(null);
+                                    }}
+                                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-body transition-colors flex items-center gap-2 ${
+                                      isIn ? "text-recetario-primary bg-recetario-primary/5" : "text-recetario-fg hover:bg-recetario-bg"
+                                    }`}
+                                  >
+                                    <Folder className="w-3 h-3" />
+                                    {col.name}
+                                    {isIn && <span className="ml-auto text-[10px]">✓</span>}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -619,8 +769,40 @@ export default function RecetarioBiblioteca() {
             </div>
 
             <p className="text-sm text-recetario-muted mb-4 font-body">
-              Se generará un PDF con tus {recipes.length} recetas. Dale un nombre a tu recetario:
+              Se generará un PDF con {pdfRecipes.length} recetas. Dale un nombre a tu recetario:
             </p>
+
+            {/* Collection selector */}
+            {collections.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs text-recetario-muted font-body mb-2">📁 Descargar por colección (opcional)</p>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setPdfCollectionId(null)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      !pdfCollectionId
+                        ? "bg-recetario-primary text-white"
+                        : "bg-recetario-card text-recetario-muted border border-recetario-border"
+                    }`}
+                  >
+                    Todas ({recipes.length})
+                  </button>
+                  {collections.map((col) => (
+                    <button
+                      key={col.id}
+                      onClick={() => setPdfCollectionId(pdfCollectionId === col.id ? null : col.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
+                        pdfCollectionId === col.id
+                          ? "bg-recetario-primary text-white"
+                          : "bg-recetario-card text-recetario-muted border border-recetario-border"
+                      }`}
+                    >
+                      <Folder className="w-3 h-3" /> {col.name} ({col.recipe_ids.length})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <Input
               value={cookbookName}
@@ -664,7 +846,7 @@ export default function RecetarioBiblioteca() {
               <ul className="text-xs text-recetario-fg font-body space-y-1">
                 <li>📖 Portada personalizada{coverPhoto ? " con foto" : ""}</li>
                 <li>📋 Índice con todas las recetas</li>
-                <li>🍳 {recipes.length} recetas completas con ingredientes y pasos</li>
+                <li>🍳 {pdfRecipes.length} recetas completas con ingredientes y pasos</li>
                 <li>💡 Consejos y curiosidades</li>
               </ul>
             </div>

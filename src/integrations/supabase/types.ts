@@ -332,6 +332,83 @@ export type Database = {
           },
         ]
       }
+      recipe_collection_items: {
+        Row: {
+          added_at: string
+          collection_id: string
+          id: string
+          recipe_id: string
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          id?: string
+          recipe_id: string
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          id?: string
+          recipe_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "recipe_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_collection_items_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_collections: {
+        Row: {
+          cover_photo_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          lead_id: string | null
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cover_photo_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_id?: string | null
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cover_photo_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_id?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_collections_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "recetario_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recipe_interactions: {
         Row: {
           action_data: Json | null
