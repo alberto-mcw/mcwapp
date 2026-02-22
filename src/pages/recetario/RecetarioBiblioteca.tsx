@@ -87,6 +87,24 @@ export default function RecetarioBiblioteca() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
+  const loadImageAsBase64 = (url: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(null); return; }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  };
+
   const generateFullPdf = async () => {
     if (recipes.length === 0) {
       toast.error("No hay recetas para exportar");
@@ -94,6 +112,17 @@ export default function RecetarioBiblioteca() {
     }
     setGeneratingPdf(true);
     try {
+      // Pre-load all recipe images
+      const imageMap = new Map<string, string>();
+      const imagePromises = recipes.map(async (recipe) => {
+        const imgUrl = (recipe.structured_data as any)?.generated_image_url;
+        if (imgUrl) {
+          const base64 = await loadImageAsBase64(imgUrl);
+          if (base64) imageMap.set(recipe.id, base64);
+        }
+      });
+      await Promise.all(imagePromises);
+
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const w = doc.internal.pageSize.getWidth();
       const h = doc.internal.pageSize.getHeight();
@@ -105,7 +134,6 @@ export default function RecetarioBiblioteca() {
       doc.setFillColor(255, 248, 240);
       doc.rect(0, 0, w, h, "F");
 
-      // Decorative line
       doc.setDrawColor(199, 91, 42);
       doc.setLineWidth(0.5);
       doc.line(w / 2 - 30, 55, w / 2 + 30, 55);
@@ -126,7 +154,6 @@ export default function RecetarioBiblioteca() {
       doc.text(`${recipes.length} recetas`, w / 2, 110 + titleLines.length * 8, { align: "center" });
       doc.text("Edición 2026", w / 2, 118 + titleLines.length * 8, { align: "center" });
 
-      // Footer
       doc.setFontSize(9);
       doc.setTextColor(180, 160, 140);
       doc.text("Digitalizado con El Recetario Eterno", w / 2, h - 20, { align: "center" });
@@ -161,13 +188,12 @@ export default function RecetarioBiblioteca() {
         const truncTitle = title.length > 50 ? title.substring(0, 50) + "..." : title;
         doc.text(truncTitle, margin + 8, indexY);
         
-        // Dotted line
         doc.setTextColor(200, 190, 175);
         const dots = ".".repeat(60);
-        const titleW = doc.getTextWidth(truncTitle);
+        const titleW2 = doc.getTextWidth(truncTitle);
         const pageNum = `${i + 1}`;
         const pageNumW = doc.getTextWidth(pageNum);
-        const dotsX = margin + 8 + titleW + 2;
+        const dotsX = margin + 8 + titleW2 + 2;
         const dotsAvail = w - margin - pageNumW - 2 - dotsX;
         if (dotsAvail > 5) {
           const dotStr = dots.substring(0, Math.floor(dotsAvail / doc.getTextWidth(".")));
@@ -186,7 +212,16 @@ export default function RecetarioBiblioteca() {
         doc.addPage();
         doc.setFillColor(255, 248, 240);
         doc.rect(0, 0, w, h, "F");
-        let y = 25;
+        let y = 15;
+
+        // Recipe image
+        const imgBase64 = imageMap.get(recipe.id);
+        if (imgBase64) {
+          const imgW = contentW;
+          const imgH = 55;
+          doc.addImage(imgBase64, "JPEG", margin, y, imgW, imgH);
+          y += imgH + 6;
+        }
 
         // Title
         doc.setFontSize(20);
