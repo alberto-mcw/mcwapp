@@ -513,8 +513,8 @@ export default function RecetarioBiblioteca() {
     <div className="min-h-screen recetario-vichy-bg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
-        <div className="flex items-center gap-2">
-          <img src={recetarioLogo} alt="Mi Recetario Eterno" className="h-10" />
+        <div className="flex items-center">
+          <img src={recetarioLogo} alt="Mi Recetario Eterno" className="h-20" />
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
