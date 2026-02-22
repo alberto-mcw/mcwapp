@@ -291,6 +291,222 @@ export type Database = {
         }
         Relationships: []
       }
+      recetario_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          referred_by: string | null
+          source: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          referred_by?: string | null
+          source?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          referred_by?: string | null
+          source?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recetario_leads_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "recetario_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_interactions: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          created_at: string
+          id: string
+          lead_id: string | null
+          recipe_id: string
+          user_id: string | null
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          recipe_id: string
+          user_id?: string | null
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          recipe_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "recetario_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_interactions_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_shares: {
+        Row: {
+          clicks: number | null
+          created_at: string
+          id: string
+          new_users_generated: number | null
+          recipe_id: string
+          share_token: string
+        }
+        Insert: {
+          clicks?: number | null
+          created_at?: string
+          id?: string
+          new_users_generated?: number | null
+          recipe_id: string
+          share_token: string
+        }
+        Update: {
+          clicks?: number | null
+          created_at?: string
+          id?: string
+          new_users_generated?: number | null
+          recipe_id?: string
+          share_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_shares_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          ai_story: string | null
+          alternatives: Json | null
+          calories_per_serving: number | null
+          corrected_text: string | null
+          created_at: string
+          difficulty: string | null
+          estimated_time: string | null
+          healthy_version: Json | null
+          healthy_version_active: boolean | null
+          id: string
+          is_favorite: boolean | null
+          lead_id: string | null
+          ocr_text: string | null
+          original_image_url: string | null
+          pdf_url: string | null
+          recipe_type: string | null
+          regional_style: string | null
+          servings: number | null
+          share_token: string | null
+          shopping_list: Json | null
+          status: string
+          structured_data: Json | null
+          title: string
+          updated_at: string
+          user_id: string | null
+          visibility: string
+        }
+        Insert: {
+          ai_story?: string | null
+          alternatives?: Json | null
+          calories_per_serving?: number | null
+          corrected_text?: string | null
+          created_at?: string
+          difficulty?: string | null
+          estimated_time?: string | null
+          healthy_version?: Json | null
+          healthy_version_active?: boolean | null
+          id?: string
+          is_favorite?: boolean | null
+          lead_id?: string | null
+          ocr_text?: string | null
+          original_image_url?: string | null
+          pdf_url?: string | null
+          recipe_type?: string | null
+          regional_style?: string | null
+          servings?: number | null
+          share_token?: string | null
+          shopping_list?: Json | null
+          status?: string
+          structured_data?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          visibility?: string
+        }
+        Update: {
+          ai_story?: string | null
+          alternatives?: Json | null
+          calories_per_serving?: number | null
+          corrected_text?: string | null
+          created_at?: string
+          difficulty?: string | null
+          estimated_time?: string | null
+          healthy_version?: Json | null
+          healthy_version_active?: boolean | null
+          id?: string
+          is_favorite?: boolean | null
+          lead_id?: string | null
+          ocr_text?: string | null
+          original_image_url?: string | null
+          pdf_url?: string | null
+          recipe_type?: string | null
+          regional_style?: string | null
+          servings?: number | null
+          share_token?: string | null
+          shopping_list?: Json | null
+          status?: string
+          structured_data?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "recetario_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_verifications: {
         Row: {
           action_type: string
