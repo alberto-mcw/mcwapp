@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Image, X, Loader2, ArrowRight, CheckCircle2, AlertCircle, Type, Mic, Square, FileAudio } from "lucide-react";
+import { Upload, Image, X, Loader2, ArrowRight, CheckCircle2, AlertCircle, Type, Mic, Square, FileAudio, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -36,6 +37,14 @@ type AudioItem = {
   error?: string;
 };
 
+type UrlItem = {
+  id: string;
+  url: string;
+  status: "pending" | "scraping" | "processing" | "done" | "error";
+  recipeId?: string;
+  error?: string;
+};
+
 export default function RecetarioUpload() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,7 +55,9 @@ export default function RecetarioUpload() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [textItems, setTextItems] = useState<TextItem[]>([]);
   const [audioItems, setAudioItems] = useState<AudioItem[]>([]);
+  const [urlItems, setUrlItems] = useState<UrlItem[]>([]);
   const [textInput, setTextInput] = useState("");
+  const [urlInput, setUrlInput] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -153,6 +164,23 @@ export default function RecetarioUpload() {
   };
   const removeAudioItem = (id: string) => setAudioItems((prev) => prev.filter((a) => a.id !== id));
 
+  // ── URL handling ──
+  const isValidUrl = (url: string) => {
+    try {
+      const u = new URL(url);
+      return ["http:", "https:"].includes(u.protocol);
+    } catch { return false; }
+  };
+
+  const addUrlItem = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) { toast.error("Pega una URL primero."); return; }
+    if (!isValidUrl(trimmed)) { toast.error("URL no válida."); return; }
+    setUrlItems((prev) => [...prev, { id: crypto.randomUUID(), url: trimmed, status: "pending" }]);
+    setUrlInput("");
+  };
+  const removeUrlItem = (id: string) => setUrlItems((prev) => prev.filter((u) => u.id !== id));
+
   // ── Guard ──
   if (!leadId || !email) { navigate("/recetario"); return null; }
 
@@ -161,6 +189,7 @@ export default function RecetarioUpload() {
     ...files.map((f) => ({ status: f.status, recipeId: f.recipeId })),
     ...textItems.map((t) => ({ status: t.status, recipeId: t.recipeId })),
     ...audioItems.map((a) => ({ status: a.status, recipeId: a.recipeId })),
+    ...urlItems.map((u) => ({ status: u.status, recipeId: u.recipeId })),
   ];
   const pendingCount = allItems.filter((i) => i.status === "pending").length;
   const doneCount = allItems.filter((i) => i.status === "done").length;
@@ -233,6 +262,23 @@ export default function RecetarioUpload() {
     }
   };
 
+  const processUrlItem = async (item: UrlItem): Promise<UrlItem> => {
+    setUrlItems((prev) => prev.map((u) => (u.id === item.id ? { ...u, status: "scraping" as const } : u)));
+    try {
+      const recipeId = crypto.randomUUID();
+      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, lead_id: leadId, status: "processing" });
+      if (insertError) throw insertError;
+      setUrlItems((prev) => prev.map((u) => (u.id === item.id ? { ...u, status: "processing" as const, recipeId } : u)));
+      const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", { body: { videoUrl: item.url, recipeId, action: "full-process-url" } });
+      if (fnError) throw fnError;
+      if (result?.error) throw new Error(result.error);
+      return { ...item, status: "done", recipeId };
+    } catch (err: any) {
+      console.error(err);
+      return { ...item, status: "error", error: err.message || "Error al procesar" };
+    }
+  };
+
   const handleSubmitAll = async () => {
     if (pendingCount === 0) return;
     setProcessing(true);
@@ -249,6 +295,10 @@ export default function RecetarioUpload() {
       const result = await processAudioItem(item);
       setAudioItems((prev) => prev.map((a) => (a.id === item.id ? result : a)));
     }
+    for (const item of urlItems.filter((u) => u.status === "pending")) {
+      const result = await processUrlItem(item);
+      setUrlItems((prev) => prev.map((u) => (u.id === item.id ? result : u)));
+    }
 
     setProcessing(false);
     toast.success("¡Proceso completado!");
@@ -258,12 +308,14 @@ export default function RecetarioUpload() {
   const singleRecipeId = singleDone
     ? files.find((f) => f.status === "done")?.recipeId ||
       textItems.find((t) => t.status === "done")?.recipeId ||
-      audioItems.find((a) => a.status === "done")?.recipeId
+      audioItems.find((a) => a.status === "done")?.recipeId ||
+      urlItems.find((u) => u.status === "done")?.recipeId
     : undefined;
 
   const statusLabel = (status: string, extra?: string) => {
     if (status === "uploading") return <span className="text-xs text-recetario-primary font-body flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Subiendo...</span>;
     if (status === "transcribing") return <span className="text-xs text-recetario-primary font-body flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Transcribiendo...</span>;
+    if (status === "scraping") return <span className="text-xs text-recetario-primary font-body flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Leyendo URL...</span>;
     if (status === "processing") return <span className="text-xs text-recetario-primary font-body flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Digitalizando con IA...</span>;
     if (status === "done") return <span className="text-xs text-green-600 font-body flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completada</span>;
     if (status === "error") return <span className="text-xs text-destructive font-body flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {extra}</span>;
@@ -363,8 +415,39 @@ export default function RecetarioUpload() {
             </div>
           )}
 
+          {/* ── URL input ── */}
+          {!processing && (
+            <div className="bg-recetario-card rounded-3xl p-4 border border-recetario-border mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 bg-recetario-primary/10 rounded-xl flex items-center justify-center">
+                  <Link2 className="w-4 h-4 text-recetario-primary" />
+                </div>
+                <p className="font-display text-sm font-bold text-recetario-fg">Pega una URL de Reel o YouTube</p>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="url"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  placeholder="https://www.instagram.com/reel/... o https://youtube.com/..."
+                  className="flex-1 bg-recetario-bg border-recetario-border rounded-2xl text-sm font-body"
+                  onKeyDown={(e) => { if (e.key === "Enter") addUrlItem(); }}
+                />
+                <Button
+                  onClick={addUrlItem}
+                  disabled={!urlInput.trim()}
+                  size="sm"
+                  className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-xs"
+                >
+                  Añadir
+                </Button>
+              </div>
+              <p className="text-xs text-recetario-muted-light mt-2 font-body">Instagram Reels, YouTube, TikTok...</p>
+            </div>
+          )}
+
           {/* ── Item list ── */}
-          {(files.length > 0 || textItems.length > 0 || audioItems.length > 0) && (
+          {(files.length > 0 || textItems.length > 0 || audioItems.length > 0 || urlItems.length > 0) && (
             <div className="space-y-3 mb-6">
               {files.map((item) => (
                 <div key={item.id} className="bg-recetario-card rounded-2xl p-3 border border-recetario-border flex items-center gap-3 shadow-sm">
@@ -416,6 +499,25 @@ export default function RecetarioUpload() {
                   </div>
                   {item.status === "pending" && !processing && (
                     <button onClick={() => removeAudioItem(item.id)} className="w-8 h-8 rounded-full bg-recetario-bg flex items-center justify-center hover:bg-recetario-border transition-colors flex-shrink-0"><X className="w-4 h-4 text-recetario-muted" /></button>
+                  )}
+                  {item.status === "done" && item.recipeId && (
+                    <Button size="sm" variant="ghost" onClick={() => navigate(`/recetario/receta/${item.recipeId}`)} className="text-recetario-primary text-xs flex-shrink-0">Ver</Button>
+                  )}
+                </div>
+              ))}
+
+              {urlItems.map((item) => (
+                <div key={item.id} className="bg-recetario-card rounded-2xl p-3 border border-recetario-border flex items-center gap-3 shadow-sm">
+                  <div className="w-14 h-14 rounded-xl bg-recetario-bg flex-shrink-0 flex items-center justify-center">
+                    <Link2 className="w-5 h-5 text-recetario-muted-light" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-recetario-fg truncate font-body">{item.url}</p>
+                    <p className="text-xs text-recetario-muted-light font-body">URL de vídeo</p>
+                    {statusLabel(item.status, item.error)}
+                  </div>
+                  {item.status === "pending" && !processing && (
+                    <button onClick={() => removeUrlItem(item.id)} className="w-8 h-8 rounded-full bg-recetario-bg flex items-center justify-center hover:bg-recetario-border transition-colors flex-shrink-0"><X className="w-4 h-4 text-recetario-muted" /></button>
                   )}
                   {item.status === "done" && item.recipeId && (
                     <Button size="sm" variant="ghost" onClick={() => navigate(`/recetario/receta/${item.recipeId}`)} className="text-recetario-primary text-xs flex-shrink-0">Ver</Button>

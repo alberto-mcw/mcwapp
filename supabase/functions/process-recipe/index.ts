@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageUrl, recipeId, action, recipeData, servings, recipeText, audioUrl } = await req.json();
+    const { imageUrl, recipeId, action, recipeData, servings, recipeText, audioUrl, videoUrl } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -40,6 +40,8 @@ serve(async (req) => {
       return await handleFullProcessText(recipeText, recipeId, LOVABLE_API_KEY, supabase);
     } else if (action === "full-process-audio") {
       return await handleFullProcessAudio(audioUrl, recipeId, LOVABLE_API_KEY, supabase);
+    } else if (action === "full-process-url") {
+      return await handleFullProcessUrl(videoUrl, recipeId, LOVABLE_API_KEY, supabase);
     } else if (action === "generate-image") {
       return await handleGenerateImage(recipeId, LOVABLE_API_KEY, supabase);
     } else if (action === "update-recipe") {
@@ -189,6 +191,52 @@ async function handleFullProcessAudio(audioUrl: string, recipeId: string, apiKey
   if (!recipeText.trim()) throw new Error("No se pudo transcribir el audio");
 
   // Now process as text
+  return handleFullProcessText(recipeText, recipeId, apiKey, supabase);
+}
+
+async function handleFullProcessUrl(videoUrl: string, recipeId: string, apiKey: string, supabase: any) {
+  if (!videoUrl) throw new Error("No URL provided");
+
+  const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
+  if (!FIRECRAWL_API_KEY) throw new Error("FIRECRAWL_API_KEY is not configured");
+
+  // Scrape the URL with Firecrawl to get text content
+  console.log("Scraping URL:", videoUrl);
+  const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: videoUrl,
+      formats: ["markdown"],
+      onlyMainContent: true,
+      waitFor: 3000,
+    }),
+  });
+
+  if (!scrapeResponse.ok) {
+    const errorText = await scrapeResponse.text();
+    console.error("Firecrawl error:", errorText);
+    throw new Error("No se pudo leer el contenido de la URL");
+  }
+
+  const scrapeData = await scrapeResponse.json();
+  const markdown = scrapeData?.data?.markdown || scrapeData?.markdown || "";
+  const title = scrapeData?.data?.metadata?.title || scrapeData?.metadata?.title || "";
+  const description = scrapeData?.data?.metadata?.description || scrapeData?.metadata?.description || "";
+
+  const fullContent = [title, description, markdown].filter(Boolean).join("\n\n");
+  
+  if (!fullContent.trim()) {
+    throw new Error("No se pudo extraer contenido de la URL");
+  }
+
+  console.log("Scraped content length:", fullContent.length);
+
+  // Process as text with extra context about the source
+  const recipeText = `Contenido extraído de un vídeo/reel de cocina (${videoUrl}):\n\n${fullContent}`;
   return handleFullProcessText(recipeText, recipeId, apiKey, supabase);
 }
 
