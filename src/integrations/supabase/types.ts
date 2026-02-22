@@ -711,6 +711,7 @@ export type Database = {
         Args: { p_selected_answer: number; p_trivia_id: string }
         Returns: Json
       }
+      get_auth_email: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
