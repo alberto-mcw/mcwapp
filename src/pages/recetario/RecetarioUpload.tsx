@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Image, X, Loader2, ArrowRight, CheckCircle2, AlertCircle, Type, Mic, Square, FileAudio } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,26 @@ export default function RecetarioUpload() {
   const [dragOver, setDragOver] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Timer for recording
+  useEffect(() => {
+    if (recording) {
+      setRecordingSeconds(0);
+      recordingIntervalRef.current = setInterval(() => setRecordingSeconds((s) => s + 1), 1000);
+    } else {
+      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+      setRecordingSeconds(0);
+    }
+    return () => { if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current); };
+  }, [recording]);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const s = (secs % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   const leadId = sessionStorage.getItem("recetario_lead_id");
   const email = sessionStorage.getItem("recetario_email");
@@ -328,9 +348,12 @@ export default function RecetarioUpload() {
                     <Mic className="w-3.5 h-3.5 mr-1" /> Grabar
                   </Button>
                 ) : (
-                  <Button onClick={stopRecording} size="sm" className="rounded-full text-xs bg-destructive hover:bg-destructive/90 text-white animate-pulse">
-                    <Square className="w-3.5 h-3.5 mr-1" /> Parar
-                  </Button>
+                  <>
+                    <Button onClick={stopRecording} size="sm" className="rounded-full text-xs bg-destructive hover:bg-destructive/90 text-white animate-pulse">
+                      <Square className="w-3.5 h-3.5 mr-1" /> Parar
+                    </Button>
+                    <span className="text-xs font-mono text-destructive flex items-center">{formatTime(recordingSeconds)}</span>
+                  </>
                 )}
                 <Button onClick={() => audioInputRef.current?.click()} size="sm" variant="outline" className="rounded-full text-xs border-recetario-border text-recetario-fg">
                   <FileAudio className="w-3.5 h-3.5 mr-1" /> Subir archivo
