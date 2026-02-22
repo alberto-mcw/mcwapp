@@ -339,7 +339,7 @@ export default function RecetarioBiblioteca() {
 
   if (!leadId && !email) {
     return (
-      <div className="min-h-screen bg-recetario-bg flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen recetario-vichy-bg flex flex-col items-center justify-center px-6">
         <BookOpen className="w-12 h-12 text-recetario-primary mb-4" />
         <h1 className="font-display text-2xl font-bold text-recetario-fg mb-2">Mi Recetario Eterno</h1>
         <p className="text-recetario-muted text-sm mb-6 text-center max-w-sm font-body">
@@ -353,7 +353,7 @@ export default function RecetarioBiblioteca() {
   }
 
   return (
-    <div className="min-h-screen bg-recetario-bg">
+    <div className="min-h-screen recetario-vichy-bg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center gap-2">

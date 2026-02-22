@@ -468,7 +468,7 @@ export default function RecetarioResult() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-recetario-bg flex items-center justify-center">
+      <div className="min-h-screen recetario-vichy-bg flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-recetario-primary" />
       </div>
     );
@@ -476,7 +476,7 @@ export default function RecetarioResult() {
 
   if (!recipeData) {
     return (
-      <div className="min-h-screen bg-recetario-bg flex items-center justify-center">
+      <div className="min-h-screen recetario-vichy-bg flex items-center justify-center">
         <p className="text-recetario-muted font-body">Receta no encontrada o en procesamiento...</p>
       </div>
     );
@@ -485,7 +485,7 @@ export default function RecetarioResult() {
   const displayData = isEditing && editData ? editData : recipeData;
 
   return (
-    <div className="min-h-screen bg-recetario-bg">
+    <div className="min-h-screen recetario-vichy-bg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
         <div className="flex items-center gap-2">

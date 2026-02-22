@@ -63,7 +63,7 @@ export default function RecetarioShared() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-recetario-bg flex items-center justify-center">
+      <div className="min-h-screen recetario-vichy-bg flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-recetario-primary" />
       </div>
     );
@@ -71,7 +71,7 @@ export default function RecetarioShared() {
 
   if (!recipe) {
     return (
-      <div className="min-h-screen bg-recetario-bg flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen recetario-vichy-bg flex flex-col items-center justify-center px-6">
         <BookOpen className="w-12 h-12 text-recetario-primary/30 mb-4" />
         <h1 className="font-display text-xl font-bold text-recetario-fg mb-2">Receta no encontrada</h1>
         <p className="text-sm text-recetario-muted mb-6 font-body">Esta receta puede haber sido eliminada o ser privada.</p>
@@ -85,7 +85,7 @@ export default function RecetarioShared() {
   const data = recipe.structured_data as RecipeData;
 
   return (
-    <div className="min-h-screen bg-recetario-bg">
+    <div className="min-h-screen recetario-vichy-bg">
       {/* Header */}
       <header className="px-6 py-4 max-w-3xl mx-auto flex items-center gap-2">
         <BookOpen className="w-6 h-6 text-recetario-primary" />

@@ -99,7 +99,7 @@ export default function RecetarioUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-recetario-bg flex flex-col">
+    <div className="min-h-screen recetario-vichy-bg flex flex-col">
       {/* Header */}
       <header className="px-6 py-4 flex items-center gap-2">
         <BookOpen className="w-6 h-6 text-recetario-primary" />

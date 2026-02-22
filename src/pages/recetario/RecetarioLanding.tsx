@@ -27,7 +27,7 @@ export default function RecetarioLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-recetario-bg text-recetario-fg">
+    <div className="min-h-screen recetario-vichy-bg text-recetario-fg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center gap-2">
