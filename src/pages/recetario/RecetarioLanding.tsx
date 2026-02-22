@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { BookOpen, Camera, Sparkles, Download, Heart, Share2, ChefHat, ArrowRight } from "lucide-react";
+import recetaManuscritaImg from "@/assets/receta-manuscrita.jpg";
 import { Button } from "@/components/ui/button";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 
@@ -74,8 +75,8 @@ export default function RecetarioLanding() {
           <div className="bg-recetario-surface rounded-2xl p-8 border-2 border-dashed border-recetario-primary/30 text-center">
             <p className="font-display text-lg italic text-recetario-muted mb-2">📝 Receta manuscrita</p>
             <p className="text-sm text-recetario-muted-light font-body">Letra de abuela, manchas de aceite, papel amarillento...</p>
-            <div className="mt-4 h-32 bg-recetario-border rounded-lg flex items-center justify-center">
-              <span className="font-display text-2xl text-recetario-muted/50 italic">Cocido madrileño...</span>
+            <div className="mt-4 h-32 rounded-lg overflow-hidden">
+              <img src={recetaManuscritaImg} alt="Receta manuscrita antigua" className="w-full h-full object-cover" />
             </div>
           </div>
           <div className="bg-recetario-card rounded-2xl p-8 shadow-lg border border-recetario-border">
