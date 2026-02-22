@@ -34,6 +34,7 @@ import RecetarioUpload from "./pages/recetario/RecetarioUpload";
 import RecetarioResult from "./pages/recetario/RecetarioResult";
 import RecetarioBiblioteca from "./pages/recetario/RecetarioBiblioteca";
 import RecetarioShared from "./pages/recetario/RecetarioShared";
+import RecetarioExplorar from "./pages/recetario/RecetarioExplorar";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => (
             <Route path="/recetario/receta/:id" element={<RecetarioResult />} />
             <Route path="/recetario/biblioteca" element={<RecetarioBiblioteca />} />
             <Route path="/recetario/compartida/:token" element={<RecetarioShared />} />
+            <Route path="/recetario/explorar" element={<RecetarioExplorar />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
