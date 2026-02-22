@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, Type, Loader2, ChefHat, Clock, Sparkles, ArrowRight, X, Plus, BookOpen, ImagePlus, UtensilsCrossed } from "lucide-react";
+import { Camera, Type, Loader2, ChefHat, Clock, Sparkles, ArrowRight, X, Plus, BookOpen, ImagePlus, UtensilsCrossed, Save, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
@@ -41,6 +41,8 @@ export default function RecetarioQueCocino() {
   const [manualIngredients, setManualIngredients] = useState<string[]>([]);
   const [currentIngredient, setCurrentIngredient] = useState("");
   const [loading, setLoading] = useState(false);
+  const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [savedIndexes, setSavedIndexes] = useState<Set<number>>(new Set());
   const [step, setStep] = useState<"input" | "confirm" | "results">("input");
 
   // Results
@@ -124,6 +126,46 @@ export default function RecetarioQueCocino() {
       toast.error("Error al buscar recetas. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveAiSuggestion = async (suggestion: AISuggestion, index: number) => {
+    setSavingIndex(index);
+    try {
+      const recipeId = crypto.randomUUID();
+      const structuredData = {
+        titulo: suggestion.titulo,
+        descripcion: suggestion.descripcion,
+        ingredientes: suggestion.ingredientes_principales.map((ing) => ({ nombre: ing, cantidad: "" })),
+        pasos: [],
+      };
+
+      const insertData: any = {
+        id: recipeId,
+        title: suggestion.titulo,
+        structured_data: structuredData,
+        status: "completed",
+        difficulty: suggestion.dificultad,
+        estimated_time: suggestion.tiempo_estimado,
+        ai_story: suggestion.descripcion,
+      };
+
+      if (user?.id) {
+        insertData.user_id = user.id;
+      } else if (leadId) {
+        insertData.lead_id = leadId;
+      }
+
+      const { error } = await supabase.from("recipes").insert(insertData);
+      if (error) throw error;
+
+      setSavedIndexes((prev) => new Set(prev).add(index));
+      toast.success(`"${suggestion.titulo}" guardada en tu biblioteca`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al guardar la receta");
+    } finally {
+      setSavingIndex(null);
     }
   };
 
@@ -382,8 +424,31 @@ export default function RecetarioQueCocino() {
                       key={i}
                       className="bg-recetario-card rounded-xl border border-recetario-border p-4 hover:shadow-md transition-all"
                     >
-                      <h4 className="font-display font-bold text-recetario-fg mb-1">{suggestion.titulo}</h4>
-                      <p className="text-sm text-recetario-muted font-body mb-3">{suggestion.descripcion}</p>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-display font-bold text-recetario-fg mb-1">{suggestion.titulo}</h4>
+                          <p className="text-sm text-recetario-muted font-body mb-3">{suggestion.descripcion}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={savingIndex === i || savedIndexes.has(i)}
+                          onClick={() => saveAiSuggestion(suggestion, i)}
+                          className={`rounded-full flex-shrink-0 text-xs h-8 ${
+                            savedIndexes.has(i)
+                              ? "border-green-500 text-green-600 bg-green-50"
+                              : "border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5"
+                          }`}
+                        >
+                          {savingIndex === i ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : savedIndexes.has(i) ? (
+                            <><Check className="w-3 h-3 mr-1" /> Guardada</>
+                          ) : (
+                            <><Save className="w-3 h-3 mr-1" /> Guardar</>
+                          )}
+                        </Button>
+                      </div>
                       <div className="flex items-center gap-3 text-xs text-recetario-muted-light font-body">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {suggestion.tiempo_estimado}</span>
                         <span>·</span>
