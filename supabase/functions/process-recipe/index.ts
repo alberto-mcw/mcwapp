@@ -36,6 +36,10 @@ serve(async (req) => {
       return await handleAdjustServings(recipeId, servings, LOVABLE_API_KEY, supabase);
     } else if (action === "full-process") {
       return await handleFullProcess(imageUrl, recipeId, LOVABLE_API_KEY, supabase);
+    } else if (action === "generate-image") {
+      return await handleGenerateImage(recipeId, LOVABLE_API_KEY, supabase);
+    } else if (action === "update-recipe") {
+      return await handleUpdateRecipe(recipeId, recipeData, supabase);
     } else {
       throw new Error("Invalid action: " + action);
     }
@@ -442,6 +446,100 @@ async function handleAdjustServings(recipeId: string, servings: number, apiKey: 
 
   return new Response(
     JSON.stringify({ success: true, recipe: adjustedData, shoppingList }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+
+async function handleGenerateImage(recipeId: string, apiKey: string, supabase: any) {
+  const { data: recipe } = await supabase.from("recipes").select("structured_data, title").eq("id", recipeId).single();
+  if (!recipe?.structured_data) throw new Error("No structured data");
+
+  const recipeInfo = recipe.structured_data;
+  const prompt = `Genera una fotografía gastronómica profesional y apetitosa del plato "${recipeInfo.titulo || recipe.title}". 
+Ingredientes principales: ${(recipeInfo.ingredientes || []).slice(0, 5).map((i: any) => i.nombre).join(", ")}.
+Estilo: ${recipeInfo.tipo_receta || "tradicional"}, ${recipeInfo.estilo_regional || "cocina casera"}.
+La foto debe ser cenital o en ángulo de 45 grados, con iluminación natural cálida, sobre una mesa de madera rústica con elementos decorativos tradicionales. Ultra high resolution.`;
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash-image",
+      messages: [{ role: "user", content: prompt }],
+      modalities: ["image", "text"],
+    }),
+  });
+
+  if (!response.ok) {
+    const t = await response.text();
+    throw new Error(`Image generation error ${response.status}: ${t}`);
+  }
+
+  const data = await response.json();
+  const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  
+  if (!imageData) throw new Error("No image generated");
+
+  // Upload base64 image to storage
+  const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
+  const imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+  
+  const filePath = `generated/${recipeId}.png`;
+  const { error: uploadError } = await supabase.storage
+    .from("recipe-images")
+    .upload(filePath, imageBytes, { contentType: "image/png", upsert: true });
+
+  if (uploadError) throw new Error("Upload failed: " + uploadError.message);
+
+  const { data: publicUrl } = supabase.storage.from("recipe-images").getPublicUrl(filePath);
+  
+  // Save URL - use original_image_url field but only if no user image exists, otherwise use a separate approach
+  // We'll store in structured_data as generated_image_url
+  const updatedData = { ...recipeInfo, generated_image_url: publicUrl.publicUrl };
+  await supabase.from("recipes").update({ structured_data: updatedData }).eq("id", recipeId);
+
+  return new Response(
+    JSON.stringify({ success: true, imageUrl: publicUrl.publicUrl }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+
+async function handleUpdateRecipe(recipeId: string, recipeData: any, supabase: any) {
+  if (!recipeData) throw new Error("No recipe data provided");
+
+  const { data: recipe } = await supabase.from("recipes").select("structured_data").eq("id", recipeId).single();
+  if (!recipe) throw new Error("Recipe not found");
+
+  const updatedStructured = { ...recipe.structured_data, ...recipeData };
+
+  // Also update top-level fields
+  const updateFields: any = { structured_data: updatedStructured };
+  if (recipeData.titulo) updateFields.title = recipeData.titulo;
+  if (recipeData.tiempo_estimado) updateFields.estimated_time = recipeData.tiempo_estimado;
+  if (recipeData.dificultad) updateFields.difficulty = recipeData.dificultad;
+  if (recipeData.raciones) updateFields.servings = recipeData.raciones;
+
+  // Regenerate shopping list from updated ingredients
+  if (recipeData.ingredientes) {
+    const shoppingList: Record<string, any[]> = {
+      verduras: [], carnes_pescados: [], lacteos: [], despensa: [], otros: [],
+    };
+    for (const ing of recipeData.ingredientes) {
+      const cat = ing.categoria || "otros";
+      const target = shoppingList[cat] || shoppingList.otros;
+      target.push({ nombre: ing.nombre, cantidad: ing.cantidad, unidad: ing.unidad });
+    }
+    updateFields.shopping_list = shoppingList;
+  }
+
+  const { error } = await supabase.from("recipes").update(updateFields).eq("id", recipeId);
+  if (error) throw new Error("Update failed: " + error.message);
+
+  return new Response(
+    JSON.stringify({ success: true }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 }

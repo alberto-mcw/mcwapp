@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  BookOpen, ChefHat, Clock, Users, Flame, ShoppingCart, Heart,
-  Leaf, ArrowLeft, Download, Share2, Loader2, ChevronDown, ChevronUp, Copy, Check
+  BookOpen, ChefHat, Clock, Users, Flame, ShoppingCart,
+  Leaf, ArrowLeft, Download, Share2, Loader2, ChevronDown, ChevronUp, Copy, Check,
+  Pencil, Save, X, ImagePlus, Trash2, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +29,7 @@ interface RecipeData {
   calorias_por_racion?: number;
   historia_emocional?: string;
   consejo_final?: string;
+  generated_image_url?: string;
 }
 
 interface Alternative {
@@ -69,6 +71,14 @@ export default function RecetarioResult() {
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Image generation
+  const [loadingImage, setLoadingImage] = useState(false);
+
+  // Edit mode
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<RecipeData | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+
   useEffect(() => {
     loadRecipe();
   }, [id]);
@@ -104,6 +114,101 @@ export default function RecetarioResult() {
       action_type: actionType,
       action_data: actionData,
     });
+  };
+
+  // --- Edit mode handlers ---
+  const startEditing = () => {
+    if (recipeData) {
+      setEditData(JSON.parse(JSON.stringify(recipeData)));
+      setIsEditing(true);
+    }
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditData(null);
+  };
+
+  const saveEdits = async () => {
+    if (!editData || !id) return;
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase.functions.invoke("process-recipe", {
+        body: { recipeId: id, recipeData: editData, action: "update-recipe" },
+      });
+      if (error) throw error;
+      await loadRecipe();
+      setIsEditing(false);
+      setEditData(null);
+      toast.success("¡Receta actualizada!");
+      trackInteraction("receta_editada");
+    } catch {
+      toast.error("Error al guardar cambios");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const updateEditField = (field: string, value: any) => {
+    if (!editData) return;
+    setEditData({ ...editData, [field]: value });
+  };
+
+  const updateIngredient = (index: number, field: keyof Ingredient, value: any) => {
+    if (!editData) return;
+    const newIngs = [...editData.ingredientes];
+    newIngs[index] = { ...newIngs[index], [field]: field === "cantidad" ? parseFloat(value) || 0 : value };
+    setEditData({ ...editData, ingredientes: newIngs });
+  };
+
+  const removeIngredient = (index: number) => {
+    if (!editData) return;
+    setEditData({ ...editData, ingredientes: editData.ingredientes.filter((_, i) => i !== index) });
+  };
+
+  const addIngredient = () => {
+    if (!editData) return;
+    setEditData({
+      ...editData,
+      ingredientes: [...editData.ingredientes, { nombre: "", cantidad: 0, unidad: "g", categoria: "otros" }],
+    });
+  };
+
+  const updateStep = (index: number, value: string) => {
+    if (!editData) return;
+    const newSteps = [...editData.pasos];
+    newSteps[index] = value;
+    setEditData({ ...editData, pasos: newSteps });
+  };
+
+  const removeStep = (index: number) => {
+    if (!editData) return;
+    setEditData({ ...editData, pasos: editData.pasos.filter((_, i) => i !== index) });
+  };
+
+  const addStep = () => {
+    if (!editData) return;
+    setEditData({ ...editData, pasos: [...editData.pasos, ""] });
+  };
+
+  // --- Image generation ---
+  const handleGenerateImage = async () => {
+    if (!id) return;
+    setLoadingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("process-recipe", {
+        body: { recipeId: id, action: "generate-image" },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      await loadRecipe();
+      toast.success("¡Imagen generada!");
+      trackInteraction("imagen_generada");
+    } catch (e: any) {
+      toast.error(e?.message || "Error al generar imagen");
+    } finally {
+      setLoadingImage(false);
+    }
   };
 
   const handleServingsChange = async (newServings: number) => {
@@ -197,7 +302,6 @@ export default function RecetarioResult() {
       const contentW = w - margin * 2;
       let y = 0;
 
-      // Cover page
       doc.setFillColor(255, 248, 240);
       doc.rect(0, 0, w, doc.internal.pageSize.getHeight(), "F");
       
@@ -348,6 +452,8 @@ export default function RecetarioResult() {
     );
   }
 
+  const displayData = isEditing && editData ? editData : recipeData;
+
   return (
     <div className="min-h-screen bg-recetario-bg">
       {/* Header */}
@@ -367,205 +473,370 @@ export default function RecetarioResult() {
           <ArrowLeft className="w-4 h-4" /> Nueva receta
         </button>
 
+        {/* Recipe Image */}
+        <div className="mb-6">
+          {recipeData.generated_image_url ? (
+            <div className="relative rounded-2xl overflow-hidden border border-recetario-border">
+              <img
+                src={recipeData.generated_image_url}
+                alt={recipeData.titulo}
+                className="w-full h-56 md:h-72 object-cover"
+              />
+              <button
+                onClick={handleGenerateImage}
+                disabled={loadingImage}
+                className="absolute bottom-3 right-3 bg-recetario-card/90 backdrop-blur-sm text-recetario-fg text-xs px-3 py-1.5 rounded-full border border-recetario-border flex items-center gap-1.5 hover:bg-recetario-card transition-all"
+              >
+                {loadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <ImagePlus className="w-3 h-3" />}
+                Regenerar
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleGenerateImage}
+              disabled={loadingImage}
+              className="w-full h-44 rounded-2xl border-2 border-dashed border-recetario-border bg-recetario-surface/50 flex flex-col items-center justify-center gap-2 hover:bg-recetario-surface transition-all"
+            >
+              {loadingImage ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin text-recetario-primary" />
+                  <span className="text-sm text-recetario-muted font-body">Generando imagen con IA...</span>
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="w-6 h-6 text-recetario-muted-light" />
+                  <span className="text-sm text-recetario-muted font-body">Generar imagen con IA</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
+        {/* Edit toggle */}
+        <div className="flex justify-end mb-4">
+          {isEditing ? (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={cancelEditing}
+                className="rounded-full border-recetario-border text-recetario-muted"
+              >
+                <X className="w-4 h-4 mr-1" /> Cancelar
+              </Button>
+              <Button
+                size="sm"
+                onClick={saveEdits}
+                disabled={savingEdit}
+                className="rounded-full bg-recetario-primary hover:bg-recetario-primary-hover text-white"
+              >
+                {savingEdit ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                Guardar
+              </Button>
+            </div>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={startEditing}
+              className="rounded-full border-recetario-border text-recetario-muted hover:text-recetario-primary hover:border-recetario-primary"
+            >
+              <Pencil className="w-4 h-4 mr-1" /> Editar receta
+            </Button>
+          )}
+        </div>
+
         {/* Story */}
-        {recipeData.historia_emocional && (
+        {displayData.historia_emocional && (
           <div className="bg-recetario-surface rounded-2xl p-6 mb-6 border border-recetario-border">
-            <p className="font-display italic text-recetario-muted text-sm leading-relaxed">{recipeData.historia_emocional}</p>
+            {isEditing ? (
+              <textarea
+                value={editData?.historia_emocional || ""}
+                onChange={(e) => updateEditField("historia_emocional", e.target.value)}
+                className="w-full bg-transparent text-sm text-recetario-muted italic font-body resize-none outline-none min-h-[60px]"
+              />
+            ) : (
+              <p className="font-display italic text-recetario-muted text-sm leading-relaxed">{displayData.historia_emocional}</p>
+            )}
           </div>
         )}
 
         {/* Title & meta */}
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-recetario-fg mb-3">{recipeData.titulo}</h1>
+        {isEditing ? (
+          <input
+            value={editData?.titulo || ""}
+            onChange={(e) => updateEditField("titulo", e.target.value)}
+            className="font-display text-3xl md:text-4xl font-bold text-recetario-fg mb-3 w-full bg-transparent border-b-2 border-recetario-primary/30 outline-none pb-1"
+          />
+        ) : (
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-recetario-fg mb-3">{displayData.titulo}</h1>
+        )}
+
         <div className="flex flex-wrap gap-3 mb-8 text-sm text-recetario-muted font-body">
-          <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{recipeData.tiempo_estimado}</span>
-          <span className="flex items-center gap-1"><Flame className="w-4 h-4" />{recipeData.dificultad}</span>
-          <span className="flex items-center gap-1"><ChefHat className="w-4 h-4" />{recipeData.tipo_receta}</span>
-          {recipeData.calorias_por_racion && (
-            <span className="flex items-center gap-1">🔥 ~{recipeData.calorias_por_racion} kcal</span>
+          <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{displayData.tiempo_estimado}</span>
+          <span className="flex items-center gap-1"><Flame className="w-4 h-4" />{displayData.dificultad}</span>
+          <span className="flex items-center gap-1"><ChefHat className="w-4 h-4" />{displayData.tipo_receta}</span>
+          {displayData.calorias_por_racion && (
+            <span className="flex items-center gap-1">🔥 ~{displayData.calorias_por_racion} kcal</span>
           )}
         </div>
 
-        {/* Servings selector */}
-        <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
-          <p className="text-sm font-medium text-recetario-fg mb-3 font-body">
-            <Users className="w-4 h-4 inline mr-1" /> Raciones
-          </p>
-          <div className="flex gap-2">
-            {SERVINGS_OPTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => handleServingsChange(s)}
-                disabled={loadingServings}
-                className={`flex-1 py-2 rounded-full text-sm font-medium transition-all ${
-                  servings === s
-                    ? "bg-recetario-primary text-white shadow-md"
-                    : "bg-recetario-bg text-recetario-muted hover:bg-recetario-surface"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+        {/* Servings selector (not in edit mode) */}
+        {!isEditing && (
+          <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
+            <p className="text-sm font-medium text-recetario-fg mb-3 font-body">
+              <Users className="w-4 h-4 inline mr-1" /> Raciones
+            </p>
+            <div className="flex gap-2">
+              {SERVINGS_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleServingsChange(s)}
+                  disabled={loadingServings}
+                  className={`flex-1 py-2 rounded-full text-sm font-medium transition-all ${
+                    servings === s
+                      ? "bg-recetario-primary text-white shadow-md"
+                      : "bg-recetario-bg text-recetario-muted hover:bg-recetario-surface"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            {loadingServings && <p className="text-xs text-recetario-muted-light mt-2 text-center font-body">Recalculando...</p>}
           </div>
-          {loadingServings && <p className="text-xs text-recetario-muted-light mt-2 text-center font-body">Recalculando...</p>}
-        </div>
+        )}
 
         {/* Ingredients */}
         <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
           <h2 className="font-display text-xl font-bold text-recetario-fg mb-4">Ingredientes</h2>
-          <ul className="space-y-2">
-            {recipeData.ingredientes.map((ing, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm text-recetario-fg font-body">
-                <span className="w-1.5 h-1.5 rounded-full bg-recetario-primary flex-shrink-0" />
-                <span className="font-medium">{ing.cantidad} {ing.unidad}</span>
-                <span className="text-recetario-muted">{ing.nombre}</span>
-              </li>
-            ))}
-          </ul>
+          {isEditing ? (
+            <div className="space-y-2">
+              {editData?.ingredientes.map((ing, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={ing.cantidad}
+                    onChange={(e) => updateIngredient(i, "cantidad", e.target.value)}
+                    className="w-16 text-sm bg-recetario-bg border border-recetario-border rounded-lg px-2 py-1.5 text-recetario-fg outline-none focus:border-recetario-primary"
+                  />
+                  <input
+                    value={ing.unidad}
+                    onChange={(e) => updateIngredient(i, "unidad", e.target.value)}
+                    className="w-16 text-sm bg-recetario-bg border border-recetario-border rounded-lg px-2 py-1.5 text-recetario-fg outline-none focus:border-recetario-primary"
+                  />
+                  <input
+                    value={ing.nombre}
+                    onChange={(e) => updateIngredient(i, "nombre", e.target.value)}
+                    className="flex-1 text-sm bg-recetario-bg border border-recetario-border rounded-lg px-2 py-1.5 text-recetario-fg outline-none focus:border-recetario-primary"
+                  />
+                  <button onClick={() => removeIngredient(i)} className="text-red-400 hover:text-red-600 p-1">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={addIngredient}
+                className="flex items-center gap-1 text-sm text-recetario-primary hover:text-recetario-primary-hover mt-2 font-body"
+              >
+                <Plus className="w-4 h-4" /> Añadir ingrediente
+              </button>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {displayData.ingredientes.map((ing, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-recetario-fg font-body">
+                  <span className="w-1.5 h-1.5 rounded-full bg-recetario-primary flex-shrink-0" />
+                  <span className="font-medium">{ing.cantidad} {ing.unidad}</span>
+                  <span className="text-recetario-muted">{ing.nombre}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Steps */}
         <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border mb-6">
           <h2 className="font-display text-xl font-bold text-recetario-fg mb-4">Preparación</h2>
-          <ol className="space-y-4">
-            {recipeData.pasos.map((paso, i) => (
-              <li key={i} className="flex gap-3">
-                <span className="w-7 h-7 rounded-full bg-recetario-primary/10 text-recetario-primary flex items-center justify-center flex-shrink-0 text-sm font-bold font-display">
-                  {i + 1}
-                </span>
-                <p className="text-sm text-recetario-fg leading-relaxed pt-1 font-body">{paso}</p>
-              </li>
-            ))}
-          </ol>
+          {isEditing ? (
+            <div className="space-y-3">
+              {editData?.pasos.map((paso, i) => (
+                <div key={i} className="flex gap-2">
+                  <span className="w-7 h-7 rounded-full bg-recetario-primary/10 text-recetario-primary flex items-center justify-center flex-shrink-0 text-sm font-bold font-display mt-1">
+                    {i + 1}
+                  </span>
+                  <textarea
+                    value={paso}
+                    onChange={(e) => updateStep(i, e.target.value)}
+                    className="flex-1 text-sm bg-recetario-bg border border-recetario-border rounded-lg px-3 py-2 text-recetario-fg outline-none focus:border-recetario-primary resize-none min-h-[40px] font-body"
+                    rows={2}
+                  />
+                  <button onClick={() => removeStep(i)} className="text-red-400 hover:text-red-600 p-1 mt-1">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={addStep}
+                className="flex items-center gap-1 text-sm text-recetario-primary hover:text-recetario-primary-hover mt-2 font-body"
+              >
+                <Plus className="w-4 h-4" /> Añadir paso
+              </button>
+            </div>
+          ) : (
+            <ol className="space-y-4">
+              {displayData.pasos.map((paso, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="w-7 h-7 rounded-full bg-recetario-primary/10 text-recetario-primary flex items-center justify-center flex-shrink-0 text-sm font-bold font-display">
+                    {i + 1}
+                  </span>
+                  <p className="text-sm text-recetario-fg leading-relaxed pt-1 font-body">{paso}</p>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
 
         {/* Final tip */}
-        {recipeData.consejo_final && (
+        {displayData.consejo_final && (
           <div className="bg-recetario-primary/5 rounded-2xl p-5 border border-recetario-primary/15 mb-6">
             <p className="text-sm text-recetario-primary font-medium mb-1">💡 Consejo de la abuela</p>
-            <p className="text-sm text-recetario-muted italic font-body">{recipeData.consejo_final}</p>
+            {isEditing ? (
+              <textarea
+                value={editData?.consejo_final || ""}
+                onChange={(e) => updateEditField("consejo_final", e.target.value)}
+                className="w-full text-sm text-recetario-muted italic bg-transparent outline-none resize-none min-h-[40px] font-body"
+              />
+            ) : (
+              <p className="text-sm text-recetario-muted italic font-body">{displayData.consejo_final}</p>
+            )}
           </div>
         )}
 
-        {/* Interactive features */}
-        <div className="space-y-3 mb-8">
-          {/* Shopping list toggle */}
-          <button
-            onClick={() => setShowShoppingList(!showShoppingList)}
-            className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
-          >
-            <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
-              <ShoppingCart className="w-5 h-5 text-recetario-primary" /> Lista de la compra
-            </span>
-            {showShoppingList ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />}
-          </button>
-          {showShoppingList && shoppingList && (
-            <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border">
-              {Object.entries(shoppingList).map(([cat, items]) => {
-                if (!items || items.length === 0) return null;
-                return (
-                  <div key={cat} className="mb-4 last:mb-0">
-                    <p className="text-sm font-medium text-recetario-primary mb-2 font-body">{categoryLabels[cat] || cat}</p>
-                    {items.map((item: any, i: number) => (
-                      <p key={i} className="text-sm text-recetario-fg ml-2 mb-1 font-body">
-                        ☐ {item.cantidad} {item.unidad} {item.nombre}
-                      </p>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Alternatives */}
-          <button
-            onClick={handleAlternatives}
-            disabled={loadingAlts}
-            className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
-          >
-            <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
-              {loadingAlts ? <Loader2 className="w-5 h-5 animate-spin text-recetario-primary" /> : <span className="text-lg">🔄</span>}
-              Alternativas de ingredientes
-            </span>
-            {alternatives && (showAlternatives ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />)}
-          </button>
-          {showAlternatives && alternatives?.alternativas && (
-            <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border space-y-4">
-              {alternatives.alternativas.map((alt, i) => (
-                <div key={i} className="text-sm font-body">
-                  <p className="font-medium text-recetario-fg mb-1">{alt.ingrediente_original}</p>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="bg-recetario-healthy-bg rounded-lg p-2"><span className="block text-recetario-healthy font-medium mb-0.5">Saludable</span>{alt.alternativa_saludable}</div>
-                    <div className="bg-recetario-primary/10 rounded-lg p-2"><span className="block text-recetario-primary font-medium mb-0.5">Económica</span>{alt.alternativa_economica}</div>
-                    <div className="bg-recetario-surface rounded-lg p-2"><span className="block text-recetario-muted-light font-medium mb-0.5">Tradicional</span>{alt.alternativa_tradicional}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Healthy version */}
-          <button
-            onClick={handleHealthy}
-            disabled={loadingHealthy}
-            className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
-          >
-            <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
-              {loadingHealthy ? <Loader2 className="w-5 h-5 animate-spin text-recetario-healthy" /> : <Leaf className="w-5 h-5 text-recetario-healthy" />}
-              Versión saludable
-            </span>
-            {healthyVersion && (showHealthy ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />)}
-          </button>
-          {showHealthy && healthyVersion && (
-            <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-healthy/20">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs bg-recetario-healthy-bg text-recetario-healthy px-2 py-1 rounded-full font-medium">
-                  ~{healthyVersion.calorias_por_racion} kcal/ración
-                </span>
-                {recipeData.calorias_por_racion && (
-                  <span className="text-xs text-recetario-muted-light line-through">
-                    {recipeData.calorias_por_racion} kcal
-                  </span>
-                )}
+        {/* Interactive features (hide in edit mode) */}
+        {!isEditing && (
+          <div className="space-y-3 mb-8">
+            {/* Shopping list toggle */}
+            <button
+              onClick={() => setShowShoppingList(!showShoppingList)}
+              className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
+                <ShoppingCart className="w-5 h-5 text-recetario-primary" /> Lista de la compra
+              </span>
+              {showShoppingList ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />}
+            </button>
+            {showShoppingList && shoppingList && (
+              <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border">
+                {Object.entries(shoppingList).map(([cat, items]) => {
+                  if (!items || items.length === 0) return null;
+                  return (
+                    <div key={cat} className="mb-4 last:mb-0">
+                      <p className="text-sm font-medium text-recetario-primary mb-2 font-body">{categoryLabels[cat] || cat}</p>
+                      {items.map((item: any, i: number) => (
+                        <p key={i} className="text-sm text-recetario-fg ml-2 mb-1 font-body">
+                          ☐ {item.cantidad} {item.unidad} {item.nombre}
+                        </p>
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
-              <p className="text-sm text-recetario-healthy mb-4 italic font-body">{healthyVersion.resumen_cambios}</p>
-              <h3 className="text-sm font-medium text-recetario-fg mb-2 font-body">Ingredientes adaptados:</h3>
-              <ul className="space-y-1 mb-4">
-                {healthyVersion.ingredientes.map((ing, i) => (
-                  <li key={i} className="text-sm text-recetario-fg font-body">
-                    • {ing.cantidad} {ing.unidad} {ing.nombre}
-                    {ing.cambio && <span className="text-xs text-recetario-healthy ml-1">({ing.cambio})</span>}
-                  </li>
+            )}
+
+            {/* Alternatives */}
+            <button
+              onClick={handleAlternatives}
+              disabled={loadingAlts}
+              className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
+                {loadingAlts ? <Loader2 className="w-5 h-5 animate-spin text-recetario-primary" /> : <span className="text-lg">🔄</span>}
+                Alternativas de ingredientes
+              </span>
+              {alternatives && (showAlternatives ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />)}
+            </button>
+            {showAlternatives && alternatives?.alternativas && (
+              <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-border space-y-4">
+                {alternatives.alternativas.map((alt, i) => (
+                  <div key={i} className="text-sm font-body">
+                    <p className="font-medium text-recetario-fg mb-1">{alt.ingrediente_original}</p>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="bg-recetario-healthy-bg rounded-lg p-2"><span className="block text-recetario-healthy font-medium mb-0.5">Saludable</span>{alt.alternativa_saludable}</div>
+                      <div className="bg-recetario-primary/10 rounded-lg p-2"><span className="block text-recetario-primary font-medium mb-0.5">Económica</span>{alt.alternativa_economica}</div>
+                      <div className="bg-recetario-surface rounded-lg p-2"><span className="block text-recetario-muted-light font-medium mb-0.5">Tradicional</span>{alt.alternativa_tradicional}</div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-              <h3 className="text-sm font-medium text-recetario-fg mb-2 font-body">Pasos:</h3>
-              <ol className="space-y-2">
-                {healthyVersion.pasos.map((p, i) => (
-                  <li key={i} className="text-sm text-recetario-fg font-body">{i + 1}. {p}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+
+            {/* Healthy version */}
+            <button
+              onClick={handleHealthy}
+              disabled={loadingHealthy}
+              className="w-full bg-recetario-card rounded-2xl p-4 border border-recetario-border flex items-center justify-between hover:bg-recetario-bg transition-all"
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-recetario-fg font-body">
+                {loadingHealthy ? <Loader2 className="w-5 h-5 animate-spin text-recetario-healthy" /> : <Leaf className="w-5 h-5 text-recetario-healthy" />}
+                Versión saludable
+              </span>
+              {healthyVersion && (showHealthy ? <ChevronUp className="w-4 h-4 text-recetario-muted-light" /> : <ChevronDown className="w-4 h-4 text-recetario-muted-light" />)}
+            </button>
+            {showHealthy && healthyVersion && (
+              <div className="bg-recetario-card rounded-2xl p-5 border border-recetario-healthy/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs bg-recetario-healthy-bg text-recetario-healthy px-2 py-1 rounded-full font-medium">
+                    ~{healthyVersion.calorias_por_racion} kcal/ración
+                  </span>
+                  {recipeData.calorias_por_racion && (
+                    <span className="text-xs text-recetario-muted-light line-through">
+                      {recipeData.calorias_por_racion} kcal
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-recetario-healthy mb-4 italic font-body">{healthyVersion.resumen_cambios}</p>
+                <h3 className="text-sm font-medium text-recetario-fg mb-2 font-body">Ingredientes adaptados:</h3>
+                <ul className="space-y-1 mb-4">
+                  {healthyVersion.ingredientes.map((ing, i) => (
+                    <li key={i} className="text-sm text-recetario-fg font-body">
+                      • {ing.cantidad} {ing.unidad} {ing.nombre}
+                      {ing.cambio && <span className="text-xs text-recetario-healthy ml-1">({ing.cambio})</span>}
+                    </li>
+                  ))}
+                </ul>
+                <h3 className="text-sm font-medium text-recetario-fg mb-2 font-body">Pasos:</h3>
+                <ol className="space-y-2">
+                  {healthyVersion.pasos.map((p, i) => (
+                    <li key={i} className="text-sm text-recetario-fg font-body">{i + 1}. {p}</li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Action buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            onClick={generatePDF}
-            disabled={loadingPdf}
-            className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full h-12"
-          >
-            {loadingPdf ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
-            Descargar PDF
-          </Button>
-          <Button
-            onClick={handleShare}
-            variant="outline"
-            className="border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 rounded-full h-12"
-          >
-            {copied ? <Check className="w-4 h-4 mr-2" /> : <Share2 className="w-4 h-4 mr-2" />}
-            {copied ? "¡Copiado!" : "Compartir"}
-          </Button>
-        </div>
+        {!isEditing && (
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={generatePDF}
+              disabled={loadingPdf}
+              className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full h-12"
+            >
+              {loadingPdf ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
+              Descargar PDF
+            </Button>
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              className="border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 rounded-full h-12"
+            >
+              {copied ? <Check className="w-4 h-4 mr-2" /> : <Share2 className="w-4 h-4 mr-2" />}
+              {copied ? "¡Copiado!" : "Compartir"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
