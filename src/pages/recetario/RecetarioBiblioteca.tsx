@@ -234,22 +234,83 @@ export default function RecetarioBiblioteca() {
           }
         }
       });
+
+      // Pre-load logo
+      const logoResult = await loadImageAsBase64WithDims("/images/recetario-logo.png");
+
       await Promise.all(imagePromises);
 
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const w = doc.internal.pageSize.getWidth();
       const h = doc.internal.pageSize.getHeight();
-      const margin = 20;
+      const margin = 18;
       const contentW = w - margin * 2;
       const name = cookbookName || "Mi Recetario Eterno";
 
-      // ── Cover page ──
-      doc.setFillColor(255, 248, 240);
-      doc.rect(0, 0, w, h, "F");
+      // Color palette (from CSS tokens)
+      const colors = {
+        bg: [255, 248, 240] as [number, number, number],
+        fg: [61, 43, 31] as [number, number, number],
+        primary: [199, 91, 42] as [number, number, number],
+        muted: [139, 115, 85] as [number, number, number],
+        mutedLight: [200, 190, 175] as [number, number, number],
+        surface: [245, 230, 211] as [number, number, number],
+        border: [232, 213, 196] as [number, number, number],
+        card: [255, 255, 255] as [number, number, number],
+        vichyLine: [245, 225, 210] as [number, number, number],
+      };
 
-      let coverY = 30;
+      // Helper: draw vichy pattern background
+      const drawVichyBg = () => {
+        doc.setFillColor(...colors.bg);
+        doc.rect(0, 0, w, h, "F");
+        // Vichy pattern: subtle grid lines
+        doc.setDrawColor(...colors.vichyLine);
+        doc.setLineWidth(0.15);
+        for (let x = 0; x < w; x += 8) {
+          doc.line(x, 0, x, h);
+        }
+        for (let y = 0; y < h; y += 8) {
+          doc.line(0, y, w, y);
+        }
+        // Overlay to soften pattern
+        doc.setFillColor(255, 248, 240);
+        doc.setGState(new (doc as any).GState({ opacity: 0.3 }));
+        doc.rect(0, 0, w, h, "F");
+        doc.setGState(new (doc as any).GState({ opacity: 1 }));
+      };
 
-      // Determine cover photo: manual upload takes priority, then collection cover
+      // Helper: draw rounded card
+      const drawCard = (x: number, y: number, cw: number, ch: number, radius = 4) => {
+        doc.setFillColor(...colors.card);
+        doc.roundedRect(x, y, cw, ch, radius, radius, "F");
+        doc.setDrawColor(...colors.border);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(x, y, cw, ch, radius, radius, "S");
+      };
+
+      // Helper: draw page footer
+      const drawPageFooter = (pageNum?: number) => {
+        doc.setFontSize(7);
+        doc.setTextColor(...colors.mutedLight);
+        doc.text("El Recetario Eterno", w / 2, h - 8, { align: "center" });
+        if (pageNum !== undefined) {
+          doc.text(`${pageNum}`, w - margin, h - 8, { align: "right" });
+        }
+      };
+
+      // Helper: decorative divider
+      const drawDivider = (x: number, y: number, divW: number) => {
+        doc.setDrawColor(...colors.primary);
+        doc.setLineWidth(0.4);
+        doc.line(x, y, x + divW, y);
+        // Small diamond in center
+        const cx = x + divW / 2;
+        doc.setFillColor(...colors.primary);
+        doc.circle(cx, y, 0.8, "F");
+      };
+
+      // Determine cover photo
       let finalCoverPhoto = coverPhoto;
       let finalCoverDims = coverPhotoDims;
       if (!finalCoverPhoto && pdfCollectionId) {
@@ -263,224 +324,316 @@ export default function RecetarioBiblioteca() {
         }
       }
 
-      // Cover photo — circular portrait
-      if (finalCoverPhoto && finalCoverDims) {
-        const photoSize = 50;
-        const photoX = w / 2 - photoSize / 2;
-        doc.setFillColor(199, 91, 42);
-        doc.circle(w / 2, coverY + photoSize / 2, photoSize / 2 + 1.5, "F");
-        doc.addImage(finalCoverPhoto, "JPEG", photoX, coverY, photoSize, photoSize);
-        doc.setDrawColor(199, 91, 42);
-        doc.setLineWidth(1);
-        doc.circle(w / 2, coverY + photoSize / 2, photoSize / 2 + 2, "S");
-        coverY += photoSize + 10;
+      // ═══════════════════════════════
+      // ── COVER PAGE ──
+      // ═══════════════════════════════
+      drawVichyBg();
+
+      // Outer decorative border
+      doc.setDrawColor(...colors.border);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(8, 8, w - 16, h - 16, 6, 6, "S");
+      doc.setDrawColor(...colors.primary);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(10, 10, w - 20, h - 20, 5, 5, "S");
+
+      // Central card for cover content
+      const coverCardX = 25;
+      const coverCardW = w - 50;
+      const coverCardY = 30;
+      const coverCardH = h - 60;
+      drawCard(coverCardX, coverCardY, coverCardW, coverCardH, 6);
+
+      let coverY = coverCardY + 15;
+
+      // Logo at the top of cover card
+      if (logoResult) {
+        const logoH = 22;
+        const logoW = logoH * (logoResult.w / logoResult.h);
+        const logoX = w / 2 - logoW / 2;
+        doc.addImage(logoResult.base64, "PNG", logoX, coverY, logoW, logoH);
+        coverY += logoH + 8;
       }
 
-      doc.setDrawColor(199, 91, 42);
-      doc.setLineWidth(0.5);
-      doc.line(w / 2 - 30, coverY + 5, w / 2 + 30, coverY + 5);
+      // Top divider
+      drawDivider(w / 2 - 25, coverY, 50);
+      coverY += 12;
 
-      doc.setFontSize(12);
-      doc.setTextColor(139, 115, 85);
-      doc.text("EL RECETARIO ETERNO", w / 2, coverY, { align: "center" });
-      coverY += 20;
+      // Cover photo — elegant rounded frame
+      if (finalCoverPhoto && finalCoverDims) {
+        const maxPhotoW = coverCardW - 40;
+        const maxPhotoH = 80;
+        const ratio = finalCoverDims.w / finalCoverDims.h;
+        let photoW = maxPhotoW;
+        let photoH = photoW / ratio;
+        if (photoH > maxPhotoH) {
+          photoH = maxPhotoH;
+          photoW = photoH * ratio;
+        }
+        const photoX = w / 2 - photoW / 2;
 
-      doc.setFontSize(28);
-      doc.setTextColor(61, 43, 31);
-      const titleLines = doc.splitTextToSize(name, contentW - 20);
+        // Shadow effect
+        doc.setFillColor(220, 210, 200);
+        doc.roundedRect(photoX + 1, coverY + 1, photoW, photoH, 4, 4, "F");
+
+        // Photo with rounded border
+        doc.addImage(finalCoverPhoto, "JPEG", photoX, coverY, photoW, photoH);
+        doc.setDrawColor(...colors.primary);
+        doc.setLineWidth(0.8);
+        doc.roundedRect(photoX, coverY, photoW, photoH, 4, 4, "S");
+
+        coverY += photoH + 12;
+      }
+
+      // Cookbook title
+      doc.setFontSize(26);
+      doc.setTextColor(...colors.fg);
+      const titleLines = doc.splitTextToSize(name, coverCardW - 30);
       doc.text(titleLines, w / 2, coverY, { align: "center" });
-      coverY += titleLines.length * 12;
+      coverY += titleLines.length * 11 + 4;
 
-      // Collection name & description on cover
+      // Collection info
       const selectedCol = pdfCollectionId ? collections.find((c) => c.id === pdfCollectionId) : null;
       if (selectedCol) {
-        doc.setFontSize(14);
-        doc.setTextColor(199, 91, 42);
-        doc.text(selectedCol.name, w / 2, coverY + 4, { align: "center" });
-        coverY += 10;
+        doc.setFontSize(13);
+        doc.setTextColor(...colors.primary);
+        doc.text(selectedCol.name, w / 2, coverY, { align: "center" });
+        coverY += 7;
         if (selectedCol.description) {
-          doc.setFontSize(10);
-          doc.setTextColor(139, 115, 85);
-          const descLines = doc.splitTextToSize(selectedCol.description, contentW - 30);
-          doc.text(descLines, w / 2, coverY + 4, { align: "center" });
-          coverY += descLines.length * 5 + 4;
+          doc.setFontSize(9);
+          doc.setTextColor(...colors.muted);
+          const descLines = doc.splitTextToSize(selectedCol.description, coverCardW - 40);
+          doc.text(descLines, w / 2, coverY, { align: "center" });
+          coverY += descLines.length * 4.5 + 4;
         }
       }
 
-      doc.line(w / 2 - 30, coverY, w / 2 + 30, coverY);
-      coverY += 12;
+      // Bottom divider
+      drawDivider(w / 2 - 20, coverY + 2, 40);
+      coverY += 14;
 
-      doc.setFontSize(11);
-      doc.setTextColor(139, 115, 85);
-      doc.text(`${pdfRecipes.length} recetas`, w / 2, coverY, { align: "center" });
-      doc.text("Edición 2026", w / 2, coverY + 8, { align: "center" });
+      // Recipe count and edition
+      doc.setFontSize(10);
+      doc.setTextColor(...colors.muted);
+      doc.text(`${pdfRecipes.length} recetas  ·  Edición 2026`, w / 2, coverY, { align: "center" });
 
-      doc.setFontSize(9);
-      doc.setTextColor(180, 160, 140);
-      doc.text("Digitalizado con El Recetario Eterno", w / 2, h - 20, { align: "center" });
+      // Footer on cover
+      doc.setFontSize(8);
+      doc.setTextColor(...colors.mutedLight);
+      doc.text("Digitalizado con amor · El Recetario Eterno", w / 2, coverCardY + coverCardH - 8, { align: "center" });
 
-      // ── Index page ──
+      // ═══════════════════════════════
+      // ── INDEX PAGE ──
+      // ═══════════════════════════════
       doc.addPage();
-      doc.setFillColor(255, 248, 240);
-      doc.rect(0, 0, w, h, "F");
+      drawVichyBg();
+
+      // Index card
+      const idxCardX = margin - 4;
+      const idxCardW = contentW + 8;
+      drawCard(idxCardX, 15, idxCardW, h - 30, 5);
 
       doc.setFontSize(18);
-      doc.setTextColor(199, 91, 42);
-      doc.text("Índice", margin, 30);
-      
-      doc.setDrawColor(199, 91, 42);
-      doc.setLineWidth(0.3);
-      doc.line(margin, 34, margin + 20, 34);
+      doc.setTextColor(...colors.primary);
+      doc.text("Índice", w / 2, 30, { align: "center" });
 
-      let indexY = 45;
+      drawDivider(w / 2 - 15, 34, 30);
+
+      let indexY = 44;
       doc.setFontSize(10);
       pdfRecipes.forEach((recipe, i) => {
         const data = recipe.structured_data as any;
         const title = data?.titulo || recipe.title || "Sin título";
-        if (indexY > h - 25) {
+        if (indexY > h - 30) {
           doc.addPage();
-          doc.setFillColor(255, 248, 240);
-          doc.rect(0, 0, w, h, "F");
+          drawVichyBg();
+          drawCard(idxCardX, 15, idxCardW, h - 30, 5);
           indexY = 30;
         }
-        doc.setTextColor(139, 115, 85);
-        doc.text(`${i + 1}.`, margin, indexY);
-        doc.setTextColor(61, 43, 31);
-        const truncTitle = title.length > 50 ? title.substring(0, 50) + "..." : title;
-        doc.text(truncTitle, margin + 8, indexY);
-        
-        doc.setTextColor(200, 190, 175);
-        const dots = ".".repeat(60);
-        const titleW2 = doc.getTextWidth(truncTitle);
-        const pageNum = `${i + 1}`;
-        const pageNumW = doc.getTextWidth(pageNum);
-        const dotsX = margin + 8 + titleW2 + 2;
-        const dotsAvail = w - margin - pageNumW - 2 - dotsX;
-        if (dotsAvail > 5) {
-          const dotStr = dots.substring(0, Math.floor(dotsAvail / doc.getTextWidth(".")));
-          doc.text(dotStr, dotsX, indexY);
+        doc.setTextColor(...colors.primary);
+        doc.setFontSize(9);
+        doc.text(`${String(i + 1).padStart(2, "0")}`, margin + 4, indexY);
+        doc.setTextColor(...colors.fg);
+        const truncTitle = title.length > 50 ? title.substring(0, 50) + "…" : title;
+        doc.text(truncTitle, margin + 16, indexY);
+
+        // Dotted line
+        doc.setDrawColor(...colors.border);
+        doc.setLineWidth(0.15);
+        const titleEndX = margin + 16 + doc.getTextWidth(truncTitle) + 3;
+        const pageNumStr = `${i + 1}`;
+        const pageNumEndX = w - margin - 4 - doc.getTextWidth(pageNumStr);
+        if (pageNumEndX > titleEndX) {
+          for (let dx = titleEndX; dx < pageNumEndX; dx += 1.5) {
+            doc.circle(dx, indexY - 0.5, 0.15, "F");
+          }
         }
-        doc.setTextColor(139, 115, 85);
-        doc.text(pageNum, w - margin, indexY, { align: "right" });
+        doc.setTextColor(...colors.muted);
+        doc.text(pageNumStr, w - margin - 4, indexY, { align: "right" });
         indexY += 7;
       });
 
-      // ── Recipe pages ──
-      for (const recipe of pdfRecipes) {
+      drawPageFooter();
+
+      // ═══════════════════════════════
+      // ── RECIPE PAGES ──
+      // ═══════════════════════════════
+      for (let ri = 0; ri < pdfRecipes.length; ri++) {
+        const recipe = pdfRecipes[ri];
         const data = recipe.structured_data as any;
         if (!data) continue;
 
         doc.addPage();
-        doc.setFillColor(255, 248, 240);
-        doc.rect(0, 0, w, h, "F");
-        let y = 15;
+        drawVichyBg();
 
-        // Recipe image (maintain aspect ratio, max height 70mm)
+        let y = 15;
+        const cardPad = 8;
+        const cardX = margin - 4;
+        const cardW = contentW + 8;
+
+        // Recipe image — full width at top with rounded corners
         const imgBase64 = imageMap.get(recipe.id);
         if (imgBase64) {
           const imgEl = imageDimensions.get(recipe.id);
-          const maxW = contentW;
-          const maxH = 70;
-          let imgW = maxW;
-          let imgH = maxH;
+          const maxImgW = cardW;
+          const maxImgH = 65;
+          let imgW = maxImgW;
+          let imgH = maxImgH;
           if (imgEl) {
             const ratio = imgEl.w / imgEl.h;
-            imgW = maxW;
-            imgH = maxW / ratio;
-            if (imgH > maxH) {
-              imgH = maxH;
-              imgW = maxH * ratio;
-            }
+            imgW = maxImgW;
+            imgH = maxImgW / ratio;
+            if (imgH > maxImgH) { imgH = maxImgH; imgW = maxImgH * ratio; }
           }
-          const imgX = margin + (contentW - imgW) / 2;
+          const imgX = cardX + (cardW - imgW) / 2;
+          // Shadow
+          doc.setFillColor(220, 210, 200);
+          doc.roundedRect(imgX + 0.5, y + 0.5, imgW, imgH, 4, 4, "F");
           doc.addImage(imgBase64, "JPEG", imgX, y, imgW, imgH);
+          doc.setDrawColor(...colors.border);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(imgX, y, imgW, imgH, 4, 4, "S");
           y += imgH + 6;
         }
 
+        // Content card
+        const contentCardY = y;
+        // We'll draw the card after calculating height — for now track content
+
+        const contentStartY = y + cardPad;
+        let cy = contentStartY;
+
         // Title
-        doc.setFontSize(20);
-        doc.setTextColor(61, 43, 31);
+        doc.setFontSize(18);
+        doc.setTextColor(...colors.fg);
         const recipeTitle = data.titulo || recipe.title || "Sin título";
-        const rTitleLines = doc.splitTextToSize(recipeTitle, contentW);
-        doc.text(rTitleLines, margin, y);
-        y += rTitleLines.length * 8 + 2;
+        const rTitleLines = doc.splitTextToSize(recipeTitle, cardW - cardPad * 2);
+        doc.text(rTitleLines, cardX + cardPad, cy + 6);
+        cy += rTitleLines.length * 7 + 4;
 
-        // Decorative line
-        doc.setDrawColor(199, 91, 42);
-        doc.setLineWidth(0.3);
-        doc.line(margin, y, margin + 25, y);
-        y += 6;
+        drawDivider(cardX + cardPad, cy, 30);
+        cy += 6;
 
-        // Meta
-        doc.setFontSize(9);
-        doc.setTextColor(139, 115, 85);
-        const meta = [
+        // Meta badges
+        doc.setFontSize(8);
+        doc.setTextColor(...colors.muted);
+        const metaParts = [
           data.tiempo_estimado && `⏱ ${data.tiempo_estimado}`,
           data.dificultad,
-          `${recipe.servings || data.raciones || 4} personas`,
+          `${recipe.servings || data.raciones || 4} pers.`,
           data.calorias_por_racion && `~${data.calorias_por_racion} kcal`,
-        ].filter(Boolean).join("  ·  ");
-        doc.text(meta, margin, y);
-        y += 8;
+        ].filter(Boolean);
+        doc.text(metaParts.join("  ·  "), cardX + cardPad, cy);
+        cy += 7;
 
         // Story
         if (data.historia_emocional) {
-          doc.setFontSize(9);
-          doc.setTextColor(107, 87, 68);
-          const storyLines = doc.splitTextToSize(data.historia_emocional, contentW);
-          doc.text(storyLines, margin, y);
-          y += storyLines.length * 4.5 + 5;
+          doc.setFontSize(8);
+          doc.setTextColor(...colors.muted);
+          const storyLines = doc.splitTextToSize(`"${data.historia_emocional}"`, cardW - cardPad * 2);
+          doc.text(storyLines, cardX + cardPad, cy);
+          cy += storyLines.length * 3.8 + 5;
         }
 
-        // Ingredients
-        doc.setFontSize(13);
-        doc.setTextColor(199, 91, 42);
-        doc.text("Ingredientes", margin, y);
-        y += 6;
+        // Ingredients section header
+        doc.setFontSize(12);
+        doc.setTextColor(...colors.primary);
+        doc.text("Ingredientes", cardX + cardPad, cy);
+        cy += 5;
 
-        doc.setFontSize(9);
-        doc.setTextColor(61, 43, 31);
-        for (const ing of (data.ingredientes || [])) {
-          if (y > h - 20) { doc.addPage(); doc.setFillColor(255, 248, 240); doc.rect(0, 0, w, h, "F"); y = 25; }
-          doc.text(`•  ${ing.cantidad} ${ing.unidad} ${ing.nombre}`, margin + 2, y);
-          y += 4.5;
+        doc.setFontSize(8.5);
+        doc.setTextColor(...colors.fg);
+        const ingredients = data.ingredientes || [];
+        // Two-column layout for ingredients
+        const colW = (cardW - cardPad * 2) / 2;
+        const halfLen = Math.ceil(ingredients.length / 2);
+        let maxIngY = cy;
+        ingredients.forEach((ing: any, i: number) => {
+          const col = i < halfLen ? 0 : 1;
+          const row = i < halfLen ? i : i - halfLen;
+          const ix = cardX + cardPad + col * colW;
+          const iy = cy + row * 4.5;
+          if (iy > h - 25) return; // safety
+          doc.text(`•  ${ing.cantidad} ${ing.unidad} ${ing.nombre}`, ix, iy);
+          if (iy + 4.5 > maxIngY) maxIngY = iy + 4.5;
+        });
+        cy = maxIngY + 5;
+
+        // Check if we need a new page for steps
+        if (cy > h - 50) {
+          // Draw card background up to current content
+          // First, re-draw card behind content
+          const cardH = cy - contentCardY + cardPad;
+          // insert card behind (using save/restore approach won't work in jsPDF, so we accept content on bg)
+          doc.addPage();
+          drawVichyBg();
+          cy = 20;
         }
-        y += 4;
 
         // Steps
-        if (y > h - 40) { doc.addPage(); doc.setFillColor(255, 248, 240); doc.rect(0, 0, w, h, "F"); y = 25; }
-        doc.setFontSize(13);
-        doc.setTextColor(199, 91, 42);
-        doc.text("Preparación", margin, y);
-        y += 6;
+        doc.setFontSize(12);
+        doc.setTextColor(...colors.primary);
+        doc.text("Preparación", cardX + cardPad, cy);
+        cy += 6;
 
-        doc.setFontSize(9);
-        doc.setTextColor(61, 43, 31);
+        doc.setFontSize(8.5);
         (data.pasos || []).forEach((step: string, i: number) => {
-          if (y > h - 20) { doc.addPage(); doc.setFillColor(255, 248, 240); doc.rect(0, 0, w, h, "F"); y = 25; }
-          const lines = doc.splitTextToSize(`${i + 1}. ${step}`, contentW);
-          doc.text(lines, margin, y);
-          y += lines.length * 4.5 + 2.5;
+          if (cy > h - 22) {
+            doc.addPage();
+            drawVichyBg();
+            cy = 20;
+          }
+          // Step number badge
+          doc.setFillColor(...colors.primary);
+          doc.circle(cardX + cardPad + 3, cy - 1.2, 2.5, "F");
+          doc.setFontSize(7);
+          doc.setTextColor(255, 255, 255);
+          doc.text(`${i + 1}`, cardX + cardPad + 3, cy, { align: "center" });
+
+          doc.setFontSize(8.5);
+          doc.setTextColor(...colors.fg);
+          const stepLines = doc.splitTextToSize(step, cardW - cardPad * 2 - 12);
+          doc.text(stepLines, cardX + cardPad + 9, cy);
+          cy += stepLines.length * 4 + 3;
         });
 
         // Tip
         if (data.consejo_final) {
-          y += 4;
-          if (y > h - 25) { doc.addPage(); doc.setFillColor(255, 248, 240); doc.rect(0, 0, w, h, "F"); y = 25; }
-          doc.setFontSize(9);
-          doc.setTextColor(199, 91, 42);
-          doc.text("💡 Consejo:", margin, y);
-          y += 4.5;
-          doc.setTextColor(107, 87, 68);
-          const tipLines = doc.splitTextToSize(data.consejo_final, contentW);
-          doc.text(tipLines, margin, y);
+          cy += 3;
+          if (cy > h - 25) { doc.addPage(); drawVichyBg(); cy = 20; }
+          // Tip card
+          const tipLines = doc.splitTextToSize(data.consejo_final, cardW - cardPad * 2 - 10);
+          const tipH = tipLines.length * 4 + 8;
+          doc.setFillColor(...colors.surface);
+          doc.roundedRect(cardX + cardPad, cy, cardW - cardPad * 2, tipH, 3, 3, "F");
+          doc.setFontSize(8);
+          doc.setTextColor(...colors.primary);
+          doc.text("💡 Consejo", cardX + cardPad + 4, cy + 5);
+          doc.setTextColor(...colors.muted);
+          doc.text(tipLines, cardX + cardPad + 4, cy + 10);
         }
 
-        // Page footer
-        doc.setFontSize(8);
-        doc.setTextColor(200, 190, 175);
-        doc.text(name, margin, h - 10);
-        doc.text("El Recetario Eterno", w - margin, h - 10, { align: "right" });
+        drawPageFooter(ri + 1);
       }
 
       doc.save(`${name.replace(/\s+/g, "_")}.pdf`);
