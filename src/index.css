@@ -133,12 +133,12 @@
     background-image:
       linear-gradient(
         0deg,
-        hsl(18 67% 47% / 0.08) 50%,
+        hsl(21 100% 50% / 0.06) 50%,
         transparent 50%
       ),
       linear-gradient(
         90deg,
-        hsl(18 67% 47% / 0.08) 50%,
+        hsl(21 100% 50% / 0.06) 50%,
         transparent 50%
       );
     background-size: 24px 24px;
