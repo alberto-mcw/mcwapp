@@ -112,7 +112,7 @@ export const TeamLeaderVote = () => {
           <h2 className="section-title mb-4">
             Vota a tu <span className="text-gradient-primary">Team Leader</span>
           </h2>
-          <p className="text-muted-foreground max-w-md mx-auto text-sm leading-relaxed">
+          <p className="text-muted-foreground max-w-md mx-auto text-sm leading-relaxed font-body">
             Un equipo no empieza en la cocina. Empieza con una decisión.
           </p>
         </div>

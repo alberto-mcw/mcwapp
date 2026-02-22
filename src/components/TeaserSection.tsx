@@ -32,7 +32,7 @@ export const TeaserSection = () => {
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/5 border border-primary/10 mb-5 group-hover:bg-primary/10 transition-colors">
                 <block.icon className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-3">
+              <h3 className="text-lg font-black uppercase text-foreground mb-3">
                 {block.title}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
