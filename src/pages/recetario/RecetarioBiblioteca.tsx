@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff } from "lucide-react";
+import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,8 @@ export default function RecetarioBiblioteca() {
   const [cookbookName, setCookbookName] = useState("");
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [coverPhotoDims, setCoverPhotoDims] = useState<{ w: number; h: number } | null>(null);
 
   const leadId = sessionStorage.getItem("recetario_lead_id");
   const email = sessionStorage.getItem("recetario_email");
@@ -130,6 +132,21 @@ export default function RecetarioBiblioteca() {
     });
   };
 
+  const handleCoverPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        setCoverPhoto(reader.result as string);
+        setCoverPhotoDims({ w: img.naturalWidth, h: img.naturalHeight });
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const generateFullPdf = async () => {
     if (recipes.length === 0) {
       toast.error("No hay recetas para exportar");
@@ -163,25 +180,45 @@ export default function RecetarioBiblioteca() {
       doc.setFillColor(255, 248, 240);
       doc.rect(0, 0, w, h, "F");
 
+      let coverY = 30;
+
+      // Cover photo — circular portrait
+      if (coverPhoto && coverPhotoDims) {
+        const photoSize = 50;
+        const photoX = w / 2 - photoSize / 2;
+        // Draw circular clip using a filled circle behind
+        doc.setFillColor(199, 91, 42);
+        doc.circle(w / 2, coverY + photoSize / 2, photoSize / 2 + 1.5, "F");
+        doc.addImage(coverPhoto, "JPEG", photoX, coverY, photoSize, photoSize);
+        // Decorative ring
+        doc.setDrawColor(199, 91, 42);
+        doc.setLineWidth(1);
+        doc.circle(w / 2, coverY + photoSize / 2, photoSize / 2 + 2, "S");
+        coverY += photoSize + 10;
+      }
+
       doc.setDrawColor(199, 91, 42);
       doc.setLineWidth(0.5);
-      doc.line(w / 2 - 30, 55, w / 2 + 30, 55);
+      doc.line(w / 2 - 30, coverY + 5, w / 2 + 30, coverY + 5);
 
       doc.setFontSize(12);
       doc.setTextColor(139, 115, 85);
-      doc.text("EL RECETARIO ETERNO", w / 2, 50, { align: "center" });
+      doc.text("EL RECETARIO ETERNO", w / 2, coverY, { align: "center" });
+      coverY += 20;
 
       doc.setFontSize(28);
       doc.setTextColor(61, 43, 31);
       const titleLines = doc.splitTextToSize(name, contentW - 20);
-      doc.text(titleLines, w / 2, 80, { align: "center" });
+      doc.text(titleLines, w / 2, coverY, { align: "center" });
+      coverY += titleLines.length * 12;
 
-      doc.line(w / 2 - 30, 80 + titleLines.length * 12, w / 2 + 30, 80 + titleLines.length * 12);
+      doc.line(w / 2 - 30, coverY, w / 2 + 30, coverY);
+      coverY += 12;
 
       doc.setFontSize(11);
       doc.setTextColor(139, 115, 85);
-      doc.text(`${recipes.length} recetas`, w / 2, 110 + titleLines.length * 8, { align: "center" });
-      doc.text("Edición 2026", w / 2, 118 + titleLines.length * 8, { align: "center" });
+      doc.text(`${recipes.length} recetas`, w / 2, coverY, { align: "center" });
+      doc.text("Edición 2026", w / 2, coverY + 8, { align: "center" });
 
       doc.setFontSize(9);
       doc.setTextColor(180, 160, 140);
@@ -592,10 +629,40 @@ export default function RecetarioBiblioteca() {
               className="mb-4 h-12 rounded-xl border-recetario-border bg-recetario-bg text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary font-display text-lg"
             />
 
+            {/* Cover photo upload */}
+            <div className="mb-4">
+              <p className="text-xs text-recetario-muted font-body mb-2">📸 Foto para la portada (opcional)</p>
+              <label className="flex items-center gap-3 cursor-pointer">
+                {coverPhoto ? (
+                  <div className="relative">
+                    <img src={coverPhoto} alt="Portada" className="w-16 h-16 rounded-full object-cover border-2 border-recetario-primary" />
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); setCoverPhoto(null); setCoverPhotoDims(null); }}
+                      className="absolute -top-1 -right-1 bg-recetario-fg text-recetario-bg rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-full border-2 border-dashed border-recetario-border flex items-center justify-center bg-recetario-bg">
+                    <ImagePlus className="w-5 h-5 text-recetario-muted-light" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="text-sm text-recetario-fg font-body">
+                    {coverPhoto ? "Foto seleccionada" : "Sube una foto de la abuela"}
+                  </p>
+                  <p className="text-[11px] text-recetario-muted-light font-body">Aparecerá en la portada del recetario</p>
+                </div>
+                <input type="file" accept="image/*" onChange={handleCoverPhotoChange} className="hidden" />
+              </label>
+            </div>
+
             <div className="bg-recetario-surface rounded-xl p-4 mb-5 border border-recetario-border">
               <p className="text-xs text-recetario-muted font-body mb-2">Tu recetario incluirá:</p>
               <ul className="text-xs text-recetario-fg font-body space-y-1">
-                <li>📖 Portada personalizada</li>
+                <li>📖 Portada personalizada{coverPhoto ? " con foto" : ""}</li>
                 <li>📋 Índice con todas las recetas</li>
                 <li>🍳 {recipes.length} recetas completas con ingredientes y pasos</li>
                 <li>💡 Consejos y curiosidades</li>
