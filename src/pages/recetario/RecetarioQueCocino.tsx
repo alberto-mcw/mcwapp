@@ -44,6 +44,7 @@ export default function RecetarioQueCocino() {
   const [currentIngredient, setCurrentIngredient] = useState("");
   const [loading, setLoading] = useState(false);
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [savingStep, setSavingStep] = useState<"inserting" | "generating-steps" | "generating-image" | "saving" | null>(null);
   const [savedIndexes, setSavedIndexes] = useState<Set<number>>(new Set());
   const [step, setStep] = useState<"input" | "confirm" | "results">("input");
 
@@ -133,6 +134,7 @@ export default function RecetarioQueCocino() {
 
   const saveAiSuggestion = async (suggestion: AISuggestion, index: number) => {
     setSavingIndex(index);
+    setSavingStep("inserting");
     try {
       const recipeId = crypto.randomUUID();
 
@@ -161,6 +163,7 @@ export default function RecetarioQueCocino() {
       if (error) throw error;
 
       // Generate full recipe steps with AI
+      setSavingStep("generating-steps");
       const recipeText = `Receta: ${suggestion.titulo}\nDescripción: ${suggestion.descripcion}\nIngredientes principales: ${suggestion.ingredientes_principales.join(", ")}\nTiempo estimado: ${suggestion.tiempo_estimado}\nDificultad: ${suggestion.dificultad}\n\nGenera los pasos completos detallados para esta receta.`;
       
       const { error: processError } = await supabase.functions.invoke("process-recipe", {
@@ -169,12 +172,14 @@ export default function RecetarioQueCocino() {
       if (processError) console.error("Error generating steps:", processError);
 
       // Generate AI image
+      setSavingStep("generating-image");
       const { error: imageError } = await supabase.functions.invoke("process-recipe", {
         body: { recipeId, action: "generate-image" },
       });
       if (imageError) console.error("Error generating image:", imageError);
 
-      // Add to "¿Qué cocino hoy? IA" collection
+      // Add to collection
+      setSavingStep("saving");
       const AI_COLLECTION_NAME = "¿Qué cocino hoy? IA";
       let collection = collections.find((c) => c.name === AI_COLLECTION_NAME);
       if (!collection) {
@@ -191,6 +196,17 @@ export default function RecetarioQueCocino() {
       toast.error("Error al guardar la receta");
     } finally {
       setSavingIndex(null);
+      setSavingStep(null);
+    }
+  };
+
+  const getSavingLabel = () => {
+    switch (savingStep) {
+      case "inserting": return "Guardando...";
+      case "generating-steps": return "Generando receta...";
+      case "generating-image": return "Generando foto...";
+      case "saving": return "Finalizando...";
+      default: return "Guardando...";
     }
   };
 
@@ -459,14 +475,14 @@ export default function RecetarioQueCocino() {
                           variant="outline"
                           disabled={savingIndex === i || savedIndexes.has(i)}
                           onClick={() => saveAiSuggestion(suggestion, i)}
-                          className={`rounded-full flex-shrink-0 text-xs h-8 ${
+                          className={`rounded-full flex-shrink-0 text-xs h-8 min-w-[120px] ${
                             savedIndexes.has(i)
                               ? "border-green-500 text-green-600 bg-green-50"
                               : "border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5"
                           }`}
                         >
                           {savingIndex === i ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <><Loader2 className="w-3 h-3 animate-spin mr-1" /> {getSavingLabel()}</>
                           ) : savedIndexes.has(i) ? (
                             <><Check className="w-3 h-3 mr-1" /> Guardada</>
                           ) : (
