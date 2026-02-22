@@ -74,28 +74,28 @@ export default function RecetarioUpload() {
       const imageUrl = urlData.publicUrl;
 
       // 2. Create recipe record
-      const { data: recipe, error: insertError } = await supabase
+      const recipeId = crypto.randomUUID();
+      const { error: insertError } = await supabase
         .from("recipes")
         .insert({
+          id: recipeId,
           lead_id: leadId,
           original_image_url: imageUrl,
           status: "processing",
-        })
-        .select("id")
-        .single();
+        });
 
       if (insertError) throw insertError;
 
       // 3. Call AI processing
       const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", {
-        body: { imageUrl, recipeId: recipe.id, action: "full-process" },
+        body: { imageUrl, recipeId, action: "full-process" },
       });
 
       if (fnError) throw fnError;
       if (result?.error) throw new Error(result.error);
 
       toast.success("¡Receta digitalizada con éxito!");
-      navigate(`/recetario/receta/${recipe.id}`);
+      navigate(`/recetario/receta/${recipeId}`);
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Error al procesar la receta. Inténtalo de nuevo.");
