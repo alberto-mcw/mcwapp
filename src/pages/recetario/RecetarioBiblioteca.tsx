@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import { useCollections, Collection } from "@/hooks/useCollections";
+import recetarioLogo from "@/assets/recetario-logo.png";
 
 type SortBy = "date" | "favorites" | "type";
 
@@ -513,8 +514,7 @@ export default function RecetarioBiblioteca() {
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-recetario-primary" />
-          <span className="font-display text-lg font-bold text-recetario-fg">Mi recetario</span>
+          <img src={recetarioLogo} alt="Mi Recetario Eterno" className="h-10" />
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
