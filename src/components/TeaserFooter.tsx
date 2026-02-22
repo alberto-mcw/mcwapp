@@ -5,10 +5,10 @@ export const TeaserFooter = () => {
     <footer className="relative py-16 px-4 bg-card border-t border-border">
       <div className="container max-w-4xl mx-auto text-center">
         {/* Final message */}
-        <p className="text-lg md:text-xl font-bold text-foreground mb-2">
+        <p className="text-lg md:text-xl font-black uppercase text-foreground mb-2 font-display">
           Esto no va solo de ganar.
         </p>
-        <p className="text-lg md:text-xl font-bold text-gradient-primary mb-10">
+        <p className="text-lg md:text-xl font-black uppercase text-gradient-primary mb-10 font-display">
           Va de formar parte.
         </p>
 

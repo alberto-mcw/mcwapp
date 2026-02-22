@@ -33,7 +33,7 @@ export const EmotionalCounter = () => {
   return (
     <section className="py-24 px-4 bg-background">
       <div className="container max-w-3xl mx-auto text-center">
-        <p className="text-sm text-muted-foreground tracking-widest uppercase mb-8">
+        <p className="text-sm text-muted-foreground tracking-widest uppercase mb-8 font-display font-bold">
           El Reto 2026 empieza antes de lo que crees
         </p>
 
@@ -41,7 +41,7 @@ export const EmotionalCounter = () => {
           {units.map((u, i) => (
             <div key={u.label} className="flex items-center gap-3 md:gap-6">
               <div className="flex flex-col items-center">
-                <span className="text-4xl md:text-6xl font-black tabular-nums text-foreground leading-none">
+                <span className="text-4xl md:text-6xl font-black tabular-nums text-foreground leading-none font-display">
                   {String(u.value).padStart(2, "0")}
                 </span>
                 <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider mt-2">

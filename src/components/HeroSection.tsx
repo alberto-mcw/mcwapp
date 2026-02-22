@@ -41,7 +41,7 @@ export const HeroSection = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-black mb-6 animate-slide-up text-foreground">
+        <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-black mb-6 animate-slide-up text-foreground uppercase">
           Algo grande se está{" "}
           <span className="text-gradient-primary">cocinando</span>
         </h1>
@@ -62,7 +62,7 @@ export const HeroSection = () => {
             onMouseEnter={() => setHoveredBtn("register")}
             onMouseLeave={() => setHoveredBtn(null)}
           >
-            Quiero enterarme antes que nadie
+            Apúntate a El Reto 2026
             <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
             {hoveredBtn === "register" && (
               <span className="absolute -top-2 -right-2 animate-fade-in">

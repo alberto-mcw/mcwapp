@@ -40,7 +40,7 @@ export const RegistrationSection = () => {
           <h2 className="section-title mb-3">
             Reserva tu <span className="text-gradient-primary">sitio</span>
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-body">
             Cuanto antes entres, más ventaja tienes.
           </p>
         </div>
