@@ -1,0 +1,210 @@
+import { useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { BookOpen, Upload, Image, X, Loader2, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+
+export default function RecetarioUpload() {
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const leadId = sessionStorage.getItem("recetario_lead_id");
+  const email = sessionStorage.getItem("recetario_email");
+
+  const handleFile = useCallback((f: File) => {
+    if (!ACCEPTED_TYPES.includes(f.type)) {
+      toast.error("Formato no válido. Sube JPG, PNG, WebP o PDF.");
+      return;
+    }
+    if (f.size > MAX_FILE_SIZE) {
+      toast.error("La imagen es demasiado grande. Máximo 10MB.");
+      return;
+    }
+    setFile(f);
+    if (f.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => setPreview(e.target?.result as string);
+      reader.readAsDataURL(f);
+    } else {
+      setPreview(null);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  }, [handleFile]);
+
+  // Redirect if no lead
+  if (!leadId || !email) {
+    navigate("/recetario");
+    return null;
+  }
+
+  // handleFile and handleDrop moved above early return
+
+  const handleSubmit = async () => {
+    if (!file) return;
+    setLoading(true);
+
+    try {
+      // 1. Upload image to storage
+      const ext = file.name.split(".").pop() || "jpg";
+      const fileName = `${leadId}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("recipe-images")
+        .upload(fileName, file, { contentType: file.type });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("recipe-images")
+        .getPublicUrl(fileName);
+
+      const imageUrl = urlData.publicUrl;
+
+      // 2. Create recipe record
+      const { data: recipe, error: insertError } = await supabase
+        .from("recipes")
+        .insert({
+          lead_id: leadId,
+          original_image_url: imageUrl,
+          status: "processing",
+        })
+        .select("id")
+        .single();
+
+      if (insertError) throw insertError;
+
+      // 3. Call AI processing
+      const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", {
+        body: { imageUrl, recipeId: recipe.id, action: "full-process" },
+      });
+
+      if (fnError) throw fnError;
+      if (result?.error) throw new Error(result.error);
+
+      toast.success("¡Receta digitalizada con éxito!");
+      navigate(`/recetario/receta/${recipe.id}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Error al procesar la receta. Inténtalo de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FFF8F0] flex flex-col">
+      {/* Header */}
+      <header className="px-6 py-4 flex items-center gap-2">
+        <BookOpen className="w-6 h-6 text-[#C75B2A]" />
+        <span className="font-serif text-lg font-bold text-[#3D2B1F]">El Recetario Eterno</span>
+      </header>
+
+      <div className="flex-1 flex items-center justify-center px-6 pb-12">
+        <div className="w-full max-w-lg">
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-center text-[#3D2B1F] mb-2">
+            Sube tu receta manuscrita
+          </h1>
+          <p className="text-center text-[#6B5744] text-sm mb-8">
+            Haz una foto o sube la imagen de la receta que quieres preservar.
+          </p>
+
+          {/* Drop zone */}
+          {!file ? (
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-3xl p-12 text-center cursor-pointer transition-all ${
+                dragOver
+                  ? "border-[#C75B2A] bg-[#C75B2A]/5"
+                  : "border-[#C75B2A]/30 bg-white hover:border-[#C75B2A]/50 hover:bg-[#FFF8F0]"
+              }`}
+            >
+              <div className="w-16 h-16 bg-[#C75B2A]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Upload className="w-7 h-7 text-[#C75B2A]" />
+              </div>
+              <p className="font-serif text-lg font-bold text-[#3D2B1F] mb-1">
+                Arrastra tu imagen aquí
+              </p>
+              <p className="text-sm text-[#8B7355]">
+                o haz clic para seleccionar · JPG, PNG, WebP o PDF · Máx. 10MB
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleFile(f);
+                }}
+              />
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl p-6 border border-[#E8D5C4] shadow-lg">
+              {/* Preview */}
+              <div className="relative mb-6">
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full max-h-80 object-contain rounded-2xl bg-[#FFF8F0]"
+                  />
+                ) : (
+                  <div className="w-full h-40 bg-[#FFF8F0] rounded-2xl flex items-center justify-center">
+                    <Image className="w-8 h-8 text-[#8B7355]" />
+                    <span className="ml-2 text-sm text-[#8B7355]">{file.name}</span>
+                  </div>
+                )}
+                <button
+                  onClick={() => { setFile(null); setPreview(null); }}
+                  className="absolute top-2 right-2 w-8 h-8 bg-[#3D2B1F]/70 text-white rounded-full flex items-center justify-center hover:bg-[#3D2B1F]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <Button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full h-12 bg-[#C75B2A] hover:bg-[#A04520] text-white rounded-full text-base font-medium shadow-lg shadow-[#C75B2A]/20"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Digitalizando con IA...
+                  </>
+                ) : (
+                  <>
+                    Digitalizar receta
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
+              </Button>
+
+              {loading && (
+                <p className="text-center text-xs text-[#8B7355] mt-4">
+                  Esto puede tardar unos segundos. La IA está leyendo e interpretando tu receta...
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

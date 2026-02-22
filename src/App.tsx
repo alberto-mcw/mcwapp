@@ -27,6 +27,14 @@ import AppProfile from "./pages/app/AppProfile";
 import AppAuth from "./pages/app/AppAuth";
 import AppRanking from "./pages/app/AppRanking";
 
+// Recetario Pages
+import RecetarioLanding from "./pages/recetario/RecetarioLanding";
+import RecetarioCaptura from "./pages/recetario/RecetarioCaptura";
+import RecetarioUpload from "./pages/recetario/RecetarioUpload";
+import RecetarioResult from "./pages/recetario/RecetarioResult";
+import RecetarioBiblioteca from "./pages/recetario/RecetarioBiblioteca";
+import RecetarioShared from "./pages/recetario/RecetarioShared";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -58,6 +66,14 @@ const App = () => (
             <Route path="/app/perfil" element={<AppProfile />} />
             <Route path="/app/auth" element={<AppAuth />} />
             <Route path="/app/ranking" element={<AppRanking />} />
+            
+            {/* Recetario Routes */}
+            <Route path="/recetario" element={<RecetarioLanding />} />
+            <Route path="/recetario/captura" element={<RecetarioCaptura />} />
+            <Route path="/recetario/subir" element={<RecetarioUpload />} />
+            <Route path="/recetario/receta/:id" element={<RecetarioResult />} />
+            <Route path="/recetario/biblioteca" element={<RecetarioBiblioteca />} />
+            <Route path="/recetario/compartida/:token" element={<RecetarioShared />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
