@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   BookOpen, ChefHat, Clock, Users, Flame, ShoppingCart,
   Leaf, ArrowLeft, Download, Share2, Loader2, ChevronDown, ChevronUp, Copy, Check,
-  Pencil, Save, X, ImagePlus, Trash2, Plus
+  Pencil, Save, X, ImagePlus, Trash2, Plus, Upload, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,8 +71,9 @@ export default function RecetarioResult() {
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Image generation
+  // Image
   const [loadingImage, setLoadingImage] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Edit mode
   const [isEditing, setIsEditing] = useState(false);
@@ -208,6 +209,35 @@ export default function RecetarioResult() {
       toast.error(e?.message || "Error al generar imagen");
     } finally {
       setLoadingImage(false);
+    }
+  };
+
+  // --- Image upload ---
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !id) return;
+    setUploadingImage(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `uploaded/${id}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("recipe-images")
+        .upload(filePath, file, { contentType: file.type, upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: publicUrl } = supabase.storage.from("recipe-images").getPublicUrl(filePath);
+      const { data: currentRecipe } = await supabase.from("recipes").select("structured_data").eq("id", id).maybeSingle();
+      if (currentRecipe) {
+        const updatedData = { ...(currentRecipe.structured_data as Record<string, any>), generated_image_url: publicUrl.publicUrl };
+        await supabase.from("recipes").update({ structured_data: updatedData }).eq("id", id);
+      }
+      await loadRecipe();
+      toast.success("¡Foto subida!");
+      trackInteraction("imagen_subida");
+    } catch {
+      toast.error("Error al subir la foto");
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
     }
   };
 
@@ -482,33 +512,51 @@ export default function RecetarioResult() {
                 alt={recipeData.titulo}
                 className="w-full h-56 md:h-72 object-cover"
               />
-              <button
-                onClick={handleGenerateImage}
-                disabled={loadingImage}
-                className="absolute bottom-3 right-3 bg-recetario-card/90 backdrop-blur-sm text-recetario-fg text-xs px-3 py-1.5 rounded-full border border-recetario-border flex items-center gap-1.5 hover:bg-recetario-card transition-all"
-              >
-                {loadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <ImagePlus className="w-3 h-3" />}
-                Regenerar
-              </button>
+              <div className="absolute bottom-3 right-3 flex gap-2">
+                <label className="bg-recetario-card/90 backdrop-blur-sm text-recetario-fg text-xs px-3 py-1.5 rounded-full border border-recetario-border flex items-center gap-1.5 hover:bg-recetario-card transition-all cursor-pointer">
+                  {uploadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                  Subir foto
+                  <input type="file" accept="image/*" onChange={handleUploadImage} className="hidden" disabled={uploadingImage} />
+                </label>
+                <button
+                  onClick={handleGenerateImage}
+                  disabled={loadingImage}
+                  className="bg-recetario-card/90 backdrop-blur-sm text-recetario-fg text-xs px-3 py-1.5 rounded-full border border-recetario-border flex items-center gap-1.5 hover:bg-recetario-card transition-all"
+                >
+                  {loadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                  Regenerar IA
+                </button>
+              </div>
             </div>
           ) : (
-            <button
-              onClick={handleGenerateImage}
-              disabled={loadingImage}
-              className="w-full h-44 rounded-2xl border-2 border-dashed border-recetario-border bg-recetario-surface/50 flex flex-col items-center justify-center gap-2 hover:bg-recetario-surface transition-all"
-            >
-              {loadingImage ? (
-                <>
+            <div className="w-full rounded-2xl border-2 border-dashed border-recetario-border bg-recetario-surface/50 p-6">
+              {loadingImage || uploadingImage ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-6">
                   <Loader2 className="w-6 h-6 animate-spin text-recetario-primary" />
-                  <span className="text-sm text-recetario-muted font-body">Generando imagen con IA...</span>
-                </>
+                  <span className="text-sm text-recetario-muted font-body">
+                    {loadingImage ? "Generando imagen con IA..." : "Subiendo foto..."}
+                  </span>
+                </div>
               ) : (
-                <>
-                  <ImagePlus className="w-6 h-6 text-recetario-muted-light" />
-                  <span className="text-sm text-recetario-muted font-body">Generar imagen con IA</span>
-                </>
+                <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+                  <label className="flex-1 w-full sm:w-auto flex flex-col items-center gap-2 py-5 px-4 rounded-xl bg-recetario-card border border-recetario-border cursor-pointer hover:bg-recetario-bg transition-all">
+                    <Upload className="w-6 h-6 text-recetario-primary" />
+                    <span className="text-sm font-medium text-recetario-fg font-body">Subir foto</span>
+                    <span className="text-xs text-recetario-muted-light font-body">JPG, PNG, WebP</span>
+                    <input type="file" accept="image/*" onChange={handleUploadImage} className="hidden" />
+                  </label>
+                  <span className="text-xs text-recetario-muted-light font-body">o</span>
+                  <button
+                    onClick={handleGenerateImage}
+                    className="flex-1 w-full sm:w-auto flex flex-col items-center gap-2 py-5 px-4 rounded-xl bg-recetario-card border border-recetario-border hover:bg-recetario-bg transition-all"
+                  >
+                    <Sparkles className="w-6 h-6 text-recetario-primary" />
+                    <span className="text-sm font-medium text-recetario-fg font-body">Generar con IA</span>
+                    <span className="text-xs text-recetario-muted-light font-body">Imagen automática</span>
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
           )}
         </div>
 
