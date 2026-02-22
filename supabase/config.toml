@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.what-to-cook]
 verify_jwt = false
+
+[functions.search-recipes]
+verify_jwt = false

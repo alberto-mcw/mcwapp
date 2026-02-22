@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil, UtensilsCrossed, Tag, Sparkles } from "lucide-react";
+import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil, UtensilsCrossed, Sparkles, MessageCircle } from "lucide-react";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,9 @@ export default function RecetarioBiblioteca() {
   const [assignMenuRecipeId, setAssignMenuRecipeId] = useState<string | null>(null);
   const [pdfCollectionId, setPdfCollectionId] = useState<string | null>(null);
   const [uploadingCollectionPhoto, setUploadingCollectionPhoto] = useState(false);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [aiSearchIds, setAiSearchIds] = useState<string[] | null>(null);
+  const [aiSearchMessage, setAiSearchMessage] = useState("");
+  const [searching, setSearching] = useState(false);
   const { collections, createCollection, updateCollection, deleteCollection, addRecipeToCollection, removeRecipeFromCollection } = useCollections();
 
   const [reprocessingTags, setReprocessingTags] = useState(false);
@@ -214,26 +216,77 @@ export default function RecetarioBiblioteca() {
 
   const activeCollection = collections.find((c) => c.id === activeCollectionId);
 
-  // Collect all unique tags from recipes
-  const allTags = Array.from(
-    new Set(recipes.flatMap((r) => (r.tags as string[]) || []))
-  ).sort();
+  const aiSearchRecipe = async (query: string) => {
+    if (!query.trim() || recipes.length === 0) {
+      setAiSearchIds(null);
+      setAiSearchMessage("");
+      return;
+    }
+    setSearching(true);
+    try {
+      const recipeSummaries = recipes.map((r) => {
+        const data = r.structured_data as any;
+        return {
+          id: r.id,
+          title: data?.titulo || r.title,
+          tags: r.tags || [],
+          type: r.recipe_type || "",
+          time: r.estimated_time || data?.tiempo_estimado || "",
+          difficulty: r.difficulty || "",
+          ingredients: (data?.ingredientes || []).map((i: any) => i.nombre).slice(0, 10),
+        };
+      });
+      const { data, error } = await supabase.functions.invoke("search-recipes", {
+        body: { query, recipes: recipeSummaries },
+      });
+      if (error) throw error;
+      setAiSearchIds(data.matchedIds || []);
+      setAiSearchMessage(data.message || "");
+    } catch (e) {
+      console.error("AI search error:", e);
+      toast.error("Error en la búsqueda inteligente");
+      setAiSearchIds(null);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && search.trim()) {
+      aiSearchRecipe(search);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    setAiSearchIds(null);
+    setAiSearchMessage("");
+  };
 
   const filteredRecipes = recipes
     .filter((r) => {
-      // Filter by active collection
       if (activeCollectionId && activeCollection) {
         if (!activeCollection.recipe_ids.includes(r.id)) return false;
       }
-      // Filter by active tag
-      if (activeTag) {
-        if (!(r.tags as string[] || []).includes(activeTag)) return false;
+      // AI search mode
+      if (aiSearchIds !== null) {
+        return aiSearchIds.includes(r.id);
       }
-      if (!search) return true;
-      const title = (r.structured_data?.titulo || r.title || "").toLowerCase();
-      return title.includes(search.toLowerCase());
+      // Simple text fallback while typing
+      if (search) {
+        const q = search.toLowerCase();
+        const title = (r.structured_data?.titulo || r.title || "").toLowerCase();
+        const tags = ((r.tags as string[]) || []).join(" ").toLowerCase();
+        const type = (r.recipe_type || "").toLowerCase();
+        return title.includes(q) || tags.includes(q) || type.includes(q);
+      }
+      return true;
     })
     .sort((a, b) => {
+      // AI search: preserve AI order
+      if (aiSearchIds !== null) {
+        return aiSearchIds.indexOf(a.id) - aiSearchIds.indexOf(b.id);
+      }
       if (sortBy === "favorites") return (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0);
       if (sortBy === "type") return (a.recipe_type || "").localeCompare(b.recipe_type || "");
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -780,17 +833,43 @@ export default function RecetarioBiblioteca() {
 
       <div className="max-w-5xl mx-auto px-6 pb-20">
         {/* Search & filters */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-3 mb-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-recetario-muted-light" />
+            <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-recetario-primary/60" />
             <Input
-              placeholder="Buscar recetas..."
+              placeholder='Ej: "algo rápido para cenar", "sin gluten", "con pollo"...'
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-10 rounded-xl border-recetario-border bg-recetario-card text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                if (!e.target.value.trim()) clearSearch();
+              }}
+              onKeyDown={handleSearchKeyDown}
+              className="pl-9 pr-20 h-11 rounded-xl border-recetario-border bg-recetario-card text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm"
             />
+            {search && (
+              <button onClick={clearSearch} className="absolute right-12 top-1/2 -translate-y-1/2 text-recetario-muted-light hover:text-recetario-fg">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              onClick={() => search.trim() && aiSearchRecipe(search)}
+              disabled={!search.trim() || searching}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-recetario-primary text-white rounded-lg px-2.5 py-1.5 text-xs font-medium disabled:opacity-40 hover:bg-recetario-primary-hover transition-colors"
+            >
+              {searching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+            </button>
           </div>
-          <div className="flex gap-1">
+        </div>
+        {/* AI search message */}
+        {aiSearchMessage && (
+          <div className="flex items-center gap-2 mb-4 px-1">
+            <Sparkles className="w-3.5 h-3.5 text-recetario-primary flex-shrink-0" />
+            <p className="text-xs text-recetario-muted font-body">{aiSearchMessage}</p>
+          </div>
+        )}
+        {/* Sort buttons */}
+        {!aiSearchIds && (
+          <div className="flex gap-1 mb-6">
             {(["date", "favorites", "type"] as SortBy[]).map((s) => (
               <button
                 key={s}
@@ -805,7 +884,7 @@ export default function RecetarioBiblioteca() {
               </button>
             ))}
           </div>
-        </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-8">
@@ -1017,35 +1096,7 @@ export default function RecetarioBiblioteca() {
           )}
         </div>
 
-        {/* Tag filters */}
-        {allTags.length > 0 && (
-          <div className="flex gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-hide items-center">
-            <button
-              onClick={() => setActiveTag(null)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-body whitespace-nowrap transition-colors ${
-                !activeTag
-                  ? "bg-recetario-primary text-white"
-                  : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
-              }`}
-            >
-              <Tag className="w-3 h-3" /> Todos
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                className={`px-3 py-1.5 rounded-full text-xs font-body whitespace-nowrap transition-colors capitalize ${
-                  activeTag === tag
-                    ? "bg-recetario-primary text-white"
-                    : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        )}
-        {/* Re-process tags button */}
+        {/* Re-process tags button (hidden, tags used internally for AI search) */}
         {recipes.some((r) => !(r.tags as string[] || []).length) && (
           <div className="mb-4">
             <Button
@@ -1056,9 +1107,9 @@ export default function RecetarioBiblioteca() {
               className="rounded-full border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 text-xs h-8"
             >
               {reprocessingTags ? (
-                <><Loader2 className="w-3 h-3 animate-spin mr-1" /> Generando tags...</>
+                <><Loader2 className="w-3 h-3 animate-spin mr-1" /> Indexando recetas...</>
               ) : (
-                <><Tag className="w-3 h-3 mr-1" /> Generar tags para {recipes.filter((r) => !(r.tags as string[] || []).length).length} recetas</>
+                <><Sparkles className="w-3 h-3 mr-1" /> Indexar {recipes.filter((r) => !(r.tags as string[] || []).length).length} recetas para búsqueda IA</>
               )}
             </Button>
           </div>
