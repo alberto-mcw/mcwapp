@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown } from "lucide-react";
+import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
-import { useCollections } from "@/hooks/useCollections";
+import { useCollections, Collection } from "@/hooks/useCollections";
 
 type SortBy = "date" | "favorites" | "type";
 
@@ -25,9 +25,16 @@ export default function RecetarioBiblioteca() {
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionDesc, setNewCollectionDesc] = useState("");
+  const [newCollectionPhoto, setNewCollectionPhoto] = useState<string | null>(null);
+  const [editingCollectionId, setEditingCollectionId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editPhoto, setEditPhoto] = useState<string | null>(null);
   const [assignMenuRecipeId, setAssignMenuRecipeId] = useState<string | null>(null);
   const [pdfCollectionId, setPdfCollectionId] = useState<string | null>(null);
-  const { collections, createCollection, deleteCollection, addRecipeToCollection, removeRecipeFromCollection } = useCollections();
+  const [uploadingCollectionPhoto, setUploadingCollectionPhoto] = useState(false);
+  const { collections, createCollection, updateCollection, deleteCollection, addRecipeToCollection, removeRecipeFromCollection } = useCollections();
 
   const leadId = sessionStorage.getItem("recetario_lead_id");
   const email = sessionStorage.getItem("recetario_email");
@@ -107,6 +114,48 @@ export default function RecetarioBiblioteca() {
       setRecipes((prev) => prev.map((r) => ({ ...r, visibility: "public" })));
       toast.success("¡Todas tus recetas son públicas!");
     }
+  };
+
+  const uploadCollectionPhoto = async (file: File): Promise<string | null> => {
+    setUploadingCollectionPhoto(true);
+    const ext = file.name.split(".").pop();
+    const path = `collections/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("recipe-images").upload(path, file);
+    if (error) {
+      toast.error("Error al subir foto");
+      setUploadingCollectionPhoto(false);
+      return null;
+    }
+    const { data: urlData } = supabase.storage.from("recipe-images").getPublicUrl(path);
+    setUploadingCollectionPhoto(false);
+    return urlData.publicUrl;
+  };
+
+  const handleCreateCollection = async () => {
+    if (!newCollectionName.trim()) return;
+    let photoUrl = newCollectionPhoto;
+    await createCollection(newCollectionName.trim(), newCollectionDesc.trim() || undefined, photoUrl || undefined);
+    setNewCollectionName("");
+    setNewCollectionDesc("");
+    setNewCollectionPhoto(null);
+    setShowNewCollection(false);
+  };
+
+  const startEditCollection = (col: Collection) => {
+    setEditingCollectionId(col.id);
+    setEditName(col.name);
+    setEditDesc(col.description || "");
+    setEditPhoto(col.cover_photo_url || null);
+  };
+
+  const handleUpdateCollection = async () => {
+    if (!editingCollectionId || !editName.trim()) return;
+    await updateCollection(editingCollectionId, {
+      name: editName.trim(),
+      description: editDesc.trim() || null,
+      cover_photo_url: editPhoto,
+    });
+    setEditingCollectionId(null);
   };
 
   const activeCollection = collections.find((c) => c.id === activeCollectionId);
@@ -533,7 +582,9 @@ export default function RecetarioBiblioteca() {
               <FolderPlus className="w-3.5 h-3.5" /> Nueva colección
             </button>
           </div>
-          <div className="flex gap-2 flex-wrap">
+
+          {/* Filter pills */}
+          <div className="flex gap-2 flex-wrap mb-4">
             <button
               onClick={() => setActiveCollectionId(null)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -545,65 +596,171 @@ export default function RecetarioBiblioteca() {
               Todas
             </button>
             {collections.map((col) => (
-              <div key={col.id} className="relative group/col">
-                <button
-                  onClick={() => setActiveCollectionId(activeCollectionId === col.id ? null : col.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
-                    activeCollectionId === col.id
-                      ? "bg-recetario-primary text-white"
-                      : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
-                  }`}
-                >
-                  <Folder className="w-3 h-3" /> {col.name} ({col.recipe_ids.length})
-                </button>
-                <button
-                  onClick={() => deleteCollection(col.id)}
-                  className="absolute -top-1 -right-1 bg-recetario-fg text-recetario-bg rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover/col:opacity-100 transition-opacity"
-                >
-                  ✕
-                </button>
-              </div>
+              <button
+                key={col.id}
+                onClick={() => setActiveCollectionId(activeCollectionId === col.id ? null : col.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
+                  activeCollectionId === col.id
+                    ? "bg-recetario-primary text-white"
+                    : "bg-recetario-card text-recetario-muted border border-recetario-border hover:bg-recetario-bg"
+                }`}
+              >
+                <Folder className="w-3 h-3" /> {col.name} ({col.recipe_ids.length})
+              </button>
             ))}
           </div>
 
-          {/* New collection inline form */}
+          {/* Collection cards */}
+          {collections.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+              {collections.map((col) => (
+                <div
+                  key={col.id}
+                  className={`relative group/col bg-recetario-card rounded-xl border overflow-hidden cursor-pointer transition-all hover:shadow-md ${
+                    activeCollectionId === col.id ? "border-recetario-primary ring-1 ring-recetario-primary" : "border-recetario-border"
+                  }`}
+                  onClick={() => setActiveCollectionId(activeCollectionId === col.id ? null : col.id)}
+                >
+                  {col.cover_photo_url ? (
+                    <img src={col.cover_photo_url} alt={col.name} className="w-full h-20 object-cover" />
+                  ) : (
+                    <div className="w-full h-20 bg-recetario-bg flex items-center justify-center">
+                      <Folder className="w-8 h-8 text-recetario-muted-light/30" />
+                    </div>
+                  )}
+                  <div className="p-2.5">
+                    <p className="font-display text-xs font-bold text-recetario-fg truncate">{col.name}</p>
+                    {col.description && (
+                      <p className="text-[10px] text-recetario-muted-light line-clamp-2 mt-0.5 font-body">{col.description}</p>
+                    )}
+                    <p className="text-[10px] text-recetario-muted mt-1 font-body">{col.recipe_ids.length} recetas</p>
+                  </div>
+                  {/* Edit & delete buttons */}
+                  <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover/col:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); startEditCollection(col); }}
+                      className="bg-recetario-card/90 backdrop-blur-sm text-recetario-muted-light hover:text-recetario-primary rounded-full w-6 h-6 flex items-center justify-center"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deleteCollection(col.id); }}
+                      className="bg-recetario-card/90 backdrop-blur-sm text-recetario-muted-light hover:text-red-500 rounded-full w-6 h-6 flex items-center justify-center"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* New collection form */}
           {showNewCollection && (
-            <div className="mt-3 flex gap-2">
+            <div className="bg-recetario-card rounded-xl border border-recetario-border p-4 mb-4">
+              <p className="font-display text-sm font-bold text-recetario-fg mb-3">Nueva colección</p>
               <Input
                 value={newCollectionName}
                 onChange={(e) => setNewCollectionName(e.target.value)}
-                placeholder="Ej: Recetas de la abuela María"
-                className="h-9 rounded-xl border-recetario-border bg-recetario-card text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm"
+                placeholder="Nombre (ej: Recetas de la abuela María)"
+                className="h-9 rounded-xl border-recetario-border bg-recetario-bg text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm mb-2"
                 autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newCollectionName.trim()) {
-                    createCollection(newCollectionName.trim());
-                    setNewCollectionName("");
-                    setShowNewCollection(false);
-                  }
-                }}
               />
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (newCollectionName.trim()) {
-                    createCollection(newCollectionName.trim());
-                    setNewCollectionName("");
-                    setShowNewCollection(false);
-                  }
-                }}
-                className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-xs h-9 px-4"
-              >
-                Crear
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => { setShowNewCollection(false); setNewCollectionName(""); }}
-                className="rounded-full text-xs h-9 border-recetario-border text-recetario-muted"
-              >
-                Cancelar
-              </Button>
+              <Input
+                value={newCollectionDesc}
+                onChange={(e) => setNewCollectionDesc(e.target.value)}
+                placeholder="Descripción (opcional)"
+                className="h-9 rounded-xl border-recetario-border bg-recetario-bg text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm mb-2"
+              />
+              <div className="flex items-center gap-3 mb-3">
+                {newCollectionPhoto ? (
+                  <div className="relative">
+                    <img src={newCollectionPhoto} alt="Portada" className="w-16 h-16 rounded-lg object-cover" />
+                    <button onClick={() => setNewCollectionPhoto(null)} className="absolute -top-1 -right-1 bg-recetario-fg text-recetario-bg rounded-full w-4 h-4 flex items-center justify-center text-[10px]">✕</button>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-1.5 text-xs text-recetario-primary cursor-pointer hover:text-recetario-primary-hover font-body">
+                    <ImagePlus className="w-4 h-4" />
+                    {uploadingCollectionPhoto ? "Subiendo..." : "Añadir foto de portada"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const url = await uploadCollectionPhoto(file);
+                        if (url) setNewCollectionPhoto(url);
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleCreateCollection} disabled={!newCollectionName.trim()} className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-xs h-9 px-4">
+                  Crear
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setShowNewCollection(false); setNewCollectionName(""); setNewCollectionDesc(""); setNewCollectionPhoto(null); }} className="rounded-full text-xs h-9 border-recetario-border text-recetario-muted">
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Edit collection modal */}
+          {editingCollectionId && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={() => setEditingCollectionId(null)}>
+              <div className="bg-recetario-card rounded-2xl border border-recetario-border p-5 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="font-display text-base font-bold text-recetario-fg">Editar colección</p>
+                  <button onClick={() => setEditingCollectionId(null)} className="text-recetario-muted-light hover:text-recetario-fg"><X className="w-4 h-4" /></button>
+                </div>
+                <Input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Nombre"
+                  className="h-9 rounded-xl border-recetario-border bg-recetario-bg text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm mb-2"
+                  autoFocus
+                />
+                <Input
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  placeholder="Descripción (opcional)"
+                  className="h-9 rounded-xl border-recetario-border bg-recetario-bg text-recetario-fg placeholder:text-recetario-muted-light/50 focus-visible:ring-recetario-primary text-sm mb-3"
+                />
+                <div className="flex items-center gap-3 mb-4">
+                  {editPhoto ? (
+                    <div className="relative">
+                      <img src={editPhoto} alt="Portada" className="w-20 h-20 rounded-lg object-cover" />
+                      <button onClick={() => setEditPhoto(null)} className="absolute -top-1 -right-1 bg-recetario-fg text-recetario-bg rounded-full w-4 h-4 flex items-center justify-center text-[10px]">✕</button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-1.5 text-xs text-recetario-primary cursor-pointer hover:text-recetario-primary-hover font-body">
+                      <ImagePlus className="w-4 h-4" />
+                      {uploadingCollectionPhoto ? "Subiendo..." : "Añadir foto de portada"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const url = await uploadCollectionPhoto(file);
+                          if (url) setEditPhoto(url);
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleUpdateCollection} disabled={!editName.trim()} className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-xs h-9 px-4">
+                    Guardar
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setEditingCollectionId(null)} className="rounded-full text-xs h-9 border-recetario-border text-recetario-muted">
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>

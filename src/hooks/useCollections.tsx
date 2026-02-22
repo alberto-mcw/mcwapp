@@ -63,10 +63,10 @@ export function useCollections() {
     loadCollections();
   }, [loadCollections]);
 
-  const createCollection = async (name: string, description?: string) => {
+  const createCollection = async (name: string, description?: string, coverPhotoUrl?: string) => {
     const { data, error } = await supabase
       .from("recipe_collections")
-      .insert({ name, description: description || null, lead_id: leadId })
+      .insert({ name, description: description || null, cover_photo_url: coverPhotoUrl || null, lead_id: leadId })
       .select()
       .single();
 
@@ -78,6 +78,22 @@ export function useCollections() {
     setCollections((prev) => [newCol, ...prev]);
     toast.success("Colección creada");
     return newCol;
+  };
+
+  const updateCollection = async (id: string, updates: { name?: string; description?: string | null; cover_photo_url?: string | null }) => {
+    const { error } = await supabase
+      .from("recipe_collections")
+      .update(updates)
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Error al actualizar colección");
+      return;
+    }
+    setCollections((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
+    );
+    toast.success("Colección actualizada");
   };
 
   const deleteCollection = async (id: string) => {
@@ -137,6 +153,7 @@ export function useCollections() {
     collections,
     loading,
     createCollection,
+    updateCollection,
     deleteCollection,
     addRecipeToCollection,
     removeRecipeFromCollection,
