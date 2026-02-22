@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2 } from "lucide-react";
+import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,6 +73,31 @@ export default function RecetarioBiblioteca() {
       toast.success("Receta eliminada");
     }
     setDeletingId(null);
+  };
+
+  const toggleVisibility = async (recipeId: string, currentVisibility: string) => {
+    const newVisibility = currentVisibility === "public" ? "private" : "public";
+    const { error } = await supabase.from("recipes").update({ visibility: newVisibility }).eq("id", recipeId);
+    if (error) {
+      toast.error("Error al cambiar visibilidad");
+    } else {
+      setRecipes((prev) =>
+        prev.map((r) => (r.id === recipeId ? { ...r, visibility: newVisibility } : r))
+      );
+      toast.success(newVisibility === "public" ? "Receta ahora es pública" : "Receta ahora es privada");
+    }
+  };
+
+  const makeAllPublic = async () => {
+    if (!confirm("¿Hacer públicas todas tus recetas? Serán visibles en la comunidad.")) return;
+    const ids = recipes.map((r) => r.id);
+    const { error } = await supabase.from("recipes").update({ visibility: "public" }).in("id", ids);
+    if (error) {
+      toast.error("Error al actualizar visibilidad");
+    } else {
+      setRecipes((prev) => prev.map((r) => ({ ...r, visibility: "public" })));
+      toast.success("¡Todas tus recetas son públicas!");
+    }
   };
 
   const filteredRecipes = recipes
@@ -360,22 +385,40 @@ export default function RecetarioBiblioteca() {
           <BookOpen className="w-6 h-6 text-recetario-primary" />
           <span className="font-display text-lg font-bold text-recetario-fg">Mi Recetario Eterno</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/recetario/explorar")}
+            className="rounded-full border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 text-sm h-9"
+          >
+            <Globe className="w-4 h-4 mr-1" /> Explorar
+          </Button>
           {recipes.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPdfModal(true)}
-              className="rounded-full border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 text-sm h-9"
-            >
-              <Download className="w-4 h-4 mr-1" /> Descargar recetario
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={makeAllPublic}
+                className="rounded-full border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 text-sm h-9"
+              >
+                <Eye className="w-4 h-4 mr-1" /> Hacer todo público
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPdfModal(true)}
+                className="rounded-full border-recetario-primary text-recetario-primary hover:bg-recetario-primary/5 text-sm h-9"
+              >
+                <Download className="w-4 h-4 mr-1" /> PDF
+              </Button>
+            </>
           )}
           <Button
             onClick={() => navigate("/recetario/subir")}
             className="bg-recetario-primary hover:bg-recetario-primary-hover text-white rounded-full text-sm px-4 h-9"
           >
-            <Plus className="w-4 h-4 mr-1" /> Nueva receta
+            <Plus className="w-4 h-4 mr-1" /> Nueva
           </Button>
         </div>
       </header>
@@ -420,8 +463,8 @@ export default function RecetarioBiblioteca() {
             <p className="text-xs text-recetario-muted-light font-body">Favoritas</p>
           </div>
           <div className="bg-recetario-card rounded-2xl p-4 border border-recetario-border text-center">
-            <p className="text-2xl font-bold text-recetario-primary font-display">{recipes.filter((r) => r.visibility === "shared").length}</p>
-            <p className="text-xs text-recetario-muted-light font-body">Compartidas</p>
+            <p className="text-2xl font-bold text-recetario-primary font-display">{recipes.filter((r) => r.visibility === "public").length}</p>
+            <p className="text-xs text-recetario-muted-light font-body">Públicas</p>
           </div>
         </div>
 
@@ -460,6 +503,19 @@ export default function RecetarioBiblioteca() {
                       {data?.titulo || recipe.title}
                     </h3>
                     <div className="absolute top-4 right-4 flex gap-1.5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleVisibility(recipe.id, recipe.visibility);
+                        }}
+                        title={recipe.visibility === "public" ? "Hacer privada" : "Hacer pública"}
+                      >
+                        {recipe.visibility === "public" ? (
+                          <Eye className="w-4 h-4 text-recetario-primary" />
+                        ) : (
+                          <EyeOff className="w-4 h-4 text-recetario-muted-light hover:text-recetario-primary transition-colors" />
+                        )}
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
