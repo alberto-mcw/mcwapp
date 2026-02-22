@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Plus, Star, Clock, ChefHat, Download, Search, Loader2, X, Trash2, Globe, Eye, EyeOff, ImagePlus, FolderPlus, Folder, ChevronDown, Pencil } from "lucide-react";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,7 @@ const recetarioLogo = "/images/recetario-logo.png";
 type SortBy = "date" | "favorites" | "type";
 
 export default function RecetarioBiblioteca() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +62,8 @@ export default function RecetarioBiblioteca() {
 
     if (leadId) {
       query = query.eq("lead_id", leadId);
+    } else if (user?.id) {
+      query = query.eq("user_id", user.id);
     }
 
     const { data, error } = await query.order("created_at", { ascending: false });
@@ -648,7 +652,7 @@ export default function RecetarioBiblioteca() {
     }
   };
 
-  if (!leadId && !email) {
+  if (!leadId && !email && !user) {
     return (
       <div className="min-h-screen recetario-vichy-bg flex flex-col items-center justify-center px-6">
         <img src={recetarioLogo} alt="Mi Recetario Eterno" className="h-20 mb-4" />
