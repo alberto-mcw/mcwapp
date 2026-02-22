@@ -7,6 +7,7 @@ import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMen
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCollections } from "@/hooks/useCollections";
 
 type InputMode = "photo" | "text" | null;
 
@@ -34,6 +35,7 @@ export default function RecetarioQueCocino() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { collections, createCollection, addRecipeToCollection } = useCollections();
 
   const [inputMode, setInputMode] = useState<InputMode>(null);
   const [images, setImages] = useState<string[]>([]);
@@ -158,6 +160,16 @@ export default function RecetarioQueCocino() {
 
       const { error } = await supabase.from("recipes").insert(insertData);
       if (error) throw error;
+
+      // Add to "¿Qué cocino hoy? IA" collection
+      const AI_COLLECTION_NAME = "¿Qué cocino hoy? IA";
+      let collection = collections.find((c) => c.name === AI_COLLECTION_NAME);
+      if (!collection) {
+        collection = await createCollection(AI_COLLECTION_NAME, "Recetas sugeridas por la IA basadas en tus ingredientes") || undefined;
+      }
+      if (collection) {
+        await addRecipeToCollection(collection.id, recipeId);
+      }
 
       setSavedIndexes((prev) => new Set(prev).add(index));
       toast.success(`"${suggestion.titulo}" guardada en tu biblioteca`);
