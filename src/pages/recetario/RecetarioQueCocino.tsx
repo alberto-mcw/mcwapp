@@ -135,18 +135,17 @@ export default function RecetarioQueCocino() {
     setSavingIndex(index);
     try {
       const recipeId = crypto.randomUUID();
-      const structuredData = {
-        titulo: suggestion.titulo,
-        descripcion: suggestion.descripcion,
-        ingredientes: suggestion.ingredientes_principales.map((ing) => ({ nombre: ing, cantidad: "" })),
-        pasos: [],
-      };
 
       const insertData: any = {
         id: recipeId,
         title: suggestion.titulo,
-        structured_data: structuredData,
-        status: "completed",
+        structured_data: {
+          titulo: suggestion.titulo,
+          descripcion: suggestion.descripcion,
+          ingredientes: suggestion.ingredientes_principales.map((ing) => ({ nombre: ing, cantidad: "" })),
+          pasos: [],
+        },
+        status: "processing",
         difficulty: suggestion.dificultad,
         estimated_time: suggestion.tiempo_estimado,
         ai_story: suggestion.descripcion,
@@ -161,6 +160,20 @@ export default function RecetarioQueCocino() {
       const { error } = await supabase.from("recipes").insert(insertData);
       if (error) throw error;
 
+      // Generate full recipe steps with AI
+      const recipeText = `Receta: ${suggestion.titulo}\nDescripción: ${suggestion.descripcion}\nIngredientes principales: ${suggestion.ingredientes_principales.join(", ")}\nTiempo estimado: ${suggestion.tiempo_estimado}\nDificultad: ${suggestion.dificultad}\n\nGenera los pasos completos detallados para esta receta.`;
+      
+      const { error: processError } = await supabase.functions.invoke("process-recipe", {
+        body: { recipeId, recipeText, action: "full-process-text" },
+      });
+      if (processError) console.error("Error generating steps:", processError);
+
+      // Generate AI image
+      const { error: imageError } = await supabase.functions.invoke("process-recipe", {
+        body: { recipeId, action: "generate-image" },
+      });
+      if (imageError) console.error("Error generating image:", imageError);
+
       // Add to "¿Qué cocino hoy? IA" collection
       const AI_COLLECTION_NAME = "¿Qué cocino hoy? IA";
       let collection = collections.find((c) => c.name === AI_COLLECTION_NAME);
@@ -172,7 +185,7 @@ export default function RecetarioQueCocino() {
       }
 
       setSavedIndexes((prev) => new Set(prev).add(index));
-      toast.success(`"${suggestion.titulo}" guardada en tu biblioteca`);
+      toast.success(`"${suggestion.titulo}" guardada con receta completa y foto`);
     } catch (err) {
       console.error(err);
       toast.error("Error al guardar la receta");
