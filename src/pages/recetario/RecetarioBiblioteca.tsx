@@ -290,6 +290,22 @@ export default function RecetarioBiblioteca() {
       doc.text(titleLines, w / 2, coverY, { align: "center" });
       coverY += titleLines.length * 12;
 
+      // Collection name & description on cover
+      const selectedCol = pdfCollectionId ? collections.find((c) => c.id === pdfCollectionId) : null;
+      if (selectedCol) {
+        doc.setFontSize(14);
+        doc.setTextColor(199, 91, 42);
+        doc.text(selectedCol.name, w / 2, coverY + 4, { align: "center" });
+        coverY += 10;
+        if (selectedCol.description) {
+          doc.setFontSize(10);
+          doc.setTextColor(139, 115, 85);
+          const descLines = doc.splitTextToSize(selectedCol.description, contentW - 30);
+          doc.text(descLines, w / 2, coverY + 4, { align: "center" });
+          coverY += descLines.length * 5 + 4;
+        }
+      }
+
       doc.line(w / 2 - 30, coverY, w / 2 + 30, coverY);
       coverY += 12;
 
