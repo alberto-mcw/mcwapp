@@ -30,9 +30,8 @@ export default function RecetarioLanding() {
     <div className="min-h-screen recetario-vichy-bg text-recetario-fg">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-7 h-7 text-recetario-primary" />
-          <span className="font-display text-xl font-bold tracking-tight text-recetario-fg">El Recetario Eterno</span>
+        <div className="flex items-center">
+          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-12" />
         </div>
         <Button
           variant="ghost"

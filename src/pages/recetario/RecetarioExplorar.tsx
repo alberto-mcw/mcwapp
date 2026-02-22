@@ -83,8 +83,7 @@ export default function RecetarioExplorar() {
           <button onClick={() => navigate("/recetario/biblioteca")} className="text-recetario-muted hover:text-recetario-fg">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <Globe className="w-6 h-6 text-recetario-primary" />
-          <span className="font-display text-lg font-bold text-recetario-fg">Explorar recetas</span>
+          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-10" />
         </div>
         <Button
           onClick={() => navigate("/recetario/biblioteca")}

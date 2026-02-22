@@ -102,8 +102,7 @@ export default function RecetarioUpload() {
     <div className="min-h-screen recetario-vichy-bg flex flex-col">
       {/* Header */}
       <header className="px-6 py-4 flex items-center gap-2">
-        <BookOpen className="w-6 h-6 text-recetario-primary" />
-        <span className="font-display text-lg font-bold text-recetario-fg">El Recetario Eterno</span>
+        <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-10" />
       </header>
 
       <div className="flex-1 flex items-center justify-center px-6 pb-12">

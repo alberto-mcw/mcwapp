@@ -650,7 +650,7 @@ export default function RecetarioBiblioteca() {
   if (!leadId && !email) {
     return (
       <div className="min-h-screen recetario-vichy-bg flex flex-col items-center justify-center px-6">
-        <BookOpen className="w-12 h-12 text-recetario-primary mb-4" />
+        <img src={recetarioLogo} alt="Mi Recetario Eterno" className="h-20 mb-4" />
         <h1 className="font-display text-2xl font-bold text-recetario-fg mb-2">Mi recetario</h1>
         <p className="text-recetario-muted text-sm mb-6 text-center max-w-sm font-body">
           Para acceder a tu recetario, primero necesitas digitalizar una receta.

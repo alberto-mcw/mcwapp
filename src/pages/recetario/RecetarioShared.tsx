@@ -88,8 +88,7 @@ export default function RecetarioShared() {
     <div className="min-h-screen recetario-vichy-bg">
       {/* Header */}
       <header className="px-6 py-4 max-w-3xl mx-auto flex items-center gap-2">
-        <BookOpen className="w-6 h-6 text-recetario-primary" />
-        <span className="font-display text-lg font-bold text-recetario-fg">El Recetario Eterno</span>
+        <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-10" />
       </header>
 
       <div className="max-w-3xl mx-auto px-6 pb-20">
