@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Camera, Sparkles, Download, Heart, ArrowRight, UtensilsCrossed, ChefHat, BookOpen, Star, Users } from "lucide-react";
-import recetaManuscritaImg from "@/assets/receta-manuscrita.jpg";
+import recetaEjemploImg from "@/assets/receta-ejemplo.jpg";
 import { Button } from "@/components/ui/button";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 import { motion } from "framer-motion";
@@ -57,11 +57,11 @@ export default function RecetarioLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-recetario-bg text-recetario-fg overflow-x-hidden">
+    <div className="min-h-screen recetario-vichy-bg text-recetario-fg overflow-x-hidden">
       {/* Header */}
       <header className="px-4 sm:px-6 py-4 flex items-center justify-between max-w-5xl mx-auto relative z-10">
         <div className="flex items-center">
-          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-28 sm:h-24 w-auto object-contain -my-8" />
+          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-44 sm:h-40 w-auto object-contain -my-12" />
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <Button
@@ -116,7 +116,7 @@ export default function RecetarioLanding() {
       </section>
 
       {/* Before/After Visual */}
-      <section className="px-4 sm:px-6 pb-16 sm:pb-20 max-w-4xl mx-auto">
+      <section className="px-4 sm:px-6 pb-16 sm:pb-20 max-w-5xl mx-auto">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp} custom={0}
           className="relative grid md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {/* Before */}
@@ -126,8 +126,8 @@ export default function RecetarioLanding() {
               <p className="font-display text-base sm:text-lg text-recetario-muted mb-1">📝 Receta manuscrita</p>
               <p className="text-xs sm:text-sm text-recetario-muted-light font-body">Letra de abuela, manchas de aceite, papel amarillento...</p>
             </div>
-            <div className="h-36 sm:h-44 rounded-xl overflow-hidden shadow-inner">
-              <img src={recetaManuscritaImg} alt="Receta manuscrita antigua" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="h-44 sm:h-56 rounded-xl overflow-hidden shadow-inner">
+              <img src={recetaEjemploImg} alt="Receta manuscrita antigua - Compota de Victoria" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
 
@@ -136,27 +136,42 @@ export default function RecetarioLanding() {
             <ArrowRight className="w-5 h-5" />
           </div>
 
-          {/* After */}
+          {/* After — Desktop mockup */}
           <div className="relative bg-recetario-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-recetario-border/60 group hover:shadow-2xl transition-shadow">
             <div className="absolute top-4 left-4 bg-recetario-primary/10 text-recetario-primary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full font-display">Después</div>
             <div className="mt-6 mb-4">
               <p className="font-display text-base sm:text-lg text-recetario-fg font-bold mb-1">✨ Receta digitalizada</p>
               <p className="text-xs sm:text-sm text-recetario-muted-light font-body">Ingredientes, pasos, raciones, lista de la compra...</p>
             </div>
-            <div className="space-y-3 bg-recetario-surface/50 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-sm">
-                <ChefHat className="w-4 h-4 text-recetario-primary flex-shrink-0" />
-                <span className="font-semibold font-display text-sm">Cocido Madrileño</span>
+            {/* Desktop mockup frame */}
+            <div className="bg-recetario-fg rounded-xl overflow-hidden shadow-lg">
+              {/* Browser bar */}
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-recetario-fg border-b border-white/10">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
+                <div className="flex-1 mx-2 bg-white/10 rounded-md px-3 py-0.5 text-[9px] text-white/40 font-body truncate">mirecetarioeterno.com/receta/compota-de-victoria</div>
               </div>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-recetario-muted font-body">
-                <span className="bg-recetario-primary/10 text-recetario-primary px-2 py-0.5 rounded-full">⏱ 3h</span>
-                <span className="bg-recetario-surface px-2 py-0.5 rounded-full">Media</span>
-                <span className="bg-recetario-surface px-2 py-0.5 rounded-full">4 personas</span>
-              </div>
-              <div className="flex gap-2 pt-1">
-                {["Ingredientes", "Pasos", "Compra"].map(t => (
-                  <span key={t} className="text-[10px] font-medium bg-recetario-card border border-recetario-border px-2.5 py-1 rounded-full text-recetario-muted">{t}</span>
-                ))}
+              {/* Recipe content inside mockup */}
+              <div className="bg-recetario-bg p-4 sm:p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <ChefHat className="w-5 h-5 text-recetario-primary flex-shrink-0" />
+                  <span className="font-semibold font-display text-sm sm:text-base text-recetario-fg">Compota de Victoria</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-recetario-muted font-body">
+                  <span className="bg-recetario-primary/10 text-recetario-primary px-2 py-0.5 rounded-full">⏱ 45 min</span>
+                  <span className="bg-recetario-surface px-2 py-0.5 rounded-full">Fácil</span>
+                  <span className="bg-recetario-surface px-2 py-0.5 rounded-full">4 personas</span>
+                </div>
+                <div className="text-xs text-recetario-muted font-body leading-relaxed">
+                  <p className="font-semibold text-recetario-fg mb-1">Ingredientes:</p>
+                  <p>Manzanas Victoria, canela, azúcar, huevos, harina, mantequilla, almíbar...</p>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  {["Ingredientes", "Pasos", "Compra", "PDF"].map(t => (
+                    <span key={t} className="text-[10px] font-medium bg-recetario-card border border-recetario-border px-2.5 py-1 rounded-full text-recetario-muted">{t}</span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
