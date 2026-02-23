@@ -1,7 +1,16 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Camera, Sparkles, Download, Heart, ArrowRight, UtensilsCrossed, ChefHat, BookOpen, Star, Users } from "lucide-react";
+import { Camera, Sparkles, Download, Heart, ArrowRight, UtensilsCrossed, ChefHat, BookOpen, Star, Users, Image, Mic, Link, FileText, Video } from "lucide-react";
 import recetaEjemploImg from "@/assets/receta-ejemplo.jpg";
+
+const uploadMethods = [
+  { icon: Image, title: "Foto", desc: "Haz una foto a la receta manuscrita o de un libro", emoji: "📸", color: "from-amber-500/20 to-orange-500/20" },
+  { icon: FileText, title: "PDF", desc: "Sube un PDF con tus recetas favoritas", emoji: "📄", color: "from-blue-500/20 to-indigo-500/20" },
+  { icon: Mic, title: "Audio", desc: "Dicta la receta con tu voz o sube una grabación", emoji: "🎙️", color: "from-rose-500/20 to-pink-500/20" },
+  { icon: Link, title: "Enlace", desc: "Pega un enlace de YouTube, Instagram o TikTok", emoji: "🔗", color: "from-emerald-500/20 to-teal-500/20" },
+  { icon: Video, title: "Vídeo", desc: "Sube un vídeo y la IA extrae la receta completa", emoji: "🎬", color: "from-violet-500/20 to-purple-500/20" },
+  { icon: Camera, title: "Texto", desc: "Escribe o pega directamente el texto de la receta", emoji: "✍️", color: "from-cyan-500/20 to-sky-500/20" },
+];
 import { Button } from "@/components/ui/button";
 import { RecetarioAccountMenu } from "@/components/recetario/RecetarioAccountMenu";
 import { motion } from "framer-motion";
@@ -176,6 +185,31 @@ export default function RecetarioLanding() {
             </div>
           </div>
         </motion.div>
+      </section>
+
+      {/* Upload Methods */}
+      <section className="px-4 sm:px-6 pb-16 sm:pb-24 max-w-4xl mx-auto">
+        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+          className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-center mb-3 text-recetario-fg">
+          Sube tu receta como quieras
+        </motion.h2>
+        <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0.5}
+          className="text-sm sm:text-base text-recetario-muted font-body text-center mb-8 sm:mb-12 max-w-md mx-auto">
+          Foto, audio, vídeo, PDF, enlace o texto. Tú eliges el formato, la IA hace el resto.
+        </motion.p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+          {uploadMethods.map((method, i) => (
+            <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.5 + 1}
+              className="relative bg-recetario-card rounded-2xl p-4 sm:p-5 border border-recetario-border/60 shadow-sm hover:shadow-lg hover:border-recetario-primary/30 transition-all group cursor-pointer"
+              onClick={handleCTA}>
+              <div className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                <span className="text-xl sm:text-2xl">{method.emoji}</span>
+              </div>
+              <h3 className="font-display text-sm sm:text-base font-bold text-recetario-fg mb-0.5">{method.title}</h3>
+              <p className="text-[11px] sm:text-xs text-recetario-muted font-body leading-relaxed">{method.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </section>
 
       {/* Steps */}
