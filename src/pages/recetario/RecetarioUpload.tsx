@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -48,6 +49,7 @@ type UrlItem = {
 
 export default function RecetarioUpload() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -85,6 +87,8 @@ export default function RecetarioUpload() {
 
   const leadId = sessionStorage.getItem("recetario_lead_id");
   const email = sessionStorage.getItem("recetario_email");
+  const isAuthenticated = !!user;
+  const ownerId = isAuthenticated ? user.id : leadId;
 
   // ── File handling ──
   const addFiles = useCallback((newFiles: FileList | File[]) => {
@@ -183,7 +187,8 @@ export default function RecetarioUpload() {
   const removeUrlItem = (id: string) => setUrlItems((prev) => prev.filter((u) => u.id !== id));
 
   // ── Guard ──
-  if (!leadId || !email) { navigate("/recetario"); return null; }
+  if (authLoading) return null;
+  if (!isAuthenticated && (!leadId || !email)) { navigate("/recetario/captura"); return null; }
 
   // ── Counts ──
   const allItems = [
@@ -197,18 +202,22 @@ export default function RecetarioUpload() {
   const errorCount = allItems.filter((i) => i.status === "error").length;
   const totalCount = allItems.length;
 
+  // Helper: build owner fields for recipe insert
+  const ownerFields = isAuthenticated ? { user_id: user.id } : { lead_id: leadId };
+  const storagePrefix = ownerId || "anonymous";
+
   // ── Process functions ──
   const processFile = async (item: FileItem): Promise<FileItem> => {
     setFiles((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" as const } : f)));
     try {
       const ext = item.file.name.split(".").pop() || "jpg";
-      const fileName = `${leadId}/${Date.now()}-${item.id.slice(0, 8)}.${ext}`;
+      const fileName = `${storagePrefix}/${Date.now()}-${item.id.slice(0, 8)}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("recipe-images").upload(fileName, item.file, { contentType: item.file.type });
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("recipe-images").getPublicUrl(fileName);
       const imageUrl = urlData.publicUrl;
       const recipeId = crypto.randomUUID();
-      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, lead_id: leadId, original_image_url: imageUrl, status: "processing" });
+      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, ...ownerFields, original_image_url: imageUrl, status: "processing" });
       if (insertError) throw insertError;
       setFiles((prev) => prev.map((f) => (f.id === item.id ? { ...f, status: "processing" as const, recipeId } : f)));
       const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", { body: { imageUrl, recipeId, action: "full-process" } });
@@ -225,7 +234,7 @@ export default function RecetarioUpload() {
     setTextItems((prev) => prev.map((t) => (t.id === item.id ? { ...t, status: "processing" as const } : t)));
     try {
       const recipeId = crypto.randomUUID();
-      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, lead_id: leadId, ocr_text: item.text, status: "processing" });
+      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, ...ownerFields, ocr_text: item.text, status: "processing" });
       if (insertError) throw insertError;
       const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", { body: { recipeText: item.text, recipeId, action: "full-process-text" } });
       if (fnError) throw fnError;
@@ -241,7 +250,7 @@ export default function RecetarioUpload() {
     setAudioItems((prev) => prev.map((a) => (a.id === item.id ? { ...a, status: "uploading" as const } : a)));
     try {
       const ext = item.fileName.split(".").pop() || "webm";
-      const fileName = `${leadId}/audio-${Date.now()}-${item.id.slice(0, 8)}.${ext}`;
+      const fileName = `${storagePrefix}/audio-${Date.now()}-${item.id.slice(0, 8)}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("recipe-images").upload(fileName, item.blob, { contentType: item.blob.type });
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("recipe-images").getPublicUrl(fileName);
@@ -250,7 +259,7 @@ export default function RecetarioUpload() {
       // Transcribe + process in one call via process-recipe
       setAudioItems((prev) => prev.map((a) => (a.id === item.id ? { ...a, status: "transcribing" as const } : a)));
       const recipeId = crypto.randomUUID();
-      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, lead_id: leadId, status: "processing" });
+      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, ...ownerFields, status: "processing" });
       if (insertError) throw insertError;
       setAudioItems((prev) => prev.map((a) => (a.id === item.id ? { ...a, status: "processing" as const, recipeId } : a)));
       const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", { body: { audioUrl, recipeId, action: "full-process-audio" } });
@@ -267,7 +276,7 @@ export default function RecetarioUpload() {
     setUrlItems((prev) => prev.map((u) => (u.id === item.id ? { ...u, status: "scraping" as const } : u)));
     try {
       const recipeId = crypto.randomUUID();
-      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, lead_id: leadId, status: "processing" });
+      const { error: insertError } = await supabase.from("recipes").insert({ id: recipeId, ...ownerFields, status: "processing" });
       if (insertError) throw insertError;
       setUrlItems((prev) => prev.map((u) => (u.id === item.id ? { ...u, status: "processing" as const, recipeId } : u)));
       const { data: result, error: fnError } = await supabase.functions.invoke("process-recipe", { body: { videoUrl: item.url, recipeId, action: "full-process-url" } });

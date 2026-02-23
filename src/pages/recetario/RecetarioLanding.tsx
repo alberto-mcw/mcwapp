@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { BookOpen, Camera, Sparkles, Download, Heart, Share2, ChefHat, ArrowRight, UtensilsCrossed } from "lucide-react";
 import recetaManuscritaImg from "@/assets/receta-manuscrita.jpg";
 import { Button } from "@/components/ui/button";
@@ -13,9 +14,15 @@ const steps = [
 
 export default function RecetarioLanding() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
 
   const handleCTA = () => {
+    // If user is authenticated, go directly to upload
+    if (user) {
+      navigate("/recetario/subir");
+      return;
+    }
     const params = new URLSearchParams();
     const utm_source = searchParams.get("utm_source");
     const utm_medium = searchParams.get("utm_medium");
