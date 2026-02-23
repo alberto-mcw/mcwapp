@@ -61,7 +61,7 @@ export default function RecetarioLanding() {
       {/* Header */}
       <header className="px-4 sm:px-6 py-4 flex items-center justify-between max-w-5xl mx-auto relative z-10">
         <div className="flex items-center">
-          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-20 sm:h-16 w-auto object-contain -my-6" />
+          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-28 sm:h-24 w-auto object-contain -my-8" />
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <Button
