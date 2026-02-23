@@ -38,14 +38,14 @@ export default function RecetarioLanding() {
   return (
     <div className="min-h-screen recetario-vichy-bg text-recetario-fg">
       {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
+      <header className="px-4 sm:px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center">
-          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-12" />
+          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-20 sm:h-16 w-auto object-contain -my-6" />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Button
             variant="ghost"
-            className="text-recetario-primary hover:text-recetario-primary-hover text-sm font-medium"
+            className="text-recetario-primary hover:text-recetario-primary-hover text-xs sm:text-sm font-medium px-2 sm:px-4"
             onClick={() => navigate("/recetario/biblioteca")}
           >
             Mi Biblioteca
