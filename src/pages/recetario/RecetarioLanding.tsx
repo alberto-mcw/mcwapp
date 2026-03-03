@@ -69,7 +69,10 @@ export default function RecetarioLanding() {
     <div className="min-h-screen recetario-vichy-bg text-recetario-fg overflow-x-hidden">
       {/* Header */}
       <header className="px-4 sm:px-6 py-4 flex items-center justify-between max-w-5xl mx-auto relative z-10">
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
+          <a href="/" className="text-xs sm:text-sm text-recetario-muted hover:text-recetario-primary transition-colors font-medium flex items-center gap-1">
+            ← El Reto
+          </a>
           <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-44 sm:h-40 w-auto object-contain -my-12" />
         </div>
         <div className="flex items-center gap-1 sm:gap-2">

@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { 
   User, ChefHat, LogIn, LogOut, KeyRound, 
-  Settings, Flame, BookOpen, ChevronDown, X 
+  Settings, Flame, BookOpen, ChevronDown, X, Home 
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -92,13 +92,18 @@ export const RecetarioAccountMenu = () => {
           <div className="py-1.5">
             {/* Navigate options */}
             <MenuItem
+              icon={<Home className="w-4 h-4" />}
+              label="Inicio (El Reto)"
+              onClick={() => { navigate('/'); setOpen(false); }}
+            />
+            <MenuItem
               icon={<BookOpen className="w-4 h-4" />}
               label="Mi Recetario"
               onClick={() => { navigate('/recetario/biblioteca'); setOpen(false); }}
             />
             <MenuItem
               icon={<Flame className="w-4 h-4" />}
-              label="Ir al Reto"
+              label="Dashboard"
               onClick={() => { navigate('/dashboard'); setOpen(false); }}
             />
 
