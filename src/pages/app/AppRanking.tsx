@@ -8,7 +8,7 @@ import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, ArrowLeft, S
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { useRanking, formatEnergy, formatTotalEnergy, getLevel, countryFlag, countryName, type RankedProfile, type ProfileStats } from '@/hooks/useRanking';
+import { useRanking, formatEnergy, formatTotalEnergy, countryFlag, countryName, type RankedItem, type ProfileStats } from '@/hooks/useRanking';
 import {
   Dialog,
   DialogContent,
@@ -31,17 +31,17 @@ const AppRanking = () => {
     handleSearch, handleCountryChange, goToPage, jumpToMyPosition, setRowRef,
   } = useRanking();
 
-  const [selectedProfile, setSelectedProfile] = useState<RankedProfile | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<RankedItem | null>(null);
   const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
 
-  const handleSelectProfile = async (profile: RankedProfile) => {
+  const handleSelectProfile = async (profile: RankedItem) => {
     setSelectedProfile(profile);
     setLoadingStats(true);
     try {
       const [{ data: triviaCompletions }, { data: submissions }] = await Promise.all([
-        supabase.from('trivia_completions').select('is_correct').eq('user_id', profile.user_id),
-        supabase.from('challenge_submissions').select('id').eq('user_id', profile.user_id).eq('status', 'approved'),
+        supabase.from('trivia_completions').select('is_correct').eq('user_id', profile.userId),
+        supabase.from('challenge_submissions').select('id').eq('user_id', profile.userId).eq('status', 'approved'),
       ]);
       const triviaTotal = triviaCompletions?.length || 0;
       const triviaCorrect = triviaCompletions?.filter(t => t.is_correct).length || 0;
@@ -137,13 +137,13 @@ const AppRanking = () => {
           ) : (
             <div className="divide-y divide-border">
               {profiles.map((profile) => {
-                const pos = profile.rank_position;
-                const isMe = user && profile.user_id === user.id;
-                const isHighlighted = profile.user_id === highlightUserId;
+                const pos = profile.rankIndex;
+                const isMe = user && profile.userId === user.id;
+                const isHighlighted = profile.userId === highlightUserId;
                 return (
                   <div 
                     key={profile.id}
-                    ref={(el) => setRowRef(profile.user_id, el)}
+                    ref={(el) => setRowRef(profile.userId, el)}
                     onClick={() => handleSelectProfile(profile)}
                     className={`flex items-center gap-3 p-3 transition-all duration-500 active:bg-secondary/30 ${
                       isHighlighted ? "bg-primary/20 ring-2 ring-primary/50 animate-pulse" :
@@ -163,21 +163,21 @@ const AppRanking = () => {
                     </div>
                     
                     <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-lg flex-shrink-0">
-                      {profile.avatar_url || '👨‍🍳'}
+                      {profile.avatarUrl || '👨‍🍳'}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">
-                        {profile.display_name || 'Chef Anónimo'}
+                        {profile.alias || 'Chef Anónimo'}
                         {isMe && <span className="ml-1 text-[10px] text-primary font-bold">(Tú)</span>}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
-                        {countryFlag(profile.country)} {getLevel(profile.total_energy)}
+                        {countryFlag(profile.country)} {profile.level}
                       </p>
                     </div>
                     
                     <div className="text-right flex-shrink-0">
-                      <p className="font-unbounded text-sm font-bold text-primary">{formatEnergy(profile.total_energy)}</p>
+                      <p className="font-unbounded text-sm font-bold text-primary">{formatEnergy(profile.energy)}</p>
                     </div>
                   </div>
                 );
@@ -210,16 +210,16 @@ const AppRanking = () => {
           {selectedProfile && (
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-3xl mx-auto mb-3">
-                {selectedProfile.avatar_url || '👨‍🍳'}
+                {selectedProfile.avatarUrl || '👨‍🍳'}
               </div>
-              <h3 className="font-unbounded text-lg font-bold mb-1">{selectedProfile.display_name || 'Chef Anónimo'}</h3>
-              <p className="text-primary text-sm font-bold mb-1">Nivel {getLevel(selectedProfile.total_energy)}</p>
+              <h3 className="font-unbounded text-lg font-bold mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
+              <p className="text-primary text-sm font-bold mb-1">Nivel {selectedProfile.level}</p>
               {selectedProfile.country && (
                 <p className="text-xs text-muted-foreground mb-2">{countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}</p>
               )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="font-unbounded text-sm font-bold text-primary">{formatEnergy(selectedProfile.total_energy)} energía</span>
+                <span className="font-unbounded text-sm font-bold text-primary">{formatEnergy(selectedProfile.energy)} energía</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-4">
@@ -250,21 +250,21 @@ const AppRanking = () => {
                 </div>
               )}
               
-              {(selectedProfile.instagram_handle || selectedProfile.tiktok_handle) && (
+              {(selectedProfile.instagramHandle || selectedProfile.tiktokHandle) && (
                 <div className="flex items-center justify-center gap-3 pt-3 border-t border-border">
-                  {selectedProfile.instagram_handle && (
-                    <a href={`https://instagram.com/${selectedProfile.instagram_handle}`} target="_blank" rel="noopener noreferrer"
+                  {selectedProfile.instagramHandle && (
+                    <a href={`https://instagram.com/${selectedProfile.instagramHandle}`} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
-                      <Instagram className="w-3 h-3" />@{selectedProfile.instagram_handle}
+                      <Instagram className="w-3 h-3" />@{selectedProfile.instagramHandle}
                     </a>
                   )}
-                  {selectedProfile.tiktok_handle && (
-                    <a href={`https://tiktok.com/@${selectedProfile.tiktok_handle}`} target="_blank" rel="noopener noreferrer"
+                  {selectedProfile.tiktokHandle && (
+                    <a href={`https://tiktok.com/@${selectedProfile.tiktokHandle}`} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
                       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
-                      @{selectedProfile.tiktok_handle}
+                      @{selectedProfile.tiktokHandle}
                     </a>
                   )}
                 </div>
