@@ -77,9 +77,9 @@ const Index = () => {
             <motion.h1 initial="hidden" animate="visible" custom={2} variants={fadeUp}
               className="font-unbounded text-4xl sm:text-5xl md:text-7xl font-black uppercase mb-6 text-foreground"
             >
-              La competición<br />
+              La mayor competición<br />
               <span className="text-gradient-primary">gastronómica</span><br />
-              vuelve
+              está de vuelta
             </motion.h1>
             <motion.p initial="hidden" animate="visible" custom={3} variants={fadeUp}
               className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto mb-10"
@@ -121,7 +121,7 @@ const Index = () => {
             >
               {[
                 { icon: Users, label: "Miles de participantes" },
-                { icon: Zap, label: "Sistema de energía" },
+                { icon: Zap, label: "Sistema de progresión" },
                 { icon: Trophy, label: "Premios reales" },
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="text-center">
