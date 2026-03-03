@@ -158,7 +158,8 @@ const Index = () => {
         {/* ─── 4. Ranking teaser ─── */}
         <section className="py-20 px-4 bg-secondary/30">
           <div className="container max-w-3xl mx-auto">
-            <h2 className="font-unbounded text-3xl md:text-4xl font-bold text-center mb-8">Ranking en vivo</h2>
+            <h2 className="font-unbounded text-3xl md:text-4xl font-bold text-center mb-2">Ranking</h2>
+            <p className="text-center text-muted-foreground text-sm mb-8">Se actualiza diariamente</p>
             <div className="bg-card border border-border rounded-2xl overflow-hidden mb-6">
               {topProfiles.length === 0 ? (
                 <p className="py-12 text-center text-muted-foreground">Cargando ranking...</p>
