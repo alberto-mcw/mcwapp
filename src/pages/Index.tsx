@@ -218,7 +218,7 @@ const Index = () => {
         </section>
 
         {/* ─── 7. FAQ ─── */}
-        <section className="py-20 px-4">
+        <section id="faq" className="py-20 px-4 scroll-mt-20">
           <div className="container max-w-3xl mx-auto">
             <h2 className="font-unbounded text-3xl md:text-4xl font-bold text-center mb-10">
               <HelpCircle className="w-8 h-8 text-primary inline-block mr-2 -mt-1" />

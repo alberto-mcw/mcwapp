@@ -16,7 +16,7 @@ const navItems = [
   { label: "Ranking", href: "/ranking" },
   { label: "Vídeos", href: "/videos" },
   { label: "Recetario", href: "/recetario" },
-  { label: "Bases", href: "/bases" },
+  { label: "FAQ", href: "/#faq" },
   { label: "Descargar App", href: "/descarga" },
 ];
 
