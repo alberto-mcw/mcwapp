@@ -13,9 +13,9 @@ const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '�
 
 const navItems = [
   { label: "Ranking", href: "/ranking" },
-  { label: "Galería", href: "/videos" },
-  { label: "Calendario", href: "/calendario" },
-  { label: "Revive 2025", href: "/2025" },
+  { label: "Vídeos", href: "/videos" },
+  { label: "Recetario", href: "/recetario" },
+  { label: "Bases", href: "/bases" },
 ];
 
 export const Header = () => {

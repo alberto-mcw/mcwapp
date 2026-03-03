@@ -245,6 +245,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accepted_privacy: boolean | null
+          accepted_terms: boolean | null
           avatar_url: string | null
           bio: string | null
           city: string | null
@@ -260,6 +262,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          accepted_privacy?: boolean | null
+          accepted_terms?: boolean | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -275,6 +279,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          accepted_privacy?: boolean | null
+          accepted_terms?: boolean | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -586,6 +592,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reto_enrollments: {
+        Row: {
+          accepted_legal_bases: boolean
+          date_of_birth: string
+          enrolled_at: string
+          id: string
+          phone: string
+          postal_address: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_legal_bases?: boolean
+          date_of_birth: string
+          enrolled_at?: string
+          id?: string
+          phone: string
+          postal_address: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_legal_bases?: boolean
+          date_of_birth?: string
+          enrolled_at?: string
+          id?: string
+          phone?: string
+          postal_address?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       social_verifications: {
         Row: {

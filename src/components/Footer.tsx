@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MasterChefLogo } from "./MasterChefLogo";
 
 export const Footer = () => {
@@ -10,27 +11,24 @@ export const Footer = () => {
             <MasterChefLogo size="sm" />
             <div>
               <span className="font-bold text-sm text-foreground">MasterChef World</span>
-              <p className="text-xs text-muted-foreground">El Reto · Temporada 2</p>
+              <p className="text-xs text-muted-foreground">El Reto 2026</p>
             </div>
           </div>
 
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            <Link to="/bases" className="text-muted-foreground hover:text-primary transition-colors">
+              Bases
+            </Link>
             <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              Reglas
+              Términos y Condiciones
             </a>
             <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
               Privacidad
             </a>
-            <a href="/contacto" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/contacto" className="text-muted-foreground hover:text-primary transition-colors">
               Contacto
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              FAQ
-            </a>
-            <a href="/bases" className="text-muted-foreground hover:text-primary transition-colors">
-              Bases
-            </a>
+            </Link>
           </div>
 
           {/* Social */}

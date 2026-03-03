@@ -18,6 +18,7 @@ import Videos2025 from "./pages/Videos2025";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Install from "./pages/Install";
+import Inscripcion from "./pages/Inscripcion";
 
 // Mobile App Pages
 import AppChallenges from "./pages/app/AppChallenges";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/2025" element={<Videos2025 />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/install" element={<Install />} />
+            <Route path="/inscripcion" element={<Inscripcion />} />
             
             {/* Mobile App Routes */}
             <Route path="/app" element={<AppChallenges />} />

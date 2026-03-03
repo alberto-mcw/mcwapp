@@ -53,9 +53,12 @@ const Descarga = () => {
               <span className="text-gradient">App Oficial</span>
             </h1>
             
-            <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-              Todo el ecosistema de El Reto 2026 vive en la app. 
-              Ranking, energía, retos, directos y mucho más.
+            <p className="text-muted-foreground max-w-xl mx-auto mb-4">
+              Para completar la <strong>Fase 0 (vídeo casting)</strong> necesitas la App móvil. 
+              La web no permite acceso a cámara y micrófono.
+            </p>
+            <p className="text-sm text-primary font-medium mb-8">
+              📱 Descarga la app → Graba tu vídeo → Empieza a competir
             </p>
 
             {/* Download Buttons */}
