@@ -53,6 +53,7 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
+  const [detectedCountry, setDetectedCountry] = useState<string>('ES');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -61,6 +62,29 @@ const Auth = () => {
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Auto-detect country from browser locale
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // Map common timezones to country codes
+      const tzToCountry: Record<string, string> = {
+        'Europe/Madrid': 'ES', 'Atlantic/Canary': 'ES', 'Europe/Ceuta': 'ES',
+        'America/Mexico_City': 'MX', 'America/Cancun': 'MX', 'America/Monterrey': 'MX', 'America/Tijuana': 'MX',
+        'America/Argentina/Buenos_Aires': 'AR', 'America/Cordoba': 'AR',
+        'America/Bogota': 'CO', 'America/Santiago': 'CL', 'America/Lima': 'PE',
+        'America/Guayaquil': 'EC', 'America/Caracas': 'VE', 'America/Montevideo': 'UY',
+        'America/La_Paz': 'BO', 'America/Asuncion': 'PY', 'America/Costa_Rica': 'CR',
+        'America/Panama': 'PA', 'America/Santo_Domingo': 'DO', 'America/Guatemala': 'GT',
+        'America/Tegucigalpa': 'HN', 'America/El_Salvador': 'SV', 'America/Managua': 'NI',
+        'America/Havana': 'CU', 'America/Puerto_Rico': 'PR',
+        'America/New_York': 'US', 'America/Chicago': 'US', 'America/Denver': 'US', 'America/Los_Angeles': 'US',
+        'America/Sao_Paulo': 'BR', 'Europe/Lisbon': 'PT', 'Europe/Paris': 'FR',
+        'Europe/Rome': 'IT', 'Europe/Berlin': 'DE', 'Europe/London': 'GB',
+      };
+      if (tzToCountry[tz]) setDetectedCountry(tzToCountry[tz]);
+    } catch {}
+  }, []);
 
   // Check URL for reset mode and listen for password recovery event
   useEffect(() => {
@@ -216,7 +240,7 @@ const Auth = () => {
           });
         }
       } else {
-        const { error } = await signUp(email, password, displayName, selectedAvatar);
+        const { error } = await signUp(email, password, displayName, selectedAvatar, detectedCountry);
         if (error) {
           if (error.message.includes('already registered')) {
             toast({

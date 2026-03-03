@@ -4,24 +4,31 @@ import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
 import { SectionTitle } from '@/components/app/SectionTitle';
 import { FireCircle } from '@/components/FireCircle';
-import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, ArrowLeft, Search, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { useRanking, formatEnergy, formatTotalEnergy, getLevel, type RankedProfile, type ProfileStats } from '@/hooks/useRanking';
+import { useRanking, formatEnergy, formatTotalEnergy, getLevel, countryFlag, countryName, type RankedProfile, type ProfileStats } from '@/hooks/useRanking';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const AppRanking = () => {
   const navigate = useNavigate();
   const {
     profiles, loading, stats, currentPage, totalPages, totalCount,
-    searchQuery, myPosition, myRowRef, user,
-    handleSearch, goToPage, jumpToMyPosition,
+    searchQuery, countryFilter, countries, myPosition, myRowRef, user,
+    handleSearch, handleCountryChange, goToPage, jumpToMyPosition,
   } = useRanking();
 
   const [selectedProfile, setSelectedProfile] = useState<RankedProfile | null>(null);
@@ -55,6 +62,22 @@ const AppRanking = () => {
       <SectionTitle topLabel="2026" title="Ranking" subtitle="Se actualiza diariamente" />
 
       <div className="px-4 py-4 space-y-4">
+        {/* My Rank Card */}
+        {user && myPosition && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Tu posición</p>
+              <p className="font-unbounded text-xl font-black text-primary">
+                #{myPosition.rank}
+                <span className="text-xs font-normal text-muted-foreground ml-2">{formatEnergy(myPosition.energy)} ⚡</span>
+              </p>
+            </div>
+            <Button variant="outline" size="sm" className="gap-1 text-xs shrink-0" onClick={jumpToMyPosition}>
+              Ver en lista
+            </Button>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card border border-border rounded-xl p-3 text-center">
@@ -74,7 +97,7 @@ const AppRanking = () => {
           </div>
         </div>
 
-        {/* Search */}
+        {/* Search + Country */}
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -85,12 +108,22 @@ const AppRanking = () => {
               className="pl-9 h-9 text-sm"
             />
           </div>
-          {user && myPosition && (
-            <Button variant="outline" size="sm" className="gap-1 shrink-0 text-xs" onClick={jumpToMyPosition}>
-              <Zap className="w-3 h-3" />
-              #{myPosition.rank}
-            </Button>
-          )}
+          <Select
+            value={countryFilter || "all"}
+            onValueChange={(v) => handleCountryChange(v === "all" ? null : v)}
+          >
+            <SelectTrigger className="w-24 h-9 shrink-0">
+              <Globe className="w-3 h-3" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">🌍 Todos</SelectItem>
+              {countries.map(c => (
+                <SelectItem key={c.country} value={c.country}>
+                  {countryFlag(c.country)} {countryName(c.country)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Ranking List */}
@@ -135,7 +168,9 @@ const AppRanking = () => {
                         {profile.display_name || 'Chef Anónimo'}
                         {isMe && <span className="ml-1 text-[10px] text-primary font-bold">(Tú)</span>}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">{getLevel(profile.total_energy)}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {countryFlag(profile.country)} {getLevel(profile.total_energy)}
+                      </p>
                     </div>
                     
                     <div className="text-right flex-shrink-0">
@@ -154,20 +189,11 @@ const AppRanking = () => {
             <Button variant="outline" size="icon" className="h-8 w-8" disabled={currentPage <= 1} onClick={() => goToPage(currentPage - 1)}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-xs text-muted-foreground px-2">
-              {currentPage} / {totalPages}
-            </span>
+            <span className="text-xs text-muted-foreground px-2">{currentPage} / {totalPages}</span>
             <Button variant="outline" size="icon" className="h-8 w-8" disabled={currentPage >= totalPages} onClick={() => goToPage(currentPage + 1)}>
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-        )}
-
-        {/* Position info */}
-        {user && myPosition && (
-          <p className="text-center text-xs text-muted-foreground">
-            Tu posición: <span className="text-primary font-bold">#{myPosition.rank}</span> de {totalCount}
-          </p>
         )}
       </div>
 
@@ -184,7 +210,10 @@ const AppRanking = () => {
                 {selectedProfile.avatar_url || '👨‍🍳'}
               </div>
               <h3 className="font-unbounded text-lg font-bold mb-1">{selectedProfile.display_name || 'Chef Anónimo'}</h3>
-              <p className="text-primary text-sm font-bold mb-2">Nivel {getLevel(selectedProfile.total_energy)}</p>
+              <p className="text-primary text-sm font-bold mb-1">Nivel {getLevel(selectedProfile.total_energy)}</p>
+              {selectedProfile.country && (
+                <p className="text-xs text-muted-foreground mb-2">{countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}</p>
+              )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
                 <span className="font-unbounded text-sm font-bold text-primary">{formatEnergy(selectedProfile.total_energy)} energía</span>
@@ -193,22 +222,16 @@ const AppRanking = () => {
               <div className="grid grid-cols-2 gap-2 mb-4">
                 <div className="bg-secondary/50 rounded-lg p-2">
                   <Target className="w-4 h-4 text-primary mx-auto mb-1" />
-                  {loadingStats ? (
-                    <p className="text-xs text-muted-foreground">...</p>
-                  ) : profileStats ? (
+                  {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
-                      <p className="font-unbounded font-bold">
-                        {profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%
-                      </p>
+                      <p className="font-unbounded font-bold">{profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%</p>
                       <p className="text-[10px] text-muted-foreground">Mini Retos</p>
                     </>
                   ) : null}
                 </div>
                 <div className="bg-secondary/50 rounded-lg p-2">
                   <Video className="w-4 h-4 text-primary mx-auto mb-1" />
-                  {loadingStats ? (
-                    <p className="text-xs text-muted-foreground">...</p>
-                  ) : profileStats ? (
+                  {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
                       <p className="font-unbounded font-bold">{profileStats.challengesCompleted}</p>
                       <p className="text-[10px] text-muted-foreground">Desafíos</p>

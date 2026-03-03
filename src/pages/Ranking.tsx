@@ -1,12 +1,12 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FireCircle } from "@/components/FireCircle";
-import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, LogIn, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, LogIn, Search, ChevronLeft, ChevronRight, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useRanking, formatEnergy, formatTotalEnergy, getLevel, type ProfileStats } from "@/hooks/useRanking";
+import { useRanking, formatEnergy, formatTotalEnergy, getLevel, countryFlag, countryName, type ProfileStats, type RankedProfile } from "@/hooks/useRanking";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -14,13 +14,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { RankedProfile } from "@/hooks/useRanking";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Ranking = () => {
   const {
     profiles, loading, stats, currentPage, totalPages, totalCount,
-    searchQuery, myPosition, myRowRef, user,
-    handleSearch, goToPage, jumpToMyPosition,
+    searchQuery, countryFilter, countries, myPosition, myRowRef, user,
+    handleSearch, handleCountryChange, goToPage, jumpToMyPosition,
   } = useRanking();
 
   const [selectedProfile, setSelectedProfile] = useState<RankedProfile | null>(null);
@@ -49,7 +55,7 @@ const Ranking = () => {
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Hero */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-6">
               <Trophy className="w-4 h-4 text-primary" />
               <span className="text-xs font-bold uppercase tracking-wider text-primary">Ranking</span>
@@ -58,12 +64,38 @@ const Ranking = () => {
             <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">El Ranking</h1>
             
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Clasificación de los participantes. La energía acumulada determina tu posición. Se actualiza diariamente.
+              Clasificación de los participantes por país. La energía acumulada determina tu posición. Se actualiza diariamente.
             </p>
           </div>
 
+          {/* My Rank Card (logged in only) */}
+          {user && myPosition && (
+            <div className="max-w-2xl mx-auto mb-6">
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Tu posición</p>
+                    <p className="font-unbounded text-2xl font-black text-primary">
+                      #{myPosition.rank}
+                      <span className="text-sm font-normal text-muted-foreground ml-2">
+                        · {formatEnergy(myPosition.energy)} energía
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" className="gap-2 shrink-0" onClick={jumpToMyPosition}>
+                  <Zap className="w-4 h-4" />
+                  Ver en la lista
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{formatTotalEnergy(stats.topEnergy)}</p>
@@ -81,7 +113,7 @@ const Ranking = () => {
             </div>
           </div>
 
-          {/* Search + My Position */}
+          {/* Search + Country Filter */}
           <div className="max-w-2xl mx-auto mb-6 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -92,12 +124,23 @@ const Ranking = () => {
                 className="pl-9"
               />
             </div>
-            {user && myPosition && (
-              <Button variant="outline" className="gap-2 shrink-0" onClick={jumpToMyPosition}>
-                <Zap className="w-4 h-4" />
-                Mi posición (#{myPosition.rank})
-              </Button>
-            )}
+            <Select
+              value={countryFilter || "all"}
+              onValueChange={(v) => handleCountryChange(v === "all" ? null : v)}
+            >
+              <SelectTrigger className="w-full sm:w-48 shrink-0">
+                <Globe className="w-4 h-4 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Todos los países" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">🌍 Todos los países</SelectItem>
+                {countries.map(c => (
+                  <SelectItem key={c.country} value={c.country}>
+                    {countryFlag(c.country)} {countryName(c.country)} ({c.user_count})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Ranking List */}
@@ -107,6 +150,7 @@ const Ranking = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold uppercase tracking-wider">
                     {totalCount} participantes
+                    {countryFilter && <span className="ml-1">{countryFlag(countryFilter)}</span>}
                   </span>
                   <span className="text-xs text-muted-foreground">Actualizado diariamente</span>
                 </div>
@@ -152,7 +196,9 @@ const Ranking = () => {
                             {profile.display_name || 'Chef Anónimo'}
                             {isMe && <span className="ml-2 text-xs text-primary font-bold">(Tú)</span>}
                           </p>
-                          <p className="text-xs text-muted-foreground">Nivel {getLevel(profile.total_energy)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {countryFlag(profile.country)} Nivel {getLevel(profile.total_energy)}
+                          </p>
                         </div>
                         
                         <div className="text-right">
@@ -169,21 +215,13 @@ const Ranking = () => {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-6">
-                <Button
-                  variant="outline" size="icon"
-                  disabled={currentPage <= 1}
-                  onClick={() => goToPage(currentPage - 1)}
-                >
+                <Button variant="outline" size="icon" disabled={currentPage <= 1} onClick={() => goToPage(currentPage - 1)}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <span className="text-sm text-muted-foreground px-4">
                   Página {currentPage} de {totalPages}
                 </span>
-                <Button
-                  variant="outline" size="icon"
-                  disabled={currentPage >= totalPages}
-                  onClick={() => goToPage(currentPage + 1)}
-                >
+                <Button variant="outline" size="icon" disabled={currentPage >= totalPages} onClick={() => goToPage(currentPage + 1)}>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -191,10 +229,10 @@ const Ranking = () => {
 
             {/* Bottom CTA */}
             <div className="text-center mt-8">
-              {!user ? (
+              {!user && (
                 <>
                   <p className="text-muted-foreground mb-4">
-                    Inicia sesión para ver tu posición en el ranking
+                    Inicia sesión para ver tu posición destacada
                   </p>
                   <Button asChild size="lg" className="gap-2">
                     <Link to="/auth">
@@ -203,14 +241,6 @@ const Ranking = () => {
                     </Link>
                   </Button>
                 </>
-              ) : myPosition ? (
-                <p className="text-muted-foreground">
-                  Estás en la posición <span className="text-primary font-bold">#{myPosition.rank}</span> de {totalCount}
-                </p>
-              ) : (
-                <p className="text-muted-foreground">
-                  Completa retos y trivias para aparecer en el ranking
-                </p>
               )}
             </div>
           </div>
@@ -232,7 +262,12 @@ const Ranking = () => {
               <h3 className="font-unbounded text-xl font-bold mb-1">
                 {selectedProfile.display_name || 'Chef Anónimo'}
               </h3>
-              <p className="text-primary font-bold mb-2">Nivel {getLevel(selectedProfile.total_energy)}</p>
+              <p className="text-primary font-bold mb-1">Nivel {getLevel(selectedProfile.total_energy)}</p>
+              {selectedProfile.country && (
+                <p className="text-sm text-muted-foreground mb-2">
+                  {countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}
+                </p>
+              )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
                 <span className="font-unbounded font-bold text-primary">{formatEnergy(selectedProfile.total_energy)} energía</span>

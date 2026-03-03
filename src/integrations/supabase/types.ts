@@ -250,6 +250,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           city: string | null
+          country: string | null
           created_at: string
           display_name: string | null
           email: string | null
@@ -267,6 +268,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
@@ -284,6 +286,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
@@ -831,38 +834,87 @@ export type Database = {
         Returns: Json
       }
       get_auth_email: { Args: never; Returns: string }
-      get_my_rank_position: {
-        Args: { p_user_id: string }
-        Returns: {
-          rank_position: number
-          total_count: number
-          total_energy: number
-        }[]
-      }
-      get_ranking_page: {
-        Args: { p_page?: number; p_page_size?: number; p_search?: string }
-        Returns: {
-          avatar_url: string
-          bio: string
-          city: string
-          display_name: string
-          id: string
-          instagram_handle: string
-          rank_position: number
-          tiktok_handle: string
-          total_count: number
-          total_energy: number
-          user_id: string
-        }[]
-      }
-      get_ranking_stats: {
+      get_my_rank_position:
+        | {
+            Args: { p_user_id: string }
+            Returns: {
+              rank_position: number
+              total_count: number
+              total_energy: number
+            }[]
+          }
+        | {
+            Args: { p_country?: string; p_user_id: string }
+            Returns: {
+              country: string
+              rank_position: number
+              total_count: number
+              total_energy: number
+            }[]
+          }
+      get_ranking_countries: {
         Args: never
         Returns: {
-          top_energy: number
-          total_energy: number
-          total_participants: number
+          country: string
+          user_count: number
         }[]
       }
+      get_ranking_page:
+        | {
+            Args: { p_page?: number; p_page_size?: number; p_search?: string }
+            Returns: {
+              avatar_url: string
+              bio: string
+              city: string
+              display_name: string
+              id: string
+              instagram_handle: string
+              rank_position: number
+              tiktok_handle: string
+              total_count: number
+              total_energy: number
+              user_id: string
+            }[]
+          }
+        | {
+            Args: {
+              p_country?: string
+              p_page?: number
+              p_page_size?: number
+              p_search?: string
+            }
+            Returns: {
+              avatar_url: string
+              bio: string
+              city: string
+              country: string
+              display_name: string
+              id: string
+              instagram_handle: string
+              rank_position: number
+              tiktok_handle: string
+              total_count: number
+              total_energy: number
+              user_id: string
+            }[]
+          }
+      get_ranking_stats:
+        | {
+            Args: never
+            Returns: {
+              top_energy: number
+              total_energy: number
+              total_participants: number
+            }[]
+          }
+        | {
+            Args: { p_country?: string }
+            Returns: {
+              top_energy: number
+              total_energy: number
+              total_participants: number
+            }[]
+          }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

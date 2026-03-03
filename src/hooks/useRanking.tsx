@@ -9,6 +9,7 @@ export interface RankedProfile {
   avatar_url: string | null;
   total_energy: number;
   city: string | null;
+  country: string | null;
   bio: string | null;
   instagram_handle: string | null;
   tiktok_handle: string | null;
@@ -27,6 +28,11 @@ export interface ProfileStats {
   challengesCompleted: number;
 }
 
+export interface CountryOption {
+  country: string;
+  user_count: number;
+}
+
 const PAGE_SIZE = 50;
 
 export function useRanking() {
@@ -37,19 +43,22 @@ export function useRanking() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [myPosition, setMyPosition] = useState<{ rank: number; energy: number } | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+  const [myPosition, setMyPosition] = useState<{ rank: number; energy: number; country: string | null } | null>(null);
   const [jumpingToMe, setJumpingToMe] = useState(false);
   const myRowRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
-  const fetchPage = useCallback(async (page: number, search?: string) => {
+  const fetchPage = useCallback(async (page: number, search?: string, country?: string | null) => {
     setLoading(true);
     const { data, error } = await supabase.rpc('get_ranking_page', {
       p_page: page,
       p_page_size: PAGE_SIZE,
       p_search: search || null,
+      p_country: country ?? null,
     });
 
     if (!error && data && data.length > 0) {
@@ -62,8 +71,8 @@ export function useRanking() {
     setLoading(false);
   }, []);
 
-  const fetchStats = useCallback(async () => {
-    const { data } = await supabase.rpc('get_ranking_stats');
+  const fetchStats = useCallback(async (country?: string | null) => {
+    const { data } = await supabase.rpc('get_ranking_stats', { p_country: country ?? null });
     if (data && data.length > 0) {
       setStats({
         topEnergy: data[0].top_energy,
@@ -73,23 +82,51 @@ export function useRanking() {
     }
   }, []);
 
-  const fetchMyPosition = useCallback(async () => {
+  const fetchCountries = useCallback(async () => {
+    const { data } = await supabase.rpc('get_ranking_countries');
+    if (data) setCountries(data);
+  }, []);
+
+  const fetchMyPosition = useCallback(async (country?: string | null) => {
     if (!user) { setMyPosition(null); return; }
-    const { data } = await supabase.rpc('get_my_rank_position', { p_user_id: user.id });
+    const { data } = await supabase.rpc('get_my_rank_position', { 
+      p_user_id: user.id,
+      p_country: country ?? null,
+    });
     if (data && data.length > 0) {
-      setMyPosition({ rank: Number(data[0].rank_position), energy: data[0].total_energy });
+      setMyPosition({ rank: Number(data[0].rank_position), energy: data[0].total_energy, country: data[0].country });
+    } else {
+      setMyPosition(null);
     }
   }, [user]);
 
-  // Initial load
+  // Initial load — detect user's country, default filter to it
   useEffect(() => {
-    fetchPage(1);
-    fetchStats();
-  }, [fetchPage, fetchStats]);
+    fetchCountries();
+  }, [fetchCountries]);
 
+  // Set user's country as default filter when we know it
   useEffect(() => {
-    fetchMyPosition();
-  }, [fetchMyPosition]);
+    if (user && myPosition?.country && countryFilter === null) {
+      // Only auto-set if the user has a country
+      setCountryFilter(myPosition.country);
+    }
+  }, [user, myPosition, countryFilter]);
+
+  // Fetch data when country filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchPage(1, searchQuery || undefined, countryFilter);
+    fetchStats(countryFilter);
+    fetchMyPosition(countryFilter);
+  }, [countryFilter, fetchPage, fetchStats, fetchMyPosition]); // eslint-disable-line
+
+  // Initial fetch of my position (without country filter to detect country)
+  useEffect(() => {
+    if (user) {
+      fetchMyPosition(null);
+    }
+  }, [user]); // eslint-disable-line
 
   // Debounced search
   const handleSearch = useCallback((query: string) => {
@@ -97,47 +134,34 @@ export function useRanking() {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
       setCurrentPage(1);
-      fetchPage(1, query);
+      fetchPage(1, query, countryFilter);
     }, 400);
-  }, [fetchPage]);
+  }, [fetchPage, countryFilter]);
+
+  const handleCountryChange = useCallback((country: string | null) => {
+    setCountryFilter(country);
+    setSearchQuery('');
+  }, []);
 
   const goToPage = useCallback((page: number) => {
     setCurrentPage(page);
-    fetchPage(page, searchQuery || undefined);
-  }, [fetchPage, searchQuery]);
+    fetchPage(page, searchQuery || undefined, countryFilter);
+  }, [fetchPage, searchQuery, countryFilter]);
 
   const jumpToMyPosition = useCallback(async () => {
     if (!myPosition) return;
     setJumpingToMe(true);
     const targetPage = Math.ceil(myPosition.rank / PAGE_SIZE);
     
-    // Clear search to show full ranking
     setSearchQuery('');
     setCurrentPage(targetPage);
-    await fetchPage(targetPage);
+    await fetchPage(targetPage, undefined, countryFilter);
     
-    // Wait for render then scroll
     setTimeout(() => {
       myRowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setJumpingToMe(false);
     }, 300);
-  }, [myPosition, fetchPage]);
-
-  const fetchProfileStats = useCallback(async (userId: string): Promise<ProfileStats> => {
-    const [{ data: triviaCompletions }, { data: submissions }] = await Promise.all([
-      supabase.from('trivia_completions').select('is_correct').eq('user_id', userId),
-      supabase.from('challenge_submissions').select('id').eq('user_id', userId).eq('status', 'approved'),
-    ]);
-
-    const triviaTotal = triviaCompletions?.length || 0;
-    const triviaCorrect = triviaCompletions?.filter(t => t.is_correct).length || 0;
-
-    return {
-      triviaCorrect,
-      triviaTotal,
-      challengesCompleted: submissions?.length || 0,
-    };
-  }, []);
+  }, [myPosition, fetchPage, countryFilter]);
 
   return {
     profiles,
@@ -147,16 +171,43 @@ export function useRanking() {
     totalPages,
     totalCount,
     searchQuery,
+    countryFilter,
+    countries,
     myPosition,
     jumpingToMe,
     myRowRef,
     user,
     handleSearch,
+    handleCountryChange,
     goToPage,
     jumpToMyPosition,
-    fetchProfileStats,
     PAGE_SIZE,
   };
+}
+
+// Country code → flag emoji
+export function countryFlag(code: string | null) {
+  if (!code || code.length !== 2) return '🌍';
+  const offset = 0x1F1E6;
+  return String.fromCodePoint(
+    code.charCodeAt(0) - 65 + offset,
+    code.charCodeAt(1) - 65 + offset
+  );
+}
+
+// Country code → name (common ones)
+const COUNTRY_NAMES: Record<string, string> = {
+  ES: 'España', MX: 'México', AR: 'Argentina', CO: 'Colombia', CL: 'Chile',
+  PE: 'Perú', EC: 'Ecuador', VE: 'Venezuela', UY: 'Uruguay', BO: 'Bolivia',
+  PY: 'Paraguay', CR: 'Costa Rica', PA: 'Panamá', DO: 'Rep. Dominicana',
+  GT: 'Guatemala', HN: 'Honduras', SV: 'El Salvador', NI: 'Nicaragua',
+  CU: 'Cuba', PR: 'Puerto Rico', US: 'Estados Unidos', BR: 'Brasil',
+  PT: 'Portugal', FR: 'Francia', IT: 'Italia', DE: 'Alemania', GB: 'Reino Unido',
+};
+
+export function countryName(code: string | null) {
+  if (!code) return 'Sin país';
+  return COUNTRY_NAMES[code.toUpperCase()] || code;
 }
 
 export function formatEnergy(energy: number) {
