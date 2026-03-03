@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useProfile } from "@/hooks/useProfile";
+import { useEnrollment } from "@/hooks/useEnrollment";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ const navItems = [
   { label: "Vídeos", href: "/videos" },
   { label: "Recetario", href: "/recetario" },
   { label: "Bases", href: "/bases" },
+  { label: "Descargar App", href: "/descarga" },
 ];
 
 export const Header = () => {
@@ -26,6 +28,7 @@ export const Header = () => {
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { profile } = useProfile();
+  const { isEnrolled } = useEnrollment();
 
   const avatarUrl = profile?.avatar_url;
   const isEmoji = avatarUrl && EMOJI_AVATARS.includes(avatarUrl);
@@ -78,12 +81,14 @@ export const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Button asChild size="sm" variant="outline" className="gap-2">
-              <Link to="/descarga">
-                <Download className="w-4 h-4" />
-                Descargar app
-              </Link>
-            </Button>
+            {!isEnrolled && (
+              <Button asChild size="sm" className="gap-2">
+                <Link to="/inscripcion">
+                  <Flame className="w-4 h-4" />
+                  Inscribirme a El Reto
+                </Link>
+              </Button>
+            )}
             {!loading && (
               user ? (
                 <div className="relative">
@@ -113,7 +118,8 @@ export const Header = () => {
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                       <div className="py-1.5">
-                        <DropdownItem icon={<Flame className="w-4 h-4" />} label="Mi zona" onClick={() => { navigate('/dashboard'); setAccountOpen(false); }} />
+                        <DropdownItem icon={<Flame className="w-4 h-4" />} label="Dashboard" onClick={() => { navigate('/dashboard'); setAccountOpen(false); }} />
+                        <DropdownItem icon={<User className="w-4 h-4" />} label="Perfil" onClick={() => { navigate('/profile'); setAccountOpen(false); }} />
                         <DropdownItem icon={<BookOpen className="w-4 h-4" />} label="Mi Recetario" onClick={() => { navigate('/recetario/biblioteca'); setAccountOpen(false); }} />
                         {isAdmin && (
                           <DropdownItem icon={<Shield className="w-4 h-4" />} label="Admin" onClick={() => { navigate('/admin'); setAccountOpen(false); }} />
@@ -131,10 +137,10 @@ export const Header = () => {
                   )}
                 </div>
               ) : (
-                <Button asChild size="sm" className="gap-2">
+                <Button asChild size="sm" variant="outline" className="gap-2">
                   <Link to="/auth">
                     <LogIn className="w-4 h-4" />
-                    Entrar
+                    Iniciar sesión
                   </Link>
                 </Button>
               )
@@ -170,19 +176,21 @@ export const Header = () => {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-3 border-t border-border mt-2">
-                <Button asChild size="sm" variant="outline" className="gap-2 w-full">
-                  <Link to="/descarga" onClick={() => setIsMenuOpen(false)}>
-                    <Download className="w-4 h-4" />
-                    Descargar app
-                  </Link>
-                </Button>
+                {!isEnrolled && (
+                  <Button asChild size="sm" className="gap-2 w-full">
+                    <Link to="/inscripcion" onClick={() => setIsMenuOpen(false)}>
+                      <Flame className="w-4 h-4" />
+                      Inscribirme a El Reto
+                    </Link>
+                  </Button>
+                )}
                 {!loading && (
                   user ? (
                     <>
-                      <Button asChild size="sm" className="gap-2 w-full">
+                      <Button asChild size="sm" variant="outline" className="gap-2 w-full">
                         <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
                           <User className="w-4 h-4" />
-                          Mi zona
+                          Mi cuenta
                         </Link>
                       </Button>
                       {isAdmin && (
@@ -193,12 +201,15 @@ export const Header = () => {
                           </Link>
                         </Button>
                       )}
+                      <button onClick={() => { handleSignOut(); setIsMenuOpen(false); }} className="text-sm text-destructive py-2 text-left">
+                        Cerrar sesión
+                      </button>
                     </>
                   ) : (
-                    <Button asChild size="sm" className="gap-2 w-full">
+                    <Button asChild size="sm" variant="outline" className="gap-2 w-full">
                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                         <LogIn className="w-4 h-4" />
-                        Entrar
+                        Iniciar sesión
                       </Link>
                     </Button>
                   )
