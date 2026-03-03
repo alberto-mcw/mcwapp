@@ -1,10 +1,12 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FireCircle } from "@/components/FireCircle";
-import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video } from "lucide-react";
+import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -31,12 +33,14 @@ interface ProfileStats {
 }
 
 const Ranking = () => {
+  const { user } = useAuth();
   const [profiles, setProfiles] = useState<RankedProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalEnergy, setTotalEnergy] = useState(0);
   const [selectedProfile, setSelectedProfile] = useState<RankedProfile | null>(null);
   const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const myRowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -68,20 +72,17 @@ const Ranking = () => {
       setLoadingStats(true);
       
       try {
-        // Fetch trivia completions from the new trivia_completions table
         const { data: triviaCompletions } = await supabase
           .from('trivia_completions')
           .select('is_correct')
           .eq('user_id', selectedProfile.user_id);
 
-        // Fetch weekly challenges completed (approved submissions)
         const { data: submissions } = await supabase
           .from('challenge_submissions')
           .select('id')
           .eq('user_id', selectedProfile.user_id)
           .eq('status', 'approved');
 
-        // Calculate trivia stats
         const triviaTotal = triviaCompletions?.length || 0;
         const triviaCorrect = triviaCompletions?.filter(t => t.is_correct).length || 0;
 
@@ -99,6 +100,16 @@ const Ranking = () => {
 
     fetchProfileStats();
   }, [selectedProfile]);
+
+  const myPosition = user ? profiles.findIndex(p => p.user_id === user.id) : -1;
+
+  const scrollToMyPosition = () => {
+    if (myRowRef.current) {
+      myRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      myRowRef.current.classList.add('animate-pulse');
+      setTimeout(() => myRowRef.current?.classList.remove('animate-pulse'), 2000);
+    }
+  };
 
   const formatEnergy = (energy: number) => {
     return energy.toLocaleString('es-ES');
@@ -130,20 +141,19 @@ const Ranking = () => {
           {/* Hero */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-6">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <Trophy className="w-4 h-4 text-primary" />
               <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                Ranking en vivo
+                Ranking
               </span>
             </div>
             
             <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">
-              El Ranking<br />
-              <span className="text-gradient">Nunca Duerme</span>
+              El Ranking
             </h1>
             
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Sigue en tiempo real la clasificación de los participantes. 
-              La energía acumulada determina tu posición.
+              Clasificación de los participantes. 
+              La energía acumulada determina tu posición. Se actualiza diariamente.
             </p>
           </div>
 
@@ -174,7 +184,7 @@ const Ranking = () => {
               <div className="bg-secondary/50 px-6 py-4 border-b border-border">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold uppercase tracking-wider">Top {profiles.length}</span>
-                  <span className="text-xs text-muted-foreground">Actualizado en tiempo real</span>
+                  <span className="text-xs text-muted-foreground">Actualizado diariamente</span>
                 </div>
               </div>
               
@@ -186,12 +196,14 @@ const Ranking = () => {
                 <div className="divide-y divide-border">
                   {profiles.map((profile, index) => {
                     const pos = index + 1;
+                    const isMe = user && profile.user_id === user.id;
                     return (
                       <div 
                         key={profile.id}
+                        ref={isMe ? myRowRef : undefined}
                         onClick={() => setSelectedProfile(profile)}
                         className={`flex items-center gap-4 p-4 transition-colors hover:bg-secondary/30 cursor-pointer ${
-                          pos <= 3 ? "bg-primary/5" : ""
+                          isMe ? "bg-primary/15 ring-1 ring-primary/30" : pos <= 3 ? "bg-primary/5" : ""
                         }`}
                       >
                         <div className="relative">
@@ -210,7 +222,10 @@ const Ranking = () => {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{profile.display_name || 'Chef Anónimo'}</p>
+                          <p className="font-medium truncate">
+                            {profile.display_name || 'Chef Anónimo'}
+                            {isMe && <span className="ml-2 text-xs text-primary font-bold">(Tú)</span>}
+                          </p>
                           <p className="text-xs text-muted-foreground">Nivel {getLevel(profile.total_energy)}</p>
                         </div>
                         
@@ -226,13 +241,33 @@ const Ranking = () => {
             </div>
 
             <div className="text-center mt-8">
-              <p className="text-muted-foreground mb-4">
-                Descarga la app para ver el ranking completo y tu posición
-              </p>
-              <Button size="lg" className="gap-2">
-                <Zap className="w-5 h-5" />
-                Ver mi posición
-              </Button>
+              {!user ? (
+                <>
+                  <p className="text-muted-foreground mb-4">
+                    Inicia sesión para ver tu posición en el ranking
+                  </p>
+                  <Button asChild size="lg" className="gap-2">
+                    <Link to="/auth">
+                      <LogIn className="w-5 h-5" />
+                      Iniciar sesión
+                    </Link>
+                  </Button>
+                </>
+              ) : myPosition >= 0 ? (
+                <>
+                  <p className="text-muted-foreground mb-4">
+                    Estás en la posición <span className="text-primary font-bold">#{myPosition + 1}</span> del ranking
+                  </p>
+                  <Button size="lg" className="gap-2" onClick={scrollToMyPosition}>
+                    <Zap className="w-5 h-5" />
+                    Ver mi posición
+                  </Button>
+                </>
+              ) : (
+                <p className="text-muted-foreground">
+                  Completa retos y trivias para aparecer en el ranking
+                </p>
+              )}
             </div>
           </div>
         </div>

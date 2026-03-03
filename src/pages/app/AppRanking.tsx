@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
+import { useAuth } from '@/hooks/useAuth';
 import { AppHeader } from '@/components/app/AppHeader';
 import { SectionTitle } from '@/components/app/SectionTitle';
 import { FireCircle } from '@/components/FireCircle';
@@ -33,6 +34,7 @@ interface ProfileStats {
 }
 
 const AppRanking = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<RankedProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,7 @@ const AppRanking = () => {
   const [selectedProfile, setSelectedProfile] = useState<RankedProfile | null>(null);
   const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const myRowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -137,7 +140,7 @@ const AppRanking = () => {
       <SectionTitle
         topLabel="2026"
         title="Ranking"
-        subtitle="Clasificación en vivo"
+        subtitle="Se actualiza diariamente"
       />
 
       <div className="px-4 py-4 space-y-4">
@@ -162,10 +165,10 @@ const AppRanking = () => {
           </div>
         </div>
 
-        {/* Live Indicator */}
+        {/* Update indicator */}
         <div className="flex items-center justify-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-          <span className="text-xs font-medium text-muted-foreground">En vivo</span>
+          <Trophy className="w-3 h-3 text-primary" />
+          <span className="text-xs font-medium text-muted-foreground">Actualizado diariamente</span>
         </div>
 
         {/* Ranking List */}
@@ -178,12 +181,14 @@ const AppRanking = () => {
             <div className="divide-y divide-border">
               {profiles.map((profile, index) => {
                 const pos = index + 1;
+                const isMe = user && profile.user_id === user.id;
                 return (
                   <div 
                     key={profile.id}
+                    ref={isMe ? myRowRef : undefined}
                     onClick={() => setSelectedProfile(profile)}
                     className={`flex items-center gap-3 p-3 transition-colors active:bg-secondary/30 ${
-                      pos <= 3 ? "bg-primary/5" : ""
+                      isMe ? "bg-primary/15 ring-1 ring-primary/30" : pos <= 3 ? "bg-primary/5" : ""
                     }`}
                   >
                     <div className="relative w-8 flex-shrink-0">
@@ -202,7 +207,10 @@ const AppRanking = () => {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{profile.display_name || 'Chef Anónimo'}</p>
+                      <p className="font-medium text-sm truncate">
+                        {profile.display_name || 'Chef Anónimo'}
+                        {isMe && <span className="ml-1 text-[10px] text-primary font-bold">(Tú)</span>}
+                      </p>
                       <p className="text-[10px] text-muted-foreground">{getLevel(profile.total_energy)}</p>
                     </div>
                     
