@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { rankingService, type RankedItem, type RankingStats, type CountryOption } from '@/services/RankingService';
 
@@ -16,6 +17,7 @@ const PAGE_SIZE = 50;
 
 export function useRanking() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profiles, setProfiles] = useState<RankedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<RankingStats>({ topEnergy: 0, totalEnergy: 0, totalParticipants: 0 });
@@ -45,7 +47,7 @@ export function useRanking() {
       const result = await rankingService.listRanking({
         page,
         pageSize: PAGE_SIZE,
-        query: search || undefined,
+        query: search?.trim() || undefined,
         country,
       });
       setProfiles(result.items);
@@ -76,7 +78,7 @@ export function useRanking() {
     }
   }, [user]);
 
-  // After profiles load, check if there's a pending jump
+  // After profiles load, resolve pending jump
   useEffect(() => {
     if (!pendingJumpUserId || loading || profiles.length === 0) return;
     const timer = setTimeout(() => {
@@ -131,24 +133,45 @@ export function useRanking() {
   }, [fetchPage, searchQuery, countryFilter]);
 
   const jumpToMyPosition = useCallback(async () => {
-    if (!user) return;
-    if (!myPosition) {
-      toast.info('Aún no tienes posición en el ranking');
+    // If not logged in, redirect to auth
+    if (!user) {
+      navigate('/auth', { state: { reason: 'ranking_my_position' } });
       return;
     }
-    setJumpingToMe(true);
-    try {
-      const targetPage = Math.ceil(myPosition.rank / PAGE_SIZE);
+
+    // Clear search to ensure user row is visible
+    if (searchQuery.trim()) {
       setSearchQuery('');
-      setCurrentPage(targetPage);
+    }
+
+    setJumpingToMe(true);
+
+    try {
+      // Respect current country filter
+      const myPos = await rankingService.getMyRankPosition(user.id, {
+        country: countryFilter,
+      });
+
+      if (!myPos) {
+        toast.info(
+          countryFilter
+            ? 'Aún no tienes posición en este país.'
+            : 'Aún no tienes posición en el ranking.'
+        );
+        setJumpingToMe(false);
+        return;
+      }
+
+      const targetPage = Math.floor((myPos.rankIndex - 1) / PAGE_SIZE) + 1;
       setPendingJumpUserId(user.id);
+      setCurrentPage(targetPage);
       await fetchPage(targetPage, undefined, countryFilter);
     } catch {
       toast.error('No hemos podido localizar tu posición. Reintenta.');
       setJumpingToMe(false);
       setPendingJumpUserId(null);
     }
-  }, [user, myPosition, fetchPage, countryFilter]);
+  }, [user, searchQuery, countryFilter, fetchPage, navigate]);
 
   return {
     profiles,
