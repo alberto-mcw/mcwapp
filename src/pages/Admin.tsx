@@ -505,7 +505,7 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="calendario" className="space-y-6">
-            <TabsList className="grid w-full max-w-3xl grid-cols-5">
+            <TabsList className="grid w-full max-w-4xl grid-cols-6">
               <TabsTrigger value="calendario" className="gap-2">
                 <CalendarDays className="w-4 h-4" />
                 Calendario
@@ -523,6 +523,10 @@ const Admin = () => {
                 <Video className="w-4 h-4" />
                 Vídeos
                 {pendingSubmissions.length > 0 && <Badge variant="secondary" className="ml-1">{pendingSubmissions.length}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="gap-2">
+                <Link2 className="w-4 h-4" />
+                Carga ext.
               </TabsTrigger>
               <TabsTrigger value="presentaciones" className="gap-2">
                 🎬 Present.
