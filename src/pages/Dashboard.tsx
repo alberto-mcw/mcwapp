@@ -21,7 +21,7 @@ const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, uploadAvatar, refetch } = useProfile();
   const { isAdmin } = useAdmin();
-  const navigate = useNavigate();
+  const { isEnrolled } = useEnrollment();
   const [localEnergy, setLocalEnergy] = useState(0);
 
   useEffect(() => {
