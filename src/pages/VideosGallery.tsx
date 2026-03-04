@@ -197,19 +197,39 @@ const VideoGrid = ({
             )}
             
             <div className="relative aspect-[9/16] bg-black">
-              <video
-                src={submission.video_url}
-                className="w-full h-full object-contain"
-                onClick={() => onVideoSelect(submission)}
-              />
-              <button
-                onClick={() => onVideoSelect(submission)}
-                className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-                  <Play className="w-5 h-5 text-white ml-1" />
-                </div>
-              </button>
+              {(() => {
+                const url = submission.video_url;
+                const igMatch = url.match(/instagram\.com\/(reel|p)\/([\w-]+)/);
+                const ttMatch = url.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/);
+                const ytMatch = url.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=)|youtu\.be\/)([\w-]+)/);
+                
+                if (igMatch) {
+                  return <iframe src={`https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/embed`} className="w-full h-full" allowFullScreen />;
+                }
+                if (ttMatch) {
+                  return <iframe src={`https://www.tiktok.com/embed/v2/${ttMatch[1]}`} className="w-full h-full" allowFullScreen />;
+                }
+                if (ytMatch) {
+                  return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allowFullScreen />;
+                }
+                return (
+                  <>
+                    <video
+                      src={url}
+                      className="w-full h-full object-contain"
+                      onClick={() => onVideoSelect(submission)}
+                    />
+                    <button
+                      onClick={() => onVideoSelect(submission)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                        <Play className="w-5 h-5 text-primary-foreground ml-1" />
+                      </div>
+                    </button>
+                  </>
+                );
+              })()}
               
               <div className="absolute bottom-3 right-3 flex items-center gap-2">
                 <button

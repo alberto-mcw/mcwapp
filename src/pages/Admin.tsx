@@ -15,12 +15,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Check, X, Trash2, Edit, Video, Calendar, Sparkles, Brain, CalendarDays, Clock, Star, Filter } from 'lucide-react';
+import { Loader2, Plus, Check, X, Trash2, Edit, Video, Calendar, Sparkles, Brain, CalendarDays, Clock, Star, Filter, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { AdminCalendar } from '@/components/admin/AdminCalendar';
 import { AdminPresentationVideos } from '@/components/admin/AdminPresentationVideos';
+import { AdminVideoUpload } from '@/components/admin/AdminVideoUpload';
 import { SuperLikeButton } from '@/components/gallery/SuperLikeButton';
 
 interface Challenge {
@@ -504,7 +505,7 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="calendario" className="space-y-6">
-            <TabsList className="grid w-full max-w-3xl grid-cols-5">
+            <TabsList className="grid w-full max-w-4xl grid-cols-6">
               <TabsTrigger value="calendario" className="gap-2">
                 <CalendarDays className="w-4 h-4" />
                 Calendario
@@ -522,6 +523,10 @@ const Admin = () => {
                 <Video className="w-4 h-4" />
                 Vídeos
                 {pendingSubmissions.length > 0 && <Badge variant="secondary" className="ml-1">{pendingSubmissions.length}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="gap-2">
+                <Link2 className="w-4 h-4" />
+                Carga ext.
               </TabsTrigger>
               <TabsTrigger value="presentaciones" className="gap-2">
                 🎬 Present.
@@ -879,6 +884,11 @@ const Admin = () => {
                   </TabsContent>
                 )})}
               </Tabs>
+            </TabsContent>
+
+            {/* ADMIN VIDEO UPLOAD TAB */}
+            <TabsContent value="upload" className="space-y-6">
+              <AdminVideoUpload />
             </TabsContent>
 
             {/* PRESENTATION VIDEOS TAB */}
