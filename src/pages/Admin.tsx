@@ -886,6 +886,11 @@ const Admin = () => {
               </Tabs>
             </TabsContent>
 
+            {/* ADMIN VIDEO UPLOAD TAB */}
+            <TabsContent value="upload" className="space-y-6">
+              <AdminVideoUpload />
+            </TabsContent>
+
             {/* PRESENTATION VIDEOS TAB */}
             <TabsContent value="presentaciones" className="space-y-6">
               <AdminPresentationVideos />
