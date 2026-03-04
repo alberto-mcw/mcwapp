@@ -10,6 +10,7 @@ export interface Profile {
   avatar_url: string | null;
   bio: string | null;
   city: string | null;
+  country: string | null;
   instagram_handle: string | null;
   tiktok_handle: string | null;
   twitter_handle: string | null;
