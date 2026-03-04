@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useSystemTheme } from '@/hooks/useSystemTheme';
+import { LegalCheckboxes } from '@/components/LegalCheckboxes';
 
 const CHEF_AVATARS = [
   { emoji: '🍕', label: 'Pizza' },
