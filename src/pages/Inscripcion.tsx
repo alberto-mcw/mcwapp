@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { MasterChefLogo } from '@/components/MasterChefLogo';
+import { LegalCheckboxes } from '@/components/LegalCheckboxes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -274,23 +275,13 @@ const Inscripcion = () => {
                   </div>
 
                   {authMode === 'signup' && (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-start gap-2">
-                        <Checkbox checked={acceptTerms} onCheckedChange={v => setAcceptTerms(v === true)} id="terms" />
-                        <label htmlFor="terms" className="text-xs text-muted-foreground leading-tight">
-                          Acepto los <a href="/bases" target="_blank" className="text-primary hover:underline">Términos y Condiciones</a>
-                        </label>
-                      </div>
-                      {errors.acceptTerms && <p className="text-xs text-destructive">{errors.acceptTerms}</p>}
-
-                      <div className="flex items-start gap-2">
-                        <Checkbox checked={acceptPrivacy} onCheckedChange={v => setAcceptPrivacy(v === true)} id="privacy" />
-                        <label htmlFor="privacy" className="text-xs text-muted-foreground leading-tight">
-                          Acepto la <a href="/bases" target="_blank" className="text-primary hover:underline">Política de Privacidad</a>
-                        </label>
-                      </div>
-                      {errors.acceptPrivacy && <p className="text-xs text-destructive">{errors.acceptPrivacy}</p>}
-                    </div>
+                    <LegalCheckboxes
+                      acceptTerms={acceptTerms}
+                      acceptPrivacy={acceptPrivacy}
+                      onTermsChange={setAcceptTerms}
+                      onPrivacyChange={setAcceptPrivacy}
+                      errors={errors}
+                    />
                   )}
 
                   <Button type="submit" disabled={isSubmitting} className="w-full gap-2">

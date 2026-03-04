@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Manopla } from "./MasterChefLogo";
 import { ChevronRight, Check } from "lucide-react";
+import { LegalCheckboxes } from "./LegalCheckboxes";
 
 const profiles = [
   { value: "cocino", label: "Cocino" },
@@ -17,11 +18,13 @@ export const RegistrationSection = () => {
     email: "",
     profile: "",
   });
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.profile) return;
+    if (!formData.name || !formData.email || !formData.profile || !acceptTerms || !acceptPrivacy) return;
     setSubmitted(true);
   };
 
@@ -118,21 +121,21 @@ export const RegistrationSection = () => {
               </div>
             </div>
 
+            <LegalCheckboxes
+              acceptTerms={acceptTerms}
+              acceptPrivacy={acceptPrivacy}
+              onTermsChange={setAcceptTerms}
+              onPrivacyChange={setAcceptPrivacy}
+            />
+
             <Button
               type="submit"
               className="btn-primary w-full py-6 text-base font-bold"
-              disabled={!formData.name || !formData.email || !formData.profile}
+              disabled={!formData.name || !formData.email || !formData.profile || !acceptTerms || !acceptPrivacy}
             >
               Reservar mi sitio
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
-
-            <p className="text-center text-[10px] text-muted-foreground">
-              Al registrarte aceptas los{" "}
-              <a href="/bases" className="text-primary hover:underline">términos</a>
-              {" "}y la{" "}
-              <a href="#" className="text-primary hover:underline">política de privacidad</a>.
-            </p>
           </form>
         )}
       </div>

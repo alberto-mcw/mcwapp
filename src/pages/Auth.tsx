@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { LegalCheckboxes } from '@/components/LegalCheckboxes';
 
 const CHEF_AVATARS = [
   { emoji: '🍕', label: 'Pizza' },
@@ -43,7 +44,9 @@ const loginSchema = z.object({
 
 const signupSchema = loginSchema.extend({
   displayName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  avatar: z.string().min(1, 'Selecciona un avatar')
+  avatar: z.string().min(1, 'Selecciona un avatar'),
+  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Debes aceptar los Términos y Condiciones' }) }),
+  acceptPrivacy: z.literal(true, { errorMap: () => ({ message: 'Debes aceptar la Política de Privacidad' }) }),
 });
 
 const Auth = () => {
@@ -58,6 +61,8 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isRecoverySession, setIsRecoverySession] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -119,7 +124,7 @@ const Auth = () => {
       if (mode === 'login') {
         loginSchema.parse({ email, password });
       } else if (mode === 'signup') {
-        signupSchema.parse({ email, password, displayName, avatar: selectedAvatar });
+        signupSchema.parse({ email, password, displayName, avatar: selectedAvatar, acceptTerms, acceptPrivacy });
       } else {
         z.string().email('Email inválido').parse(email);
       }
@@ -455,6 +460,16 @@ const Auth = () => {
                     <p className="text-sm text-destructive">{errors.password}</p>
                   )}
                 </div>
+              )}
+
+              {mode === 'signup' && (
+                <LegalCheckboxes
+                  acceptTerms={acceptTerms}
+                  acceptPrivacy={acceptPrivacy}
+                  onTermsChange={setAcceptTerms}
+                  onPrivacyChange={setAcceptPrivacy}
+                  errors={errors}
+                />
               )}
 
               {mode === 'login' && (
