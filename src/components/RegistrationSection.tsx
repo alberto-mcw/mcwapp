@@ -18,11 +18,13 @@ export const RegistrationSection = () => {
     email: "",
     profile: "",
   });
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.profile) return;
+    if (!formData.name || !formData.email || !formData.profile || !acceptTerms || !acceptPrivacy) return;
     setSubmitted(true);
   };
 
