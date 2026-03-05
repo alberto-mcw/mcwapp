@@ -81,6 +81,14 @@ export const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            {isAdmin && (
+              <Button asChild size="sm" variant="ghost" className="gap-1.5 text-primary">
+                <Link to="/admin/usuarios">
+                  <Shield className="w-4 h-4" />
+                  <span className="sr-only md:not-sr-only">Usuarios</span>
+                </Link>
+              </Button>
+            )}
             {!isEnrolled && (
               <Button asChild size="sm" className="gap-2">
                 <Link to="/inscripcion">

@@ -60,6 +60,14 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
           className="h-7 w-auto object-contain"
         />
         <div className="flex items-center gap-2.5">
+          {isAdmin && (
+            <Link
+              to="/admin/usuarios"
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 border border-primary/20"
+            >
+              <Shield className="w-3.5 h-3.5 text-primary" />
+            </Link>
+          )}
           <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 rounded-full px-2.5 py-1">
             <Zap className="w-3.5 h-3.5 text-primary fill-primary" />
             <span className="text-sm font-bold text-primary tabular-nums">
