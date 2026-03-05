@@ -47,6 +47,8 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [cityFilter, setCityFilter] = useState<string | null>(null);
+  const [sortByEnergy, setSortByEnergy] = useState<'desc' | 'asc' | null>(null);
   const [banDialog, setBanDialog] = useState<UserRow | null>(null);
   const [processing, setProcessing] = useState(false);
 
