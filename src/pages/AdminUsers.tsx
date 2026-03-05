@@ -169,6 +169,34 @@ const AdminUsers = () => {
             </Badge>
           </div>
 
+          {/* Filters */}
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
+            <Select value={cityFilter ?? '__all__'} onValueChange={(v) => setCityFilter(v === '__all__' ? null : v)}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrar por ciudad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">Todas las ciudades</SelectItem>
+                {cities.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortByEnergy(prev => prev === 'desc' ? 'asc' : prev === 'asc' ? null : 'desc')}
+              className="gap-1.5"
+            >
+              {sortByEnergy === 'desc' ? <ArrowDown className="w-3.5 h-3.5" /> : sortByEnergy === 'asc' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowUpDown className="w-3.5 h-3.5" />}
+              Energía
+            </Button>
+
+            <span className="text-xs text-muted-foreground ml-auto">
+              {filtered.length} resultado{filtered.length !== 1 ? 's' : ''}
+            </span>
+
           {/* Search */}
           <div className="relative mb-6">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
