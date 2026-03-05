@@ -248,6 +248,7 @@ export type Database = {
           accepted_privacy: boolean | null
           accepted_terms: boolean | null
           avatar_url: string | null
+          banned_at: string | null
           bio: string | null
           city: string | null
           country: string | null
@@ -266,6 +267,7 @@ export type Database = {
           accepted_privacy?: boolean | null
           accepted_terms?: boolean | null
           avatar_url?: string | null
+          banned_at?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
@@ -284,6 +286,7 @@ export type Database = {
           accepted_privacy?: boolean | null
           accepted_terms?: boolean | null
           avatar_url?: string | null
+          banned_at?: string | null
           bio?: string | null
           city?: string | null
           country?: string | null
@@ -941,6 +944,7 @@ export type Database = {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
       }
+      is_admin_email: { Args: { email: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
