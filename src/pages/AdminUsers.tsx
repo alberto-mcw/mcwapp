@@ -18,8 +18,15 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Loader2, Search, ChefHat, Shield, Ban, Undo2,
-  Zap, ExternalLink, Users
+  Zap, ExternalLink, Users, ArrowUpDown, ArrowDown, ArrowUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -47,6 +54,8 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [cityFilter, setCityFilter] = useState<string | null>(null);
+  const [sortByEnergy, setSortByEnergy] = useState<'desc' | 'asc' | null>(null);
   const [banDialog, setBanDialog] = useState<UserRow | null>(null);
   const [processing, setProcessing] = useState(false);
 
@@ -93,16 +102,25 @@ const AdminUsers = () => {
     setBanDialog(null);
   };
 
-  const filtered = users.filter(u => {
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      u.display_name?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q) ||
-      u.city?.toLowerCase().includes(q) ||
-      u.instagram_handle?.toLowerCase().includes(q)
-    );
-  });
+  const cities = Array.from(new Set(users.map(u => u.city).filter(Boolean) as string[])).sort();
+
+  const filtered = users
+    .filter(u => {
+      if (cityFilter && u.city !== cityFilter) return false;
+      if (!search) return true;
+      const q = search.toLowerCase();
+      return (
+        u.display_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.city?.toLowerCase().includes(q) ||
+        u.instagram_handle?.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      if (sortByEnergy === 'desc') return b.total_energy - a.total_energy;
+      if (sortByEnergy === 'asc') return a.total_energy - b.total_energy;
+      return 0;
+    });
 
   const renderAvatar = (avatarUrl: string | null | undefined) => {
     if (avatarUrl && EMOJI_AVATARS.includes(avatarUrl)) {
@@ -149,6 +167,35 @@ const AdminUsers = () => {
             <Badge variant="secondary" className="ml-auto">
               {users.length} usuarios
             </Badge>
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
+            <Select value={cityFilter ?? '__all__'} onValueChange={(v) => setCityFilter(v === '__all__' ? null : v)}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrar por ciudad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">Todas las ciudades</SelectItem>
+                {cities.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortByEnergy(prev => prev === 'desc' ? 'asc' : prev === 'asc' ? null : 'desc')}
+              className="gap-1.5"
+            >
+              {sortByEnergy === 'desc' ? <ArrowDown className="w-3.5 h-3.5" /> : sortByEnergy === 'asc' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowUpDown className="w-3.5 h-3.5" />}
+              Energía
+            </Button>
+
+            <span className="text-xs text-muted-foreground ml-auto">
+              {filtered.length} resultado{filtered.length !== 1 ? 's' : ''}
+            </span>
           </div>
 
           {/* Search */}
