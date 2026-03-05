@@ -41,6 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { AdminVideoUpload } from '@/components/admin/AdminVideoUpload';
 
 interface RecipeData {
   ingredients?: string[];
