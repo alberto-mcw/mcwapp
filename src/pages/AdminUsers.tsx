@@ -196,6 +196,7 @@ const AdminUsers = () => {
             <span className="text-xs text-muted-foreground ml-auto">
               {filtered.length} resultado{filtered.length !== 1 ? 's' : ''}
             </span>
+          </div>
 
           {/* Search */}
           <div className="relative mb-6">
