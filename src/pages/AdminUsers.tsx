@@ -95,16 +95,25 @@ const AdminUsers = () => {
     setBanDialog(null);
   };
 
-  const filtered = users.filter(u => {
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      u.display_name?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q) ||
-      u.city?.toLowerCase().includes(q) ||
-      u.instagram_handle?.toLowerCase().includes(q)
-    );
-  });
+  const cities = Array.from(new Set(users.map(u => u.city).filter(Boolean) as string[])).sort();
+
+  const filtered = users
+    .filter(u => {
+      if (cityFilter && u.city !== cityFilter) return false;
+      if (!search) return true;
+      const q = search.toLowerCase();
+      return (
+        u.display_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.city?.toLowerCase().includes(q) ||
+        u.instagram_handle?.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      if (sortByEnergy === 'desc') return b.total_energy - a.total_energy;
+      if (sortByEnergy === 'asc') return a.total_energy - b.total_energy;
+      return 0;
+    });
 
   const renderAvatar = (avatarUrl: string | null | undefined) => {
     if (avatarUrl && EMOJI_AVATARS.includes(avatarUrl)) {
