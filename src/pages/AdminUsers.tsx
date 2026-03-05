@@ -18,8 +18,15 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Loader2, Search, ChefHat, Shield, Ban, Undo2,
-  Zap, ExternalLink, Users
+  Zap, ExternalLink, Users, ArrowUpDown, ArrowDown, ArrowUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 
