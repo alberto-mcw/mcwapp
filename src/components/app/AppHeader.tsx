@@ -16,6 +16,7 @@ const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '�
 
 export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
   const { profile } = useProfile();
+  const { isAdmin } = useAdmin();
 
   const avatarUrl = profile?.avatar_url;
   const isEmoji = avatarUrl && EMOJI_AVATARS.includes(avatarUrl);
