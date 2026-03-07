@@ -406,8 +406,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           toast({
             title: correct ? '🎉 ¡Correcto!' : '❌ Incorrecto',
             description: correct 
-              ? `Has ganado +${energyEarned} de energía`
-              : `+${energyEarned} energía de participación`
+              ? `Has ganado +${energyEarned} puntos`
+              : `+${energyEarned} puntos de participación`
           });
         }
       }
