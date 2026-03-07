@@ -56,7 +56,7 @@ export const SuperLikeButton = ({
 
         toast({
           title: '⭐ SuperLike eliminado',
-          description: 'Se han restado 50 puntos de energía al chef'
+          description: 'Se han restado 50 puntos al chef'
         });
         onSuperLikeChange(false);
       } else {
