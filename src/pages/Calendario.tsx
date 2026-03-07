@@ -20,8 +20,8 @@ const timelineEvents = [
   },
   {
     period: "Continuo",
-    title: "Energía Activa",
-    description: "Completa retos diarios, interactúa con la comunidad y acumula energía.",
+    title: "Puntos Activos",
+    description: "Completa retos diarios, interactúa con la comunidad y acumula puntos.",
     status: "upcoming",
     unlocked: true,
   },

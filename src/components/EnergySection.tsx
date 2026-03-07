@@ -5,7 +5,7 @@ const energySources = [
   { icon: Users, label: "Interacción comunidad", value: "+25" },
   { icon: Zap, label: "Desafíos semanales", value: "+200" },
   { icon: Radio, label: "Directos", value: "+100" },
-  { icon: Gift, label: "Donación de energía", value: "±∞" },
+  { icon: Gift, label: "Donación de puntos", value: "±∞" },
 ];
 
 export const EnergySection = () => {

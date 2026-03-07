@@ -160,7 +160,7 @@ const Descarga = () => {
               ¿A qué esperas?
             </h2>
             <p className="text-muted-foreground mb-6">
-              Cuanto antes entres, más energía acumulas
+              Cuanto antes entres, más puntos acumulas
             </p>
             <Button asChild size="lg" className="gap-2">
               <a href="/#registro">

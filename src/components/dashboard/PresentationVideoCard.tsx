@@ -69,7 +69,7 @@ export const PresentationVideoCard = () => {
         </div>
         <div className="flex-1">
           <p className="font-bold text-sm">🎬 Preséntate al mundo</p>
-          <p className="text-xs opacity-90">Sube tu vídeo y gana +100 energía</p>
+          <p className="text-xs opacity-90">Sube tu vídeo y gana +100 puntos</p>
         </div>
       </div>
       <p className="text-xs opacity-80 mb-3">

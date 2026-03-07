@@ -172,7 +172,7 @@ const ProfilePage = () => {
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    Cuéntanos quién eres y tu conexión con la cocina y MasterChef. Gana +100 energía al ser aprobado.
+                    Cuéntanos quién eres y tu conexión con la cocina y MasterChef. Gana +100 puntos al ser aprobado.
                   </p>
                   <input
                     ref={videoFileRef}
