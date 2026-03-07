@@ -123,7 +123,7 @@ export const InstagramSection = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-foreground">Verifica tu follow</h3>
-                  <p className="text-sm text-muted-foreground">Gana energía extra</p>
+                  <p className="text-sm text-muted-foreground">Gana puntos extra</p>
                 </div>
                 <div className="ml-auto flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full">
                   <Zap className="w-4 h-4 text-primary" />
