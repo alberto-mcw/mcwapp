@@ -14,8 +14,8 @@ const faqs = [
     answer: "Pueden participar todas las personas mayores de 18 años residentes en España que tengan pasión por la cocina. No es necesario ser profesional, solo tener ganas de aprender y competir.",
   },
   {
-    question: "¿Cómo funciona el sistema de energía?",
-    answer: "La energía es la moneda del Reto. Se acumula completando mini retos diarios, interactuando con la comunidad, participando en desafíos semanales, asistiendo a directos y recibiendo donaciones de otros usuarios. Cuanta más energía acumules, mejor será tu posición en el ranking.",
+    question: "¿Cómo funciona el sistema de puntos?",
+    answer: "Los puntos son la moneda del Reto. Se acumulan completando mini retos diarios, interactuando con la comunidad, participando en desafíos semanales, asistiendo a directos y recibiendo donaciones de otros usuarios. Cuantos más puntos acumules, mejor será tu posición en el ranking.",
   },
   {
     question: "¿Qué es la Manopla Digital?",
