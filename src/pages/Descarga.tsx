@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 const features = [
   {
     icon: Zap,
-    title: "Sistema de Energía",
-    description: "Acumula energía completando retos y escalando posiciones.",
+    title: "Sistema de Puntos",
+    description: "Acumula puntos completando retos y escalando posiciones.",
   },
   {
     icon: Trophy,
