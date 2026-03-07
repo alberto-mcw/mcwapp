@@ -64,7 +64,7 @@ const Ranking = () => {
             <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">El Ranking</h1>
             
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Clasificación de los participantes por país. La energía acumulada determina tu posición. Se actualiza diariamente.
+              Clasificación de los participantes por país. Los puntos acumulados determinan tu posición. Se actualiza diariamente.
             </p>
           </div>
 
@@ -81,7 +81,7 @@ const Ranking = () => {
                     <p className="font-unbounded text-2xl font-black text-primary">
                       #{myPosition.rank}
                       <span className="text-sm font-normal text-muted-foreground ml-2">
-                        · {formatEnergy(myPosition.energy)} energía
+                        · {formatEnergy(myPosition.energy)} puntos
                       </span>
                     </p>
                   </div>
@@ -99,12 +99,12 @@ const Ranking = () => {
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{formatTotalEnergy(stats.topEnergy)}</p>
-              <p className="text-xs text-muted-foreground">Top Energía</p>
+              <p className="text-xs text-muted-foreground">Top Puntos</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <Zap className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{formatTotalEnergy(stats.totalEnergy)}</p>
-              <p className="text-xs text-muted-foreground">Energía Total</p>
+              <p className="text-xs text-muted-foreground">Puntos Totales</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
@@ -206,7 +206,7 @@ const Ranking = () => {
                         
                         <div className="text-right">
                           <p className="font-unbounded font-bold text-primary">{formatEnergy(profile.energy)}</p>
-                          <p className="text-xs text-muted-foreground">energía</p>
+                          <p className="text-xs text-muted-foreground">puntos</p>
                         </div>
                       </div>
                     );
@@ -273,7 +273,7 @@ const Ranking = () => {
               )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="font-unbounded font-bold text-primary">{formatEnergy(selectedProfile.energy)} energía</span>
+                <span className="font-unbounded font-bold text-primary">{formatEnergy(selectedProfile.energy)} puntos</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4">

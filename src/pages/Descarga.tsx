@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 const features = [
   {
     icon: Zap,
-    title: "Sistema de Energía",
-    description: "Acumula energía completando retos y escalando posiciones.",
+    title: "Sistema de Puntos",
+    description: "Acumula puntos completando retos y escalando posiciones.",
   },
   {
     icon: Trophy,
@@ -160,7 +160,7 @@ const Descarga = () => {
               ¿A qué esperas?
             </h2>
             <p className="text-muted-foreground mb-6">
-              Cuanto antes entres, más energía acumulas
+              Cuanto antes entres, más puntos acumulas
             </p>
             <Button asChild size="lg" className="gap-2">
               <a href="/#registro">

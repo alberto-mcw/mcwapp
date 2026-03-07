@@ -56,7 +56,7 @@ export const SuperLikeButton = ({
 
         toast({
           title: '⭐ SuperLike eliminado',
-          description: 'Se han restado 50 puntos de energía al chef'
+          description: 'Se han restado 50 puntos al chef'
         });
         onSuperLikeChange(false);
       } else {
@@ -86,7 +86,7 @@ export const SuperLikeButton = ({
 
         toast({
           title: '🌟 ¡SuperLike otorgado!',
-          description: `${chefName} ha recibido 50 puntos de energía`
+          description: `${chefName} ha recibido 50 puntos`
         });
         onSuperLikeChange(true);
       }
@@ -130,12 +130,12 @@ export const SuperLikeButton = ({
               {hasSuperLike ? (
                 <>
                   <p>¿Estás seguro de que quieres <strong>revocar</strong> el SuperLike de "{dishName}"?</p>
-                  <p className="text-destructive font-medium">Se restarán 50 puntos de energía a {chefName}.</p>
+                  <p className="text-destructive font-medium">Se restarán 50 puntos a {chefName}.</p>
                 </>
               ) : (
                 <>
                   <p>¿Estás seguro de que quieres dar un <strong>SuperLike</strong> a "{dishName}" de {chefName}?</p>
-                  <p className="text-primary font-medium">Esta acción otorgará 50 puntos de energía extra y el vídeo será promocionado en las redes oficiales.</p>
+                  <p className="text-primary font-medium">Esta acción otorgará 50 puntos extra y el vídeo será promocionado en las redes oficiales.</p>
                   <p className="text-sm text-muted-foreground mt-2">Solo puede haber un SuperLike por vídeo.</p>
                 </>
               )}

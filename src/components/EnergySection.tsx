@@ -5,7 +5,7 @@ const energySources = [
   { icon: Users, label: "Interacción comunidad", value: "+25" },
   { icon: Zap, label: "Desafíos semanales", value: "+200" },
   { icon: Radio, label: "Directos", value: "+100" },
-  { icon: Gift, label: "Donación de energía", value: "±∞" },
+  { icon: Gift, label: "Donación de puntos", value: "±∞" },
 ];
 
 export const EnergySection = () => {
@@ -16,10 +16,10 @@ export const EnergySection = () => {
         <div className="text-center mb-12">
           <span className="badge-primary mb-4 inline-block">Sistema</span>
           <h2 className="section-title mb-4">
-            <span className="text-gradient-primary">Energía</span> = poder
+            <span className="text-gradient-primary">Puntos</span> = poder
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            La energía no se regala.{" "}
+            Los puntos no se regalan.{" "}
             <span className="text-foreground font-bold">Se genera.</span>
           </p>
         </div>
@@ -30,7 +30,7 @@ export const EnergySection = () => {
             {/* Energy Bar */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-bold tracking-wider text-muted-foreground">Tu energía</span>
+                <span className="text-sm font-bold tracking-wider text-muted-foreground">Tus puntos</span>
                 <span className="ranking-number text-2xl md:text-3xl font-black">
                   12,450
                 </span>

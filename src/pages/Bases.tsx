@@ -14,8 +14,8 @@ const faqs = [
     answer: "Pueden participar todas las personas mayores de 18 años residentes en España que tengan pasión por la cocina. No es necesario ser profesional, solo tener ganas de aprender y competir.",
   },
   {
-    question: "¿Cómo funciona el sistema de energía?",
-    answer: "La energía es la moneda del Reto. Se acumula completando mini retos diarios, interactuando con la comunidad, participando en desafíos semanales, asistiendo a directos y recibiendo donaciones de otros usuarios. Cuanta más energía acumules, mejor será tu posición en el ranking.",
+    question: "¿Cómo funciona el sistema de puntos?",
+    answer: "Los puntos son la moneda del Reto. Se acumulan completando mini retos diarios, interactuando con la comunidad, participando en desafíos semanales, asistiendo a directos y recibiendo donaciones de otros usuarios. Cuantos más puntos acumules, mejor será tu posición en el ranking.",
   },
   {
     question: "¿Qué es la Manopla Digital?",
@@ -23,23 +23,23 @@ const faqs = [
   },
   {
     question: "¿Cómo funciona el ranking?",
-    answer: "El ranking se actualiza en tiempo real basándose en la energía acumulada. Tu posición determina tu acceso a experiencias exclusivas: Top 1.000 recibe la Caja Misteriosa, Top 100 accede al evento presencial, y el Top 5 vive la MasterChef Experience.",
+    answer: "El ranking se actualiza en tiempo real basándose en los puntos acumulados. Tu posición determina tu acceso a experiencias exclusivas: Top 1.000 recibe la Caja Misteriosa, Top 100 accede al evento presencial, y el Top 5 vive la MasterChef Experience.",
   },
   {
     question: "¿Qué es la Caja Misteriosa?",
-    answer: "Es el primer gran hito del Reto. Solo los 1.000 participantes con más energía recibirán una Caja Misteriosa exclusiva con contenido especial relacionado con MasterChef.",
+    answer: "Es el primer gran hito del Reto. Solo los 1.000 participantes con más puntos recibirán una Caja Misteriosa exclusiva con contenido especial relacionado con MasterChef.",
   },
   {
     question: "¿Qué incluye la MasterChef Experience?",
     answer: "La MasterChef Experience es el premio definitivo para los 5 finalistas. Incluye una experiencia inmersiva en el mundo MasterChef que se revelará a los ganadores.",
   },
   {
-    question: "¿Puedo perder energía?",
-    answer: "La energía acumulada se conserva, pero la inactividad prolongada puede afectar tu posición relativa si otros participantes siguen sumando. Por eso decimos: el ranking nunca duerme.",
+    question: "¿Puedo perder puntos?",
+    answer: "Los puntos acumulados se conservan, pero la inactividad prolongada puede afectar tu posición relativa si otros participantes siguen sumando. Por eso decimos: el ranking nunca duerme.",
   },
   {
     question: "¿Necesito la app para participar?",
-    answer: "Sí, todo el ecosistema del Reto vive en la app de MasterChef World. Desde ahí podrás ver tu energía, el ranking, recibir avisos, participar en directos y completar retos.",
+    answer: "Sí, todo el ecosistema del Reto vive en la app de MasterChef World. Desde ahí podrás ver tus puntos, el ranking, recibir avisos, participar en directos y completar retos.",
   },
 ];
 

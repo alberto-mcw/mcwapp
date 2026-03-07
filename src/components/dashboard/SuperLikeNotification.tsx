@@ -121,7 +121,7 @@ export const SuperLikeNotification = ({ userId }: SuperLikeNotificationProps) =>
 
             {/* Main message */}
             <p className="text-foreground leading-relaxed">
-              <span className="font-semibold text-primary">¡Estamos encantados de informarte</span> de que tu receta ha sido incluida entre las mejores del <span className="font-bold text-primary">{superLike.challenge_title}</span>, por lo que obtienes <span className="font-bold text-primary">50 energía extra</span>. <span className="font-semibold">¡Enhorabuena!</span>
+              <span className="font-semibold text-primary">¡Estamos encantados de informarte</span> de que tu receta ha sido incluida entre las mejores del <span className="font-bold text-primary">{superLike.challenge_title}</span>, por lo que obtienes <span className="font-bold text-primary"><span className="font-semibold text-primary">¡Estamos encantados de informarte</span> de que tu receta ha sido incluida entre las mejores del <span className="font-bold text-primary">{superLike.challenge_title}</span>, por lo que obtienes <span className="font-bold text-primary">50 puntos extra</span>. <span className="font-semibold">¡Enhorabuena!</span></span>. <span className="font-semibold">¡Enhorabuena!</span>
             </p>
             
             <p className="text-foreground leading-relaxed mt-3">

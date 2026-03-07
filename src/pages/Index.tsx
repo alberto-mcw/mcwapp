@@ -39,7 +39,7 @@ const Index = () => {
 
   const phases = [
   { icon: Smartphone, title: "Fase 0: Casting (App)", desc: "Graba tu vídeo de presentación desde la App móvil." },
-  { icon: ChefHat, title: "Fase 1: Mini Retos", desc: "Demuestra tu conocimiento culinario y acumula energía." },
+  { icon: ChefHat, title: "Fase 1: Mini Retos", desc: "Demuestra tu conocimiento culinario y acumula puntos." },
   { icon: Video, title: "Fase 2: Desafíos", desc: "Cocina y sube tus vídeos semanales." },
   { icon: Trophy, title: "Fase 3: Final", desc: "Los mejores clasificados compiten por el título." }];
 
@@ -48,7 +48,7 @@ const Index = () => {
   { q: "¿Qué es El Reto 2026?", a: "Es la competición gastronómica online más grande del mundo. Participas desde casa, subes vídeos y compites por premios reales." },
   { q: "¿Es gratis participar?", a: "Sí, la participación es completamente gratuita." },
   { q: "¿Necesito la App?", a: "Sí. La Fase 0 (vídeo casting) solo puede completarse desde la App móvil, ya que necesita acceso a cámara y micrófono." },
-  { q: "¿Cómo funciona la energía?", a: "La energía se acumula completando retos, trivias y desafíos. Determina tu posición en el ranking." },
+  { q: "¿Cómo funcionan los puntos?", a: "Los puntos se acumulan completando retos, trivias y desafíos. Determinan tu posición en el ranking." },
   { q: "¿Puedo participar desde cualquier país?", a: "Sí, El Reto es internacional y abierto a todos." }];
 
 
@@ -113,7 +113,7 @@ const Index = () => {
               <h2 className="font-unbounded text-3xl md:text-4xl font-bold mb-6">¿Qué es El Reto?</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
                 El Reto 2026 es la competición gastronómica online donde miles de personas compiten desde casa.
-                Acumula energía, sube tus platos, escala en el ranking y demuestra tu talento culinario.
+                Acumula puntos, sube tus platos, escala en el ranking y demuestra tu talento culinario.
               </p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1} variants={fadeUp}

@@ -7,7 +7,7 @@ const timelineEvents = [
   {
     period: "Enero – Abril 2026",
     title: "Registro Abierto",
-    description: "Inscríbete y empieza a acumular energía desde el primer día.",
+    description: "Inscríbete y empieza a acumular puntos desde el primer día.",
     status: "active",
     unlocked: true,
   },
@@ -20,8 +20,8 @@ const timelineEvents = [
   },
   {
     period: "Continuo",
-    title: "Energía Activa",
-    description: "Completa retos diarios, interactúa con la comunidad y acumula energía.",
+    title: "Puntos Activos",
+    description: "Completa retos diarios, interactúa con la comunidad y acumula puntos.",
     status: "upcoming",
     unlocked: true,
   },

@@ -330,8 +330,8 @@ const TriviaCard = ({
                 {(isCorrect || completion?.is_correct) ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                 <span className="text-sm font-medium">
                   {(isCorrect || completion?.is_correct)
-                    ? `¡Correcto! +${justAnswered ? LATE_TRIVIA_CORRECT_POINTS : completion?.energy_earned} energía` 
-                    : `Incorrecto. +${justAnswered ? LATE_TRIVIA_WRONG_POINTS : completion?.energy_earned} energía de participación`}
+                    ? `¡Correcto! +${justAnswered ? LATE_TRIVIA_CORRECT_POINTS : completion?.energy_earned} puntos` 
+                    : `Incorrecto. +${justAnswered ? LATE_TRIVIA_WRONG_POINTS : completion?.energy_earned} puntos de participación`}
                 </span>
               </div>
 
@@ -476,7 +476,7 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
       
       toast({
         title: isCorrect ? '🎉 ¡Correcto!' : '❌ Incorrecto',
-        description: `+${energyEarned} energía ${!isCorrect ? '(participación)' : ''}`
+        description: `+${energyEarned} puntos ${!isCorrect ? '(participación)' : ''}`
       });
 
       // Refresh completions

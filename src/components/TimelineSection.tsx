@@ -18,7 +18,7 @@ const timelineItems = [
     badge: "Desbloqueable"
   },
   {
-    period: "Energía activa",
+    period: "Puntos activos",
     title: "El juego empieza",
     description: "Comienza a generar puntos",
     status: "upcoming",

@@ -150,7 +150,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
       toast({
         title: '📊 ¡Métricas analizadas!',
-        description: `${metrics.views.toLocaleString()} views, ${metrics.likes.toLocaleString()} likes = +${metrics.totalEnergy} energía`
+        description: `${metrics.views.toLocaleString()} views, ${metrics.likes.toLocaleString()} likes = +${metrics.totalEnergy} puntos`
       });
 
     } catch (error) {
@@ -329,7 +329,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                     <>
                       <Check className="w-5 h-5 text-accent-foreground" />
                       <span className="font-medium text-accent-foreground">
-                        ¡Aprobado! +{effectiveReward} energía
+                        ¡Aprobado! +{effectiveReward} puntos
                       </span>
                     </>
                   ) : submission.status === 'rejected' ? (
@@ -377,7 +377,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                       <Zap className="w-4 h-4" />
                     </div>
                     <p className="font-bold text-lg text-primary">+{submission.metrics_energy_earned || 0}</p>
-                    <p className="text-xs text-muted-foreground">energía</p>
+                    <p className="text-xs text-muted-foreground">puntos</p>
                   </div>
                 </div>
 
@@ -452,7 +452,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                         <div className="bg-primary/10 rounded-lg p-2">
                           <div className="flex items-center justify-center gap-1 text-xs text-primary">
                             <Zap className="w-3 h-3" />
-                            Energía
+                            Puntos
                           </div>
                           <p className="font-bold text-primary">+{analyzedMetrics.totalEnergy}</p>
                         </div>
@@ -519,7 +519,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
               {!isActive && !submission && (
                 <p className="text-xs text-center text-amber-500 bg-amber-500/10 p-2 rounded-lg">
-                  ⚠️ Este desafío ya finalizó. Recibirás la mitad de puntos ({effectiveReward} energía)
+                  ⚠️ Este desafío ya finalizó. Recibirás la mitad de puntos ({effectiveReward} puntos)
                 </p>
               )}
             </div>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const features = [
   { icon: Trophy, label: "Ranking en vivo" },
-  { icon: Zap, label: "Tu energía" },
+  { icon: Zap, label: "Tus puntos" },
   { icon: Bell, label: "Avisos instantáneos" },
   { icon: Radio, label: "Directos exclusivos" },
 ];
@@ -27,7 +27,7 @@ export const AppSection = () => {
               Todo vive en <span className="text-gradient-primary">la app</span>
             </h2>
             <p className="text-muted-foreground mb-8">
-              Tu centro de mando para El Reto. Ranking, energía, avisos, directos... 
+              Tu centro de mando para El Reto. Ranking, puntos, avisos, directos... 
               Todo en un solo lugar.
             </p>
 
@@ -91,7 +91,7 @@ export const AppSection = () => {
                     {/* Energy display */}
                     <div className="bg-muted/50 rounded-xl p-4 border border-primary/20">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-muted-foreground">Tu energía</span>
+                        <span className="text-xs text-muted-foreground">Tus puntos</span>
                         <Zap className="w-4 h-4 text-primary" />
                       </div>
                       <span className="text-2xl font-black text-primary">12,450</span>

@@ -393,12 +393,12 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           if (correct) {
             toast({
               title: '🎉 ¡Correcto!',
-              description: `Has ganado +${energyEarned} de energía`
+              description: `Has ganado +${energyEarned} puntos`
             });
           } else {
             toast({
               title: '❌ Incorrecto',
-              description: `+${energyEarned} energía de participación. ¡Mañana hay otro reto!`
+              description: `+${energyEarned} puntos de participación. ¡Mañana hay otro reto!`
             });
           }
         } catch (e) {
@@ -406,8 +406,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
           toast({
             title: correct ? '🎉 ¡Correcto!' : '❌ Incorrecto',
             description: correct 
-              ? `Has ganado +${energyEarned} de energía`
-              : `+${energyEarned} energía de participación`
+              ? `Has ganado +${energyEarned} puntos`
+              : `+${energyEarned} puntos de participación`
           });
         }
       }
@@ -522,8 +522,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
               </p>
               <p className="text-sm text-muted-foreground">
                 {isCorrect 
-                  ? `Ganaste +${ON_TIME_TRIVIA_CORRECT_POINTS} de energía` 
-                  : `+${ON_TIME_TRIVIA_WRONG_POINTS} energía de participación`}
+                  ? `Ganaste +${ON_TIME_TRIVIA_CORRECT_POINTS} puntos` 
+                  : `+${ON_TIME_TRIVIA_WRONG_POINTS} puntos de participación`}
               </p>
             </div>
           </div>

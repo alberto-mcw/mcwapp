@@ -48,7 +48,7 @@ const AppChallenges = () => {
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-medium">Tu energía</p>
+                <p className="text-xs text-muted-foreground font-medium">Tus puntos</p>
                 <p className="text-2xl font-black text-primary tabular-nums">
                   {localEnergy.toLocaleString()}
                 </p>
@@ -78,7 +78,7 @@ const AppChallenges = () => {
 
         {/* Info Card */}
         <div className="bg-card border border-border rounded-2xl p-4">
-          <h3 className="font-unbounded text-sm font-bold mb-3 text-foreground">📱 ¿Cómo ganar más energía?</h3>
+          <h3 className="font-unbounded text-sm font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
           <ul className="space-y-2 text-muted-foreground text-xs">
             <li className="flex items-center gap-2">
               <span className="text-primary">•</span>
@@ -86,7 +86,7 @@ const AppChallenges = () => {
             </li>
             <li className="flex items-center gap-2">
               <span className="text-primary">•</span>
-              Desafío Semanal a tiempo: +100 energía
+              Desafío Semanal a tiempo: +100 puntos
             </li>
             <li className="flex items-center gap-2">
               <span className="text-primary">•</span>
@@ -94,7 +94,7 @@ const AppChallenges = () => {
             </li>
             <li className="flex items-center gap-2">
               <span className="text-primary">•</span>
-              SuperLike recibido: +50 energía
+              SuperLike recibido: +50 puntos
             </li>
           </ul>
         </div>

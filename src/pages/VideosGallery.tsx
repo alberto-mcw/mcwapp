@@ -586,7 +586,7 @@ const VideosGallery = () => {
         if (submission.user_id !== user.id) {
           toast({
             title: '❤️ ¡Like enviado!',
-            description: 'El chef recibirá +1 de energía'
+            description: 'El chef recibirá +1 punto'
           });
         }
       }
@@ -688,7 +688,7 @@ const VideosGallery = () => {
             <div className="flex items-center justify-between mt-2">
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 <Heart className="w-4 h-4 text-red-500" />
-                Da like para que el chef gane +1 de energía
+                Da like para que el chef gane +1 punto
                 <Zap className="w-4 h-4 text-primary" />
               </p>
               {isAdmin && (

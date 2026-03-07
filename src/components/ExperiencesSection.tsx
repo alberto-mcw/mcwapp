@@ -36,7 +36,7 @@ export const ExperiencesSection = () => {
             Hitos de <span className="text-gradient-primary">estatus</span>
           </h2>
           <p className="text-muted-foreground">
-            Tu energía desbloquea experiencias únicas
+            Tus puntos desbloquean experiencias únicas
           </p>
         </div>
 

@@ -132,7 +132,7 @@ const Dashboard = () => {
 
               {/* Info Card */}
               <div className="feature-panel">
-                <h3 className="font-unbounded font-bold mb-3 text-foreground">📱 ¿Cómo ganar más energía?</h3>
+                <h3 className="font-unbounded font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
                 <ul className="space-y-2 text-muted-foreground text-sm">
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
@@ -144,11 +144,11 @@ const Dashboard = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Desafío Semanal a tiempo: +100 energía
+                    Desafío Semanal a tiempo: +100 puntos
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Desafío Semanal tardío: +50 energía
+                    Desafío Semanal tardío: +50 puntos
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
@@ -156,11 +156,11 @@ const Dashboard = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    SuperLike recibido: +50 energía
+                    SuperLike recibido: +50 puntos
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Vídeo de presentación aprobado: +100 energía
+                    Vídeo de presentación aprobado: +100 puntos
                   </li>
                 </ul>
               </div>

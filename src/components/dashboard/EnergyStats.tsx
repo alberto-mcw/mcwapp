@@ -13,7 +13,7 @@ export const EnergyStats = ({ totalEnergy }: EnergyStatsProps) => {
     <div className="glass-card p-6">
       <h3 className="font-unbounded font-bold mb-4 flex items-center gap-2">
         <Flame className="w-5 h-5 text-primary" />
-        Tu Energía
+        Tus Puntos
       </h3>
 
       {/* Main Energy Display */}
@@ -21,7 +21,7 @@ export const EnergyStats = ({ totalEnergy }: EnergyStatsProps) => {
         <div className="text-4xl font-display font-bold text-gradient-primary">
           {totalEnergy.toLocaleString()}
         </div>
-        <p className="text-sm text-muted-foreground">puntos de energía</p>
+        <p className="text-sm text-muted-foreground">puntos</p>
       </div>
 
       {/* Level Progress */}

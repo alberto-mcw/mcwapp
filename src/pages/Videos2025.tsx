@@ -88,7 +88,7 @@ const Videos2025 = () => {
             </h3>
             <p className="text-muted-foreground max-w-md mx-auto">
               Este año ha sido increíble gracias a vosotros. Nos vemos en El Reto 2026 
-              con más desafíos, más energía y más pasión por la cocina.
+              con más desafíos, más puntos y más pasión por la cocina.
             </p>
           </div>
         </div>

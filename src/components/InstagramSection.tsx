@@ -40,7 +40,7 @@ export const InstagramSection = () => {
         if (error.code === "23505") {
           toast({
             title: "Ya verificaste tu follow",
-            description: "Este email ya tiene la energía de Instagram",
+            description: "Este email ya tiene los puntos de Instagram",
             variant: "destructive",
           });
         } else {
@@ -49,7 +49,7 @@ export const InstagramSection = () => {
       } else {
         setIsVerified(true);
         toast({
-          title: "¡+50 Energía!",
+          title: "¡+50 Puntos!",
           description: "Has verificado tu follow a @mchefworldapp",
         });
       }
@@ -123,7 +123,7 @@ export const InstagramSection = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-foreground">Verifica tu follow</h3>
-                  <p className="text-sm text-muted-foreground">Gana energía extra</p>
+                  <p className="text-sm text-muted-foreground">Gana puntos extra</p>
                 </div>
                 <div className="ml-auto flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full">
                   <Zap className="w-4 h-4 text-primary" />
@@ -134,7 +134,7 @@ export const InstagramSection = () => {
               {isVerified ? (
                 <div className="flex items-center gap-2 justify-center py-4 text-green-600">
                   <CheckCircle className="w-6 h-6" />
-                  <span className="font-bold">¡Verificado! +50 Energía</span>
+                  <span className="font-bold">¡Verificado! +50 Puntos</span>
                 </div>
               ) : (
                 <>

@@ -36,7 +36,7 @@ export const ChallengeCard = ({ type, challenge, isCompleted, onComplete }: Chal
     } else {
       toast({
         title: '🎉 ¡Reto completado!',
-        description: `Has ganado +${challenge.energy_reward} de energía`
+        description: `Has ganado +${challenge.energy_reward} puntos`
       });
     }
   };

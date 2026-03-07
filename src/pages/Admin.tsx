@@ -408,7 +408,7 @@ const Admin = () => {
       
       toast({ 
         title: "Vídeo aprobado", 
-        description: `+${energyReward} energía${wasOnTime ? ' (a tiempo)' : ' (fuera de plazo, mitad de puntos)'}`
+        description: `+${energyReward} puntos${wasOnTime ? ' (a tiempo)' : ' (fuera de plazo, mitad de puntos)'}`
       });
       fetchData();
     } catch (error) {
@@ -455,7 +455,7 @@ const Admin = () => {
       
       toast({ 
         title: "Aprobación revocada", 
-        description: `-${energyToSubtract} energía restada al usuario`
+        description: `-${energyToSubtract} puntos restados al usuario`
       });
       fetchData();
     } catch (error) {
@@ -745,7 +745,7 @@ const Admin = () => {
                         <div><Label>Fecha inicio *</Label><Input type="date" value={formData.starts_at} onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })} /></div>
                         <div><Label>Fecha fin *</Label><Input type="date" value={formData.ends_at} onChange={(e) => setFormData({ ...formData, ends_at: e.target.value })} /></div>
                       </div>
-                      <div><Label>Recompensa de energía</Label><Input type="number" value={formData.energy_reward} onChange={(e) => setFormData({ ...formData, energy_reward: parseInt(e.target.value) || 100 })} /></div>
+                      <div><Label>Recompensa de puntos</Label><Input type="number" value={formData.energy_reward} onChange={(e) => setFormData({ ...formData, energy_reward: parseInt(e.target.value) || 100 })} /></div>
                       <div className="flex items-center gap-2"><Switch checked={formData.is_active} onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })} /><Label>Desafío activo</Label></div>
                       <Button onClick={handleCreateOrUpdateChallenge} className="w-full">{editingChallenge ? 'Guardar cambios' : 'Crear desafío'}</Button>
                     </div>
@@ -768,7 +768,7 @@ const Admin = () => {
                             </div>
                             <p className="text-muted-foreground mb-3">{challenge.description}</p>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <span>⚡ {challenge.energy_reward} energía</span>
+                              <span>⚡ {challenge.energy_reward} puntos</span>
                               <span>📅 {format(new Date(challenge.starts_at), 'dd MMM', { locale: es })} - {format(new Date(challenge.ends_at), 'dd MMM yyyy', { locale: es })}</span>
                             </div>
                           </div>

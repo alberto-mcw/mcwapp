@@ -28,7 +28,7 @@ export const PresentationVideoCard = () => {
     if (error) {
       toast({ title: 'Error al subir el vídeo', variant: 'destructive' });
     } else {
-      toast({ title: '🎬 ¡Vídeo enviado!', description: 'Un admin lo revisará para darte +100 energía' });
+      toast({ title: '🎬 ¡Vídeo enviado!', description: 'Un admin lo revisará para darte +100 puntos' });
     }
   };
 
@@ -36,7 +36,7 @@ export const PresentationVideoCard = () => {
   if (video) {
     const statusConfig = {
       pending: { icon: Clock, label: 'Pendiente de revisión', color: 'text-yellow-500' },
-      approved: { icon: Check, label: '¡Aprobado! +100 energía', color: 'text-green-500' },
+      approved: { icon: Check, label: '¡Aprobado! +100 puntos', color: 'text-green-500' },
       rejected: { icon: Clock, label: 'No aprobado', color: 'text-destructive' },
     }[video.status] || { icon: Clock, label: video.status, color: 'text-muted-foreground' };
 
@@ -69,7 +69,7 @@ export const PresentationVideoCard = () => {
         </div>
         <div className="flex-1">
           <p className="font-bold text-sm">🎬 Preséntate al mundo</p>
-          <p className="text-xs opacity-90">Sube tu vídeo y gana +100 energía</p>
+          <p className="text-xs opacity-90">Sube tu vídeo y gana +100 puntos</p>
         </div>
       </div>
       <p className="text-xs opacity-80 mb-3">
