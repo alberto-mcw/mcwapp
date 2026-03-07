@@ -158,7 +158,7 @@ const ProfilePage = () => {
                   <div className="flex items-center gap-2 text-sm">
                     {presentationVideo.status === 'approved' ? (
                       <span className="flex items-center gap-1 text-green-500">
-                        <Check className="w-4 h-4" /> Aprobado · +100 energía
+                        <Check className="w-4 h-4" /> Aprobado · +100 puntos
                       </span>
                     ) : presentationVideo.status === 'rejected' ? (
                       <span className="text-destructive">No aprobado</span>
