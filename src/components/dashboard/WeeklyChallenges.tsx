@@ -377,7 +377,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                       <Zap className="w-4 h-4" />
                     </div>
                     <p className="font-bold text-lg text-primary">+{submission.metrics_energy_earned || 0}</p>
-                    <p className="text-xs text-muted-foreground">energía</p>
+                    <p className="text-xs text-muted-foreground">puntos</p>
                   </div>
                 </div>
 
