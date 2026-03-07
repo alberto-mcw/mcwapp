@@ -132,7 +132,7 @@ const Dashboard = () => {
 
               {/* Info Card */}
               <div className="feature-panel">
-                <h3 className="font-unbounded font-bold mb-3 text-foreground">📱 ¿Cómo ganar más energía?</h3>
+                <h3 className="font-unbounded font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
                 <ul className="space-y-2 text-muted-foreground text-sm">
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
