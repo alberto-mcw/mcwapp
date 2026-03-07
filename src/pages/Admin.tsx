@@ -455,7 +455,7 @@ const Admin = () => {
       
       toast({ 
         title: "Aprobación revocada", 
-        description: `-${energyToSubtract} energía restada al usuario`
+        description: `-${energyToSubtract} puntos restados al usuario`
       });
       fetchData();
     } catch (error) {
