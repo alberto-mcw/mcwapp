@@ -23,7 +23,7 @@ const faqs = [
   },
   {
     question: "¿Cómo funciona el ranking?",
-    answer: "El ranking se actualiza en tiempo real basándose en la energía acumulada. Tu posición determina tu acceso a experiencias exclusivas: Top 1.000 recibe la Caja Misteriosa, Top 100 accede al evento presencial, y el Top 5 vive la MasterChef Experience.",
+    answer: "El ranking se actualiza en tiempo real basándose en los puntos acumulados. Tu posición determina tu acceso a experiencias exclusivas: Top 1.000 recibe la Caja Misteriosa, Top 100 accede al evento presencial, y el Top 5 vive la MasterChef Experience.",
   },
   {
     question: "¿Qué es la Caja Misteriosa?",
