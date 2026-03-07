@@ -39,7 +39,7 @@ const Index = () => {
 
   const phases = [
   { icon: Smartphone, title: "Fase 0: Casting (App)", desc: "Graba tu vídeo de presentación desde la App móvil." },
-  { icon: ChefHat, title: "Fase 1: Mini Retos", desc: "Demuestra tu conocimiento culinario y acumula energía." },
+  { icon: ChefHat, title: "Fase 1: Mini Retos", desc: "Demuestra tu conocimiento culinario y acumula puntos." },
   { icon: Video, title: "Fase 2: Desafíos", desc: "Cocina y sube tus vídeos semanales." },
   { icon: Trophy, title: "Fase 3: Final", desc: "Los mejores clasificados compiten por el título." }];
 
