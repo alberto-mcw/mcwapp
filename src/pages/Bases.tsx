@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     question: "¿Qué es la Caja Misteriosa?",
-    answer: "Es el primer gran hito del Reto. Solo los 1.000 participantes con más energía recibirán una Caja Misteriosa exclusiva con contenido especial relacionado con MasterChef.",
+    answer: "Es el primer gran hito del Reto. Solo los 1.000 participantes con más puntos recibirán una Caja Misteriosa exclusiva con contenido especial relacionado con MasterChef.",
   },
   {
     question: "¿Qué incluye la MasterChef Experience?",
