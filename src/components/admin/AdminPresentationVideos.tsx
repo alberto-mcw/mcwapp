@@ -59,7 +59,7 @@ export const AdminPresentationVideos = () => {
     if (error) {
       toast({ title: 'Error al aprobar', variant: 'destructive' });
     } else {
-      toast({ title: '✅ Vídeo aprobado', description: '+100 energía otorgada' });
+      toast({ title: '✅ Vídeo aprobado', description: '+100 puntos otorgados' });
       fetchVideos();
     }
   };
