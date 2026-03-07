@@ -40,7 +40,7 @@ export const InstagramSection = () => {
         if (error.code === "23505") {
           toast({
             title: "Ya verificaste tu follow",
-            description: "Este email ya tiene la energía de Instagram",
+            description: "Este email ya tiene los puntos de Instagram",
             variant: "destructive",
           });
         } else {
