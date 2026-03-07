@@ -34,8 +34,8 @@ const faqs = [
     answer: "La MasterChef Experience es el premio definitivo para los 5 finalistas. Incluye una experiencia inmersiva en el mundo MasterChef que se revelará a los ganadores.",
   },
   {
-    question: "¿Puedo perder energía?",
-    answer: "La energía acumulada se conserva, pero la inactividad prolongada puede afectar tu posición relativa si otros participantes siguen sumando. Por eso decimos: el ranking nunca duerme.",
+    question: "¿Puedo perder puntos?",
+    answer: "Los puntos acumulados se conservan, pero la inactividad prolongada puede afectar tu posición relativa si otros participantes siguen sumando. Por eso decimos: el ranking nunca duerme.",
   },
   {
     question: "¿Necesito la app para participar?",
