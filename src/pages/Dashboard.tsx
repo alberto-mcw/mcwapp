@@ -144,11 +144,11 @@ const Dashboard = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Desafío Semanal a tiempo: +100 energía
+                    Desafío Semanal a tiempo: +100 puntos
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Desafío Semanal tardío: +50 energía
+                    Desafío Semanal tardío: +50 puntos
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
