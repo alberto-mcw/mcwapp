@@ -150,7 +150,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
       toast({
         title: '📊 ¡Métricas analizadas!',
-        description: `${metrics.views.toLocaleString()} views, ${metrics.likes.toLocaleString()} likes = +${metrics.totalEnergy} energía`
+        description: `${metrics.views.toLocaleString()} views, ${metrics.likes.toLocaleString()} likes = +${metrics.totalEnergy} puntos`
       });
 
     } catch (error) {
