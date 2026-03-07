@@ -206,7 +206,7 @@ const Ranking = () => {
                         
                         <div className="text-right">
                           <p className="font-unbounded font-bold text-primary">{formatEnergy(profile.energy)}</p>
-                          <p className="text-xs text-muted-foreground">energía</p>
+                          <p className="text-xs text-muted-foreground">puntos</p>
                         </div>
                       </div>
                     );
