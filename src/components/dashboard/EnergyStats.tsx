@@ -21,7 +21,7 @@ export const EnergyStats = ({ totalEnergy }: EnergyStatsProps) => {
         <div className="text-4xl font-display font-bold text-gradient-primary">
           {totalEnergy.toLocaleString()}
         </div>
-        <p className="text-sm text-muted-foreground">puntos de energía</p>
+        <p className="text-sm text-muted-foreground">puntos</p>
       </div>
 
       {/* Level Progress */}
