@@ -329,7 +329,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                     <>
                       <Check className="w-5 h-5 text-accent-foreground" />
                       <span className="font-medium text-accent-foreground">
-                        ¡Aprobado! +{effectiveReward} energía
+                        ¡Aprobado! +{effectiveReward} puntos
                       </span>
                     </>
                   ) : submission.status === 'rejected' ? (
