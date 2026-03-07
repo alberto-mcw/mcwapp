@@ -27,7 +27,7 @@ export const AppSection = () => {
               Todo vive en <span className="text-gradient-primary">la app</span>
             </h2>
             <p className="text-muted-foreground mb-8">
-              Tu centro de mando para El Reto. Ranking, energía, avisos, directos... 
+              Tu centro de mando para El Reto. Ranking, puntos, avisos, directos... 
               Todo en un solo lugar.
             </p>
 
