@@ -104,7 +104,7 @@ const Ranking = () => {
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <Zap className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{formatTotalEnergy(stats.totalEnergy)}</p>
-              <p className="text-xs text-muted-foreground">Energía Total</p>
+              <p className="text-xs text-muted-foreground">Puntos Totales</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
