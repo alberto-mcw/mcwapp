@@ -160,7 +160,7 @@ const Dashboard = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-primary">•</span>
-                    Vídeo de presentación aprobado: +100 energía
+                    Vídeo de presentación aprobado: +100 puntos
                   </li>
                 </ul>
               </div>

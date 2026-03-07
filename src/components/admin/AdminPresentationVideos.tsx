@@ -87,7 +87,7 @@ export const AdminPresentationVideos = () => {
     if (error) {
       toast({ title: 'Error al revocar', variant: 'destructive' });
     } else {
-      toast({ title: 'Aprobación revocada', description: '-100 energía' });
+      toast({ title: 'Aprobación revocada', description: '-100 puntos' });
       fetchVideos();
     }
   };

@@ -135,7 +135,7 @@ export const SuperLikeButton = ({
               ) : (
                 <>
                   <p>¿Estás seguro de que quieres dar un <strong>SuperLike</strong> a "{dishName}" de {chefName}?</p>
-                  <p className="text-primary font-medium">Esta acción otorgará 50 puntos de energía extra y el vídeo será promocionado en las redes oficiales.</p>
+                  <p className="text-primary font-medium">Esta acción otorgará 50 puntos extra y el vídeo será promocionado en las redes oficiales.</p>
                   <p className="text-sm text-muted-foreground mt-2">Solo puede haber un SuperLike por vídeo.</p>
                 </>
               )}

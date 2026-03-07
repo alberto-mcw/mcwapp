@@ -113,7 +113,7 @@ const Index = () => {
               <h2 className="font-unbounded text-3xl md:text-4xl font-bold mb-6">¿Qué es El Reto?</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
                 El Reto 2026 es la competición gastronómica online donde miles de personas compiten desde casa.
-                Acumula energía, sube tus platos, escala en el ranking y demuestra tu talento culinario.
+                Acumula puntos, sube tus platos, escala en el ranking y demuestra tu talento culinario.
               </p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1} variants={fadeUp}

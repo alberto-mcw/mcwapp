@@ -134,7 +134,7 @@ export const InstagramSection = () => {
               {isVerified ? (
                 <div className="flex items-center gap-2 justify-center py-4 text-green-600">
                   <CheckCircle className="w-6 h-6" />
-                  <span className="font-bold">¡Verificado! +50 Energía</span>
+                  <span className="font-bold">¡Verificado! +50 Puntos</span>
                 </div>
               ) : (
                 <>

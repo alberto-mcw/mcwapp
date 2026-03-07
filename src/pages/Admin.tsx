@@ -768,7 +768,7 @@ const Admin = () => {
                             </div>
                             <p className="text-muted-foreground mb-3">{challenge.description}</p>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <span>⚡ {challenge.energy_reward} energía</span>
+                              <span>⚡ {challenge.energy_reward} puntos</span>
                               <span>📅 {format(new Date(challenge.starts_at), 'dd MMM', { locale: es })} - {format(new Date(challenge.ends_at), 'dd MMM yyyy', { locale: es })}</span>
                             </div>
                           </div>

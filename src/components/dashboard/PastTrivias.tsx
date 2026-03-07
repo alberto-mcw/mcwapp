@@ -476,7 +476,7 @@ export const PastTrivias = ({ onEnergyEarned }: PastTriviasProps) => {
       
       toast({
         title: isCorrect ? '🎉 ¡Correcto!' : '❌ Incorrecto',
-        description: `+${energyEarned} energía ${!isCorrect ? '(participación)' : ''}`
+        description: `+${energyEarned} puntos ${!isCorrect ? '(participación)' : ''}`
       });
 
       // Refresh completions

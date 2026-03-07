@@ -519,7 +519,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
               {!isActive && !submission && (
                 <p className="text-xs text-center text-amber-500 bg-amber-500/10 p-2 rounded-lg">
-                  ⚠️ Este desafío ya finalizó. Recibirás la mitad de puntos ({effectiveReward} energía)
+                  ⚠️ Este desafío ya finalizó. Recibirás la mitad de puntos ({effectiveReward} puntos)
                 </p>
               )}
             </div>

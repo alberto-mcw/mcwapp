@@ -39,7 +39,7 @@ const faqs = [
   },
   {
     question: "¿Necesito la app para participar?",
-    answer: "Sí, todo el ecosistema del Reto vive en la app de MasterChef World. Desde ahí podrás ver tu energía, el ranking, recibir avisos, participar en directos y completar retos.",
+    answer: "Sí, todo el ecosistema del Reto vive en la app de MasterChef World. Desde ahí podrás ver tus puntos, el ranking, recibir avisos, participar en directos y completar retos.",
   },
 ];
 

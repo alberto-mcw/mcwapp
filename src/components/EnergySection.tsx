@@ -30,7 +30,7 @@ export const EnergySection = () => {
             {/* Energy Bar */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-bold tracking-wider text-muted-foreground">Tu energía</span>
+                <span className="text-sm font-bold tracking-wider text-muted-foreground">Tus puntos</span>
                 <span className="ranking-number text-2xl md:text-3xl font-black">
                   12,450
                 </span>

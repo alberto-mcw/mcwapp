@@ -13,7 +13,7 @@ const features = [
   },
   {
     icon: Battery,
-    title: "La energía se conserva",
+    title: "Los puntos se conservan",
     description: "Lo que construyes hoy te impulsa mañana. Sin resets."
   }
 ];

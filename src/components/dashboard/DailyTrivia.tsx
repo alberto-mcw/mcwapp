@@ -522,8 +522,8 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
               </p>
               <p className="text-sm text-muted-foreground">
                 {isCorrect 
-                  ? `Ganaste +${ON_TIME_TRIVIA_CORRECT_POINTS} de energía` 
-                  : `+${ON_TIME_TRIVIA_WRONG_POINTS} energía de participación`}
+                  ? `Ganaste +${ON_TIME_TRIVIA_CORRECT_POINTS} puntos` 
+                  : `+${ON_TIME_TRIVIA_WRONG_POINTS} puntos de participación`}
               </p>
             </div>
           </div>
