@@ -586,7 +586,7 @@ const VideosGallery = () => {
         if (submission.user_id !== user.id) {
           toast({
             title: '❤️ ¡Like enviado!',
-            description: 'El chef recibirá +1 de energía'
+            description: 'El chef recibirá +1 punto'
           });
         }
       }
