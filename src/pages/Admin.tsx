@@ -745,7 +745,7 @@ const Admin = () => {
                         <div><Label>Fecha inicio *</Label><Input type="date" value={formData.starts_at} onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })} /></div>
                         <div><Label>Fecha fin *</Label><Input type="date" value={formData.ends_at} onChange={(e) => setFormData({ ...formData, ends_at: e.target.value })} /></div>
                       </div>
-                      <div><Label>Recompensa de energía</Label><Input type="number" value={formData.energy_reward} onChange={(e) => setFormData({ ...formData, energy_reward: parseInt(e.target.value) || 100 })} /></div>
+                      <div><Label>Recompensa de puntos</Label><Input type="number" value={formData.energy_reward} onChange={(e) => setFormData({ ...formData, energy_reward: parseInt(e.target.value) || 100 })} /></div>
                       <div className="flex items-center gap-2"><Switch checked={formData.is_active} onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })} /><Label>Desafío activo</Label></div>
                       <Button onClick={handleCreateOrUpdateChallenge} className="w-full">{editingChallenge ? 'Guardar cambios' : 'Crear desafío'}</Button>
                     </div>
