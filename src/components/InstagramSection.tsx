@@ -49,7 +49,7 @@ export const InstagramSection = () => {
       } else {
         setIsVerified(true);
         toast({
-          title: "¡+50 Energía!",
+          title: "¡+50 Puntos!",
           description: "Has verificado tu follow a @mchefworldapp",
         });
       }
