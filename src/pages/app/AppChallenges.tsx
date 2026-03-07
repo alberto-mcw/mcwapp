@@ -48,7 +48,7 @@ const AppChallenges = () => {
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-medium">Tu energía</p>
+                <p className="text-xs text-muted-foreground font-medium">Tus puntos</p>
                 <p className="text-2xl font-black text-primary tabular-nums">
                   {localEnergy.toLocaleString()}
                 </p>
