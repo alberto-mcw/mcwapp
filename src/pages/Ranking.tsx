@@ -81,7 +81,7 @@ const Ranking = () => {
                     <p className="font-unbounded text-2xl font-black text-primary">
                       #{myPosition.rank}
                       <span className="text-sm font-normal text-muted-foreground ml-2">
-                        · {formatEnergy(myPosition.energy)} energía
+                        · {formatEnergy(myPosition.energy)} puntos
                       </span>
                     </p>
                   </div>
