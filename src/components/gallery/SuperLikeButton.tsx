@@ -130,7 +130,7 @@ export const SuperLikeButton = ({
               {hasSuperLike ? (
                 <>
                   <p>¿Estás seguro de que quieres <strong>revocar</strong> el SuperLike de "{dishName}"?</p>
-                  <p className="text-destructive font-medium">Se restarán 50 puntos de energía a {chefName}.</p>
+                  <p className="text-destructive font-medium">Se restarán 50 puntos a {chefName}.</p>
                 </>
               ) : (
                 <>
