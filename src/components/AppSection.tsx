@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const features = [
   { icon: Trophy, label: "Ranking en vivo" },
-  { icon: Zap, label: "Tu energía" },
+  { icon: Zap, label: "Tus puntos" },
   { icon: Bell, label: "Avisos instantáneos" },
   { icon: Radio, label: "Directos exclusivos" },
 ];
