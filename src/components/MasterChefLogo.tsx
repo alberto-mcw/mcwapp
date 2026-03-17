@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoHorizontal from "@/assets/logo-horizontal.png";
+import logoVertical from "@/assets/logo-elreto-vertical.svg";
 import manopolaImg from "@/assets/manopla.png";
 
 interface MasterChefLogoProps {
