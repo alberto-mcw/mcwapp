@@ -234,7 +234,7 @@ const AppRanking = () => {
               )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="font-display text-sm font-bold text-primary">{formatEnergy(selectedProfile.energy)} puntos</span>
+                <span className="text-sm font-bold text-primary">{formatEnergy(selectedProfile.energy)} puntos</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-4">
