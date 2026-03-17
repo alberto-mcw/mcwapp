@@ -142,7 +142,24 @@ const ProfilePage = () => {
           </Button>
 
           <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
-            <h1 className="font-unbounded text-2xl font-bold mb-6">Editar perfil</h1>
+            <h1 className="font-unbounded text-2xl font-bold mb-2">Editar perfil</h1>
+            
+            {/* User state and auth provider */}
+            <div className="flex items-center gap-2 mb-6">
+              <span className={cn(
+                "text-xs font-bold px-3 py-1 rounded-full",
+                isEnrolled 
+                  ? "bg-primary/15 text-primary" 
+                  : "bg-muted text-muted-foreground"
+              )}>
+                {isEnrolled ? '🔥 Concursante' : '👤 Supporter'}
+              </span>
+              {profile?.auth_provider && profile.auth_provider !== 'email' && (
+                <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+                  {profile.auth_provider === 'google' ? '🔵 Google' : '🍎 Apple'}
+                </span>
+              )}
+            </div>
 
             {/* Presentation Video Section */}
             <div className="mb-8 border border-border rounded-xl p-4">
