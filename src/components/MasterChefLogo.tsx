@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoHorizontal from "@/assets/logo-horizontal.png";
+import logoVertical from "@/assets/logo-elreto-vertical.svg";
 import manopolaImg from "@/assets/manopla.png";
 
 interface MasterChefLogoProps {
@@ -16,7 +16,7 @@ export const MasterChefLogo = ({ className, size = "md" }: MasterChefLogoProps) 
 
   return (
     <img 
-      src={logoHorizontal}
+      src={logoVertical}
       alt="MasterChef World App"
       className={cn(sizeClasses[size], "w-auto object-contain", className)}
     />

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { useProfile } from '@/hooks/useProfile';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Zap, ChefHat, Shield } from 'lucide-react';
-import logoLight from '@/assets/logo-light.png';
+import logoCompact from '@/assets/logo-m-masterchef.svg';
 
 interface AppHeaderProps {
   rightAction?: ReactNode;
@@ -53,8 +53,8 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
       <div className="bg-background" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
       <div className="flex items-center justify-between py-3 px-4">
         <img
-          src={logoLight}
-          alt="El Reto"
+          src={logoCompact}
+          alt="MasterChef"
           className="h-7 w-auto object-contain"
         />
         <div className="flex items-center gap-2">
