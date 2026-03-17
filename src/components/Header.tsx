@@ -92,7 +92,7 @@ export const Header = () => {
               <Button asChild size="sm" variant="ghost" className="gap-1.5 text-primary">
                 <Link to="/admin/usuarios">
                   <Shield className="w-4 h-4" />
-                  <span className="sr-only md:not-sr-only">Usuarios</span>
+                  <span className="sr-only md:not-sr-only">{t('nav.users')}</span>
                 </Link>
               </Button>
             )}
@@ -100,7 +100,7 @@ export const Header = () => {
               <Button asChild size="sm" className="gap-2">
                 <Link to="/inscripcion">
                   <Flame className="w-4 h-4" />
-                  Inscribirme a El Reto
+                  {t('nav.enrollCta')}
                 </Link>
               </Button>
             )}
