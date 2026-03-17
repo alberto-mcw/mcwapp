@@ -231,7 +231,7 @@ export const Header = () => {
                     <Button asChild size="sm" variant="outline" className="gap-2 w-full">
                       <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                         <LogIn className="w-4 h-4" />
-                        Iniciar sesión
+                        {t('nav.signIn')}
                       </Link>
                     </Button>
                   )
