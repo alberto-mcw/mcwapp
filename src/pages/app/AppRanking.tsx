@@ -170,7 +170,7 @@ const AppRanking = () => {
                       {pos <= 3 && (
                         <FireCircle size="sm" intensity={pos === 1 ? "high" : "medium"} className="absolute -inset-1" />
                       )}
-                      <span className={`relative z-10 font-display text-lg font-black block text-center ${
+                      <span className={`relative z-10 text-lg font-black block text-center ${
                         pos <= 3 ? "text-primary" : "text-muted-foreground"
                       }`}>
                         {pos}
