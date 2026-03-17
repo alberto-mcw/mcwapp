@@ -52,7 +52,6 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
       {/* iOS safe area spacer — fills the notch/dynamic island area */}
       <div className="bg-background" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
       <div className="flex items-center justify-between py-3 px-4">
-      <div className="flex items-center justify-between py-3">
         <img
           src={logoLight}
           alt="El Reto"
@@ -78,7 +77,7 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
       </div>
 
       {rightAction && (
-        <div className="flex items-center justify-end pb-2">
+        <div className="flex items-center justify-end pb-2 px-4">
           {rightAction}
         </div>
       )}
