@@ -789,6 +789,11 @@ const Admin = () => {
               </div>
             </TabsContent>
 
+            {/* CHEF EVENTS TAB */}
+            <TabsContent value="chef-events" className="space-y-6">
+              <AdminChefEvents />
+            </TabsContent>
+
             {/* SUBMISSIONS TAB */}
             <TabsContent value="submissions" className="space-y-6">
               <Tabs defaultValue="pending">
