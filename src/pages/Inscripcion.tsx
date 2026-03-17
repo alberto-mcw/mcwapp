@@ -68,7 +68,6 @@ const Inscripcion = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [password, setPassword] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
