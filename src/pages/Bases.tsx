@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FileText, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionContent,
@@ -8,68 +9,44 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqs = [
-  {
-    question: "¿Quién puede participar?",
-    answer: "Pueden participar todas las personas mayores de 18 años residentes en España que tengan pasión por la cocina. No es necesario ser profesional, solo tener ganas de aprender y competir.",
-  },
-  {
-    question: "¿Cómo funciona el sistema de puntos?",
-    answer: "Los puntos son la moneda del Reto. Se acumulan completando mini retos diarios, interactuando con la comunidad, participando en desafíos semanales, asistiendo a directos y recibiendo donaciones de otros usuarios. Cuantos más puntos acumules, mejor será tu posición en el ranking.",
-  },
-  {
-    question: "¿Qué es la Manopla Digital?",
-    answer: "La Manopla Digital es tu símbolo de entrada al juego. Se activa tras subir tu vídeo de presentación y representa tu compromiso con el Reto. Es tu credencial de participante activo.",
-  },
-  {
-    question: "¿Cómo funciona el ranking?",
-    answer: "El ranking se actualiza en tiempo real basándose en los puntos acumulados. Tu posición determina tu acceso a experiencias exclusivas: Top 1.000 recibe la Caja Misteriosa, Top 100 accede al evento presencial, y el Top 5 vive la MasterChef Experience.",
-  },
-  {
-    question: "¿Qué es la Caja Misteriosa?",
-    answer: "Es el primer gran hito del Reto. Solo los 1.000 participantes con más puntos recibirán una Caja Misteriosa exclusiva con contenido especial relacionado con MasterChef.",
-  },
-  {
-    question: "¿Qué incluye la MasterChef Experience?",
-    answer: "La MasterChef Experience es el premio definitivo para los 5 finalistas. Incluye una experiencia inmersiva en el mundo MasterChef que se revelará a los ganadores.",
-  },
-  {
-    question: "¿Puedo perder puntos?",
-    answer: "Los puntos acumulados se conservan, pero la inactividad prolongada puede afectar tu posición relativa si otros participantes siguen sumando. Por eso decimos: el ranking nunca duerme.",
-  },
-  {
-    question: "¿Necesito la app para participar?",
-    answer: "Sí, todo el ecosistema del Reto vive en la app de MasterChef World. Desde ahí podrás ver tus puntos, el ranking, recibir avisos, participar en directos y completar retos.",
-  },
-];
-
 const Bases = () => {
+  const { t } = useTranslation();
+
+  const faqs = [
+    { question: t('bases.q1'), answer: t('bases.a1') },
+    { question: t('bases.q2'), answer: t('bases.a2') },
+    { question: t('bases.q3'), answer: t('bases.a3') },
+    { question: t('bases.q4'), answer: t('bases.a4') },
+    { question: t('bases.q5'), answer: t('bases.a5') },
+    { question: t('bases.q6'), answer: t('bases.a6') },
+    { question: t('bases.q7'), answer: t('bases.a7') },
+    { question: t('bases.q8'), answer: t('bases.a8') },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Hero */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-6">
               <FileText className="w-4 h-4 text-primary" />
               <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                Información Legal
+                {t('bases.badge')}
               </span>
             </div>
             
             <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">
-              Bases del<br />
-              <span className="text-gradient">Concurso</span>
+              {t('bases.title1')}<br />
+              <span className="text-gradient">{t('bases.title2')}</span>
             </h1>
             
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Todo lo que necesitas saber para participar en El Reto 2026.
+              {t('bases.subtitle')}
             </p>
           </div>
 
-          {/* Legal Document Link */}
           <div className="max-w-2xl mx-auto mb-12">
             <a 
               href="#" 
@@ -80,7 +57,7 @@ const Bases = () => {
                   <FileText className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-bold">Bases Legales Completas</p>
+                  <p className="font-bold">{t('bases.legalDoc')}</p>
                   <p className="text-sm text-muted-foreground">PDF · 245 KB</p>
                 </div>
               </div>
@@ -88,10 +65,9 @@ const Bases = () => {
             </a>
           </div>
 
-          {/* FAQ */}
           <div className="max-w-2xl mx-auto">
             <h2 className="font-unbounded text-2xl font-bold mb-6 text-center">
-              Preguntas Frecuentes
+              {t('bases.faqTitle')}
             </h2>
             
             <Accordion type="single" collapsible className="space-y-3">

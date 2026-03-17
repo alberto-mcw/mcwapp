@@ -3,36 +3,19 @@ import { Footer } from "@/components/Footer";
 import { FireCircle } from "@/components/FireCircle";
 import { Smartphone, Zap, Trophy, Users, Bell, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const features = [
-  {
-    icon: Zap,
-    title: "Sistema de Puntos",
-    description: "Acumula puntos completando retos y escalando posiciones.",
-  },
-  {
-    icon: Trophy,
-    title: "Ranking en Vivo",
-    description: "Sigue tu posición en tiempo real contra miles de participantes.",
-  },
-  {
-    icon: Users,
-    title: "Comunidad Activa",
-    description: "Conecta con otros aspirantes y comparte tu pasión.",
-  },
-  {
-    icon: Bell,
-    title: "Notificaciones",
-    description: "Recibe avisos de retos, eventos y oportunidades.",
-  },
-  {
-    icon: Video,
-    title: "Directos Exclusivos",
-    description: "Accede a contenido en vivo con chefs profesionales.",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const Descarga = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    { icon: Zap, title: t('descarga.pointsSystem'), description: t('descarga.pointsDesc') },
+    { icon: Trophy, title: t('descarga.liveRanking'), description: t('descarga.liveRankingDesc') },
+    { icon: Users, title: t('descarga.activeCommunity'), description: t('descarga.activeCommDesc') },
+    { icon: Bell, title: t('descarga.notifications'), description: t('descarga.notifDesc') },
+    { icon: Video, title: t('descarga.exclusiveLive'), description: t('descarga.exclusiveDesc') },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -49,19 +32,15 @@ const Descarga = () => {
             </div>
             
             <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">
-              Descarga la<br />
-              <span className="text-gradient">App Oficial</span>
+              {t('descarga.title1')}<br />
+              <span className="text-gradient">{t('descarga.title2')}</span>
             </h1>
             
-            <p className="text-muted-foreground max-w-xl mx-auto mb-4">
-              Para completar la <strong>Fase 0 (vídeo casting)</strong> necesitas la App móvil. 
-              La web no permite acceso a cámara y micrófono.
-            </p>
+            <p className="text-muted-foreground max-w-xl mx-auto mb-4" dangerouslySetInnerHTML={{ __html: t('descarga.subtitle').replace('Fase 0 (vídeo casting)', '<strong>Fase 0 (vídeo casting)</strong>').replace('Phase 0 (video casting)', '<strong>Phase 0 (video casting)</strong>') }} />
             <p className="text-sm text-primary font-medium mb-8">
-              📱 Descarga la app → Graba tu vídeo → Empieza a competir
+              {t('descarga.steps')}
             </p>
 
-            {/* Download Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
               <a href="#" className="transition-transform hover:scale-105">
                 <img 
@@ -80,14 +59,14 @@ const Descarga = () => {
             </div>
             
             <p className="text-xs text-muted-foreground">
-              Disponible para iOS y Android · Gratis
+              {t('descarga.availableFree')}
             </p>
           </div>
 
           {/* Features Grid */}
           <div className="max-w-4xl mx-auto mb-16">
             <h2 className="font-unbounded text-2xl font-bold text-center mb-8">
-              Todo lo que necesitas
+              {t('descarga.everything')}
             </h2>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -116,40 +95,26 @@ const Descarga = () => {
                       <Zap className="w-8 h-8 text-primary" />
                     </div>
                     <p className="font-unbounded text-lg font-bold mb-2">MasterChef World</p>
-                    <p className="text-sm text-muted-foreground mb-8">El Reto 2026</p>
+                    <p className="text-sm text-muted-foreground mb-8">{t('footer.elReto')}</p>
                     
                     <div className="w-full space-y-3">
-                      <div className="bg-secondary/80 rounded-lg p-3 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20" />
-                        <div className="flex-1">
-                          <div className="h-3 bg-primary/20 rounded w-24 mb-1" />
-                          <div className="h-2 bg-muted rounded w-16" />
+                      {[{ pts: '24.5K' }, { pts: '22.3K' }, { pts: '21.8K' }].map((item, i) => (
+                        <div key={i} className="bg-secondary/80 rounded-lg p-3 flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/20" />
+                          <div className="flex-1">
+                            <div className="h-3 bg-primary/20 rounded w-24 mb-1" />
+                            <div className="h-2 bg-muted rounded w-16" />
+                          </div>
+                          <div className="text-xs font-bold text-primary">{item.pts}</div>
                         </div>
-                        <div className="text-xs font-bold text-primary">24.5K</div>
-                      </div>
-                      <div className="bg-secondary/80 rounded-lg p-3 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20" />
-                        <div className="flex-1">
-                          <div className="h-3 bg-primary/20 rounded w-20 mb-1" />
-                          <div className="h-2 bg-muted rounded w-12" />
-                        </div>
-                        <div className="text-xs font-bold text-primary">22.3K</div>
-                      </div>
-                      <div className="bg-secondary/80 rounded-lg p-3 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20" />
-                        <div className="flex-1">
-                          <div className="h-3 bg-primary/20 rounded w-28 mb-1" />
-                          <div className="h-2 bg-muted rounded w-14" />
-                        </div>
-                        <div className="text-xs font-bold text-primary">21.8K</div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
               
               <p className="mt-8 text-muted-foreground">
-                Interfaz intuitiva · Actualizaciones constantes · Soporte 24/7
+                {t('descarga.appPreviewDesc')}
               </p>
             </div>
           </div>
@@ -157,15 +122,15 @@ const Descarga = () => {
           {/* Final CTA */}
           <div className="text-center mt-16">
             <h2 className="font-unbounded text-2xl font-bold mb-4">
-              ¿A qué esperas?
+              {t('descarga.whatAreYouWaiting')}
             </h2>
             <p className="text-muted-foreground mb-6">
-              Cuanto antes entres, más puntos acumulas
+              {t('descarga.soonerMorePoints')}
             </p>
             <Button asChild size="lg" className="gap-2">
               <a href="/#registro">
                 <Zap className="w-5 h-5" />
-                Inscribirme a El Reto
+                {t('hero.ctaEnroll')}
               </a>
             </Button>
           </div>

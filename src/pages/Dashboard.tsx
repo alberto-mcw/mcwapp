@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -18,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Video, Shield } from 'lucide-react';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, uploadAvatar, refetch } = useProfile();
   const { isAdmin } = useAdmin();
@@ -60,17 +62,15 @@ const Dashboard = () => {
       
       <main className="flex-1 pt-20 pb-12">
         <div className="container mx-auto px-4">
-          {/* SuperLike Notification */}
           <SuperLikeNotification userId={user.id} />
 
-          {/* Welcome Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="font-unbounded text-2xl md:text-3xl font-bold mb-2 text-foreground">
-                ¡Hola, <span className="text-gradient-primary">{profile.display_name || 'Chef'}</span>!
+                {t('dashboard.hello', { name: profile.display_name || 'Chef' })}
               </h1>
               <p className="text-muted-foreground">
-                Bienvenido a tu zona de entrenamiento
+                {t('dashboard.welcomeSubtitle')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -78,22 +78,20 @@ const Dashboard = () => {
                 <Button asChild variant="default" className="gap-2 hidden md:flex">
                   <Link to="/admin">
                     <Shield className="w-4 h-4" />
-                    Admin
+                    {t('nav.admin')}
                   </Link>
                 </Button>
               )}
               <Button asChild variant="outline" className="gap-2 hidden md:flex">
                 <Link to="/videos">
                   <Video className="w-4 h-4" />
-                  Ver galería
+                  {t('dashboard.viewGallery')}
                 </Link>
               </Button>
             </div>
           </div>
 
-          {/* Main Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Profile & Stats */}
             <div className="lg:col-span-1 space-y-6">
               <ProfileCard profile={profile} isEnrolled={isEnrolled} />
               <PresentationVideoCard />
@@ -101,67 +99,40 @@ const Dashboard = () => {
               <QuickActions />
             </div>
 
-            {/* Right Column - Challenges */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Daily Trivia */}
               <div>
                 <h2 className="font-unbounded text-xl font-bold flex items-center gap-2 mb-4 text-foreground">
-                  ⚡ Mini reto diario
+                  {t('dashboard.dailyChallenge')}
                 </h2>
                 <DailyTrivia onEnergyEarned={handleEnergyEarned} />
               </div>
 
-              {/* Past Trivias (last week) */}
               <PastTrivias onEnergyEarned={handleEnergyEarned} />
 
-              {/* Weekly Challenges */}
               <div>
                 <h2 className="font-unbounded text-xl font-bold flex items-center gap-2 mb-4 text-foreground">
-                  🏆 Desafíos semanales
+                  {t('dashboard.weeklyChallenges')}
                 </h2>
                 <WeeklyChallenges />
               </div>
 
-              {/* Mobile Gallery Link */}
               <Button asChild variant="outline" className="w-full gap-2 md:hidden">
                 <Link to="/videos">
                   <Video className="w-4 h-4" />
-                  Ver Galería de Vídeos
+                  {t('dashboard.viewVideoGallery')}
                 </Link>
               </Button>
 
-              {/* Info Card */}
               <div className="feature-panel">
-                <h3 className="font-unbounded font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
+                <h3 className="font-unbounded font-bold mb-3 text-foreground">{t('dashboard.howToEarnTitle')}</h3>
                 <ul className="space-y-2 text-muted-foreground text-sm">
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    Mini Reto Diario a tiempo: +30 acertando, +2 fallando
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    Mini Reto Diario tardío: +15 acertando, +1 fallando
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    Desafío Semanal a tiempo: +100 puntos
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    Desafío Semanal tardío: +50 puntos
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    Recibir likes en tus vídeos: +1 por like
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    SuperLike recibido: +50 puntos
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    Vídeo de presentación aprobado: +100 puntos
-                  </li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.dailyOnTime')}</li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.dailyLate')}</li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.weeklyOnTime')}</li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.weeklyLate')}</li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.likesReceived')}</li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.superLikeReceived')}</li>
+                  <li className="flex items-center gap-2"><span className="text-primary">•</span>{t('dashboard.videoApproved')}</li>
                 </ul>
               </div>
             </div>
