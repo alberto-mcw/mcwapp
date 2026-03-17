@@ -47,9 +47,9 @@ export const Header = () => {
       redirectTo: `${window.location.origin}/auth`,
     });
     if (error) {
-      toast.error('Error al enviar el email de recuperación');
+    toast.error(t('common.error'));
     } else {
-      toast.success('Te hemos enviado un email para restaurar tu contraseña');
+      toast.success(t('auth.resetEmailSent'));
     }
     setAccountOpen(false);
   };
