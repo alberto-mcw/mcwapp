@@ -34,6 +34,10 @@ import AppGallery from "./pages/app/AppGallery";
 import AppProfile from "./pages/app/AppProfile";
 import AppAuth from "./pages/app/AppAuth";
 import AppRanking from "./pages/app/AppRanking";
+import AppChefEvents from "./pages/app/AppChefEvents";
+import AppChefLobby from "./pages/app/AppChefLobby";
+import AppChefLive from "./pages/app/AppChefLive";
+import AppChefResult from "./pages/app/AppChefResult";
 
 // Recetario Pages
 import RecetarioLanding from "./pages/recetario/RecetarioLanding";
@@ -84,6 +88,10 @@ const App = () => (
             <Route path="/app/perfil" element={<AppProfile />} />
             <Route path="/app/auth" element={<AppAuth />} />
             <Route path="/app/ranking" element={<AppRanking />} />
+            <Route path="/app/sigue-al-chef" element={<AppChefEvents />} />
+            <Route path="/app/sigue-al-chef/:id" element={<AppChefLobby />} />
+            <Route path="/app/sigue-al-chef/:id/live" element={<AppChefLive />} />
+            <Route path="/app/sigue-al-chef/:id/resultado" element={<AppChefResult />} />
             
             {/* Recetario Routes */}
             <Route path="/recetario" element={<RecetarioLanding />} />

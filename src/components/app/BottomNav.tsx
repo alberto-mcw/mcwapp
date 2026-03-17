@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Flame, CalendarDays, Images, UserRound } from 'lucide-react';
+import { Flame, CalendarDays, Images, UserRound, ChefHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: Flame, label: 'El Reto', path: '/app' },
+  { icon: ChefHat, label: 'Chef', path: '/app/sigue-al-chef' },
   { icon: CalendarDays, label: 'Calendario', path: '/app/calendario' },
   { icon: Images, label: 'Galería', path: '/app/galeria' },
   { icon: UserRound, label: 'Perfil', path: '/app/perfil' },

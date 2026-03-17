@@ -27,6 +27,7 @@ export const useMobileRedirect = () => {
         '/profile': '/app/perfil',
         '/auth': '/app/auth',
         '/ranking': '/app/ranking',
+        '/sigue-al-chef': '/app/sigue-al-chef',
       };
 
       const mobileRoute = routeMap[location.pathname];
