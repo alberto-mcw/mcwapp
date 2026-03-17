@@ -182,7 +182,7 @@ const AppRanking = () => {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">
+                      <p className="font-medium text-sm truncate text-foreground">
                         {profile.alias || 'Chef Anónimo'}
                         {isMe && <span className="ml-1 text-[10px] text-primary font-bold">(Tú)</span>}
                       </p>
