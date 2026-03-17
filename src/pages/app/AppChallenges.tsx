@@ -32,15 +32,15 @@ const AppChallenges = () => {
       
       <AppHeader />
 
-      {/* Hero section with concentric circles */}
-      <div className="concentric-circles-bg px-4 pt-4 pb-6">
-        <div className="relative z-10 flex flex-col items-center text-center">
+      {/* Hero section */}
+      <div className="px-4 pt-4 pb-6">
+        <div className="flex flex-col items-center text-center">
           <img
             src={logoVerticalLight}
             alt="El Reto"
             className="h-24 w-auto object-contain mb-3"
           />
-          <h1 className="font-display text-xl font-black text-gradient-primary leading-tight mb-1">
+          <h1 className="text-xl font-bold text-gradient-primary leading-tight mb-1">
             Enciende los fogones: comienza El Reto
           </h1>
           <p className="text-sm text-muted-foreground max-w-xs">
