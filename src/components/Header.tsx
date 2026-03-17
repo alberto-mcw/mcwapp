@@ -26,6 +26,8 @@ const useNavItems = () => {
 };
 
 export const Header = () => {
+  const { t } = useTranslation();
+  const navItems = useNavItems();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const location = useLocation();
