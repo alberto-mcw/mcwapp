@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile, Profile } from '@/hooks/useProfile';
 import { useEnrollment } from '@/hooks/useEnrollment';
-import { useProfile, Profile } from '@/hooks/useProfile';
 import { usePresentationVideo } from '@/hooks/usePresentationVideo';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
