@@ -81,7 +81,7 @@ const AppRanking = () => {
         {user && myPosition && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Tu posición</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Tu posición</p>
               <p className="text-xl font-black text-primary">
                 #{myPosition.rank}
                 <span className="text-xs font-normal text-muted-foreground ml-2">{formatEnergy(myPosition.energy)} ⚡</span>
