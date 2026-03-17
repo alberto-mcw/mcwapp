@@ -67,10 +67,10 @@ const AppRanking = () => {
             alt="El Reto"
             className="h-20 w-auto object-contain mb-3"
           />
-          <h1 className="text-2xl font-bold text-gradient-primary leading-tight">
+          <h1 className="app-title">
             Ranking
           </h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
+          <p className="app-body mt-2">
             Se actualiza diariamente
           </p>
         </div>
