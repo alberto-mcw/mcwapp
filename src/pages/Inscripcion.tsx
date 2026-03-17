@@ -30,9 +30,13 @@ const signupSchema = z.object({
   displayName: z.string().min(2, 'Mínimo 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
+  confirmPassword: z.string().min(6, 'Confirma tu contraseña'),
   avatar: z.string().min(1, 'Selecciona un avatar'),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Obligatorio' }) }),
   acceptPrivacy: z.literal(true, { errorMap: () => ({ message: 'Obligatorio' }) }),
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Las contraseñas no coinciden',
+  path: ['confirmPassword'],
 });
 
 const loginSchema = z.object({
