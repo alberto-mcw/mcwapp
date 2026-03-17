@@ -91,7 +91,7 @@ const AppChallenges = () => {
 
         {/* Info Card */}
         <div className="bg-card border border-border rounded-2xl p-4">
-          <h3 className="font-display text-sm font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
+          <h3 className="text-sm font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
           <ul className="space-y-2 text-muted-foreground text-xs">
             <li className="flex items-center gap-2">
               <span className="text-primary">•</span>
