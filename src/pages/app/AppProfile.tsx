@@ -159,7 +159,7 @@ const AppProfile = () => {
               <div className="flex items-center gap-3">
                 <Flame className="w-5 h-5 text-primary" />
                 <div className="text-left">
-                  <p className="text-sm font-medium">Inscríbete en El Reto 2026</p>
+                  <p className="text-sm font-medium text-foreground">Inscríbete en El Reto 2026</p>
                   <p className="text-xs text-muted-foreground">Completa tus datos para participar</p>
                 </div>
               </div>
