@@ -2,23 +2,20 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
-import { SectionTitle } from '@/components/app/SectionTitle';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useEnrollment } from '@/hooks/useEnrollment';
 import { EnrollmentBadge } from '@/components/enrollment/EnrollmentBadge';
 import { EnrollmentForm } from '@/components/enrollment/EnrollmentForm';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { 
-  User, MapPin, Instagram, Loader2, Save, LogOut, Trophy, Shield,
-  Zap, ChefHat, ChevronRight, Flame
+  MapPin, Instagram, Loader2, Save, LogOut, Trophy, Shield,
+  Zap, ChefHat, ChevronRight, Flame, X
 } from 'lucide-react';
+import logoVerticalLight from '@/assets/logo-vertical-light.png';
 
 const CHEF_AVATARS = [
   { emoji: '🍕', label: 'Pizza' }, { emoji: '🍷', label: 'Vino' }, { emoji: '🥐', label: 'Croissant' },
@@ -118,45 +115,38 @@ const AppProfile = () => {
           </button>
         }
       />
-      <SectionTitle title="Perfil" />
 
-      <div className="px-4 py-4 space-y-4">
-        {/* Profile Card */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-              {isEmojiAvatar ? (
-                <span className="text-4xl">{profile?.avatar_url}</span>
-              ) : profile?.avatar_url?.startsWith('http') ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
-              ) : (
-                <ChefHat className="w-8 h-8 text-primary" />
-              )}
-            </div>
-            <div className="flex-1">
-              <h2 className="font-unbounded text-lg font-bold">{profile?.display_name || 'Chef'}</h2>
-              {profile?.city && (
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />{profile.city}
-                </p>
-              )}
-            </div>
+      {/* Profile Hero */}
+      <div className="concentric-circles-bg px-4 pt-4 pb-6">
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center mb-3 glow-soft">
+            {isEmojiAvatar ? (
+              <span className="text-4xl">{profile?.avatar_url}</span>
+            ) : profile?.avatar_url?.startsWith('http') ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
+            ) : (
+              <ChefHat className="w-10 h-10 text-primary" />
+            )}
           </div>
-
-          {/* Energy Stats */}
-          <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-xl">
-            <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Energía total</p>
-              <p className="text-xl font-black text-primary tabular-nums">
-                {profile?.total_energy?.toLocaleString() || 0}
-              </p>
-            </div>
+          <h1 className="font-display text-2xl font-black text-gradient-primary">
+            {profile?.display_name || 'Chef'}
+          </h1>
+          {profile?.city && (
+            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+              <MapPin className="w-3 h-3" />{profile.city}
+            </p>
+          )}
+          {/* Energy pill */}
+          <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1.5 mt-3">
+            <Zap className="w-4 h-4 text-primary fill-primary" />
+            <span className="font-display text-sm font-bold text-primary tabular-nums">
+              {profile?.total_energy?.toLocaleString() || 0} puntos
+            </span>
           </div>
         </div>
+      </div>
 
+      <div className="px-4 py-4 space-y-4">
         {/* Enrollment Badge or CTA */}
         {isEnrolled ? (
           <EnrollmentBadge />
@@ -164,7 +154,7 @@ const AppProfile = () => {
           !showEnrollForm && (
             <button
               onClick={() => setShowEnrollForm(true)}
-              className="w-full flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 transition-colors"
+              className="w-full flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-2xl hover:bg-primary/10 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <Flame className="w-5 h-5 text-primary" />
@@ -181,7 +171,7 @@ const AppProfile = () => {
         {/* Enrollment Form */}
         {showEnrollForm && !isEnrolled && (
           <div className="bg-card border border-border rounded-2xl p-4">
-            <h3 className="font-unbounded text-sm font-bold mb-3">Inscripción a El Reto 2026</h3>
+            <h3 className="font-display text-sm font-bold mb-3">Inscripción a El Reto 2026</h3>
             <EnrollmentForm
               userCountry={profile?.country}
               onSubmit={handleEnroll}
@@ -193,11 +183,11 @@ const AppProfile = () => {
 
         {/* Edit Form */}
         {showEditForm && (
-          <div className="bg-card border border-border rounded-2xl p-4">
+          <div className="bg-card border border-border rounded-2xl p-5">
             {/* Avatar Selection */}
-            <div className="mb-4">
-              <Label className="block mb-2 text-sm">Tu avatar</Label>
-              <div className="grid grid-cols-10 gap-1">
+            <div className="mb-5">
+              <label className="app-input-label">Tu avatar</label>
+              <div className="grid grid-cols-10 gap-1.5 mt-2">
                 {CHEF_AVATARS.map((avatar) => (
                   <button
                     key={avatar.emoji}
@@ -207,47 +197,47 @@ const AppProfile = () => {
                       toast({ title: '¡Avatar actualizado!', description: 'Tu avatar se ha cambiado' });
                     }}
                     className={cn(
-                      "aspect-square rounded-lg text-lg flex items-center justify-center transition-all border",
+                      "aspect-square rounded-xl text-lg flex items-center justify-center transition-all",
                       profile?.avatar_url === avatar.emoji
-                        ? "border-primary bg-primary/10 scale-105"
-                        : "border-border bg-background"
+                        ? "bg-primary/15 ring-2 ring-primary scale-110"
+                        : "bg-background hover:bg-muted"
                     )}
                   >{avatar.emoji}</button>
                 ))}
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="display_name" className="text-sm flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-primary" />Nombre de Chef
-                </Label>
-                <Input id="display_name" name="display_name" value={formData.display_name} onChange={handleChange} placeholder="Tu nombre de chef" className="bg-background h-9" />
+            <form onSubmit={handleSubmit} className="space-y-0">
+              <div className="py-3">
+                <label className="app-input-label">Nombre de Chef</label>
+                <input name="display_name" value={formData.display_name} onChange={handleChange} placeholder="Tu nombre de chef" className="app-input" />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="bio" className="text-sm">Bio</Label>
-                <Textarea id="bio" name="bio" value={formData.bio} onChange={handleChange} placeholder="Cuéntanos sobre ti..." className="bg-background resize-none" rows={2} />
+              <div className="py-3">
+                <label className="app-input-label">Bio</label>
+                <Textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Cuéntanos sobre ti..." className="bg-transparent border-0 border-b border-border rounded-none px-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0" rows={2} />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="city" className="text-sm flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-primary" />Ciudad
-                </Label>
-                <Input id="city" name="city" value={formData.city} onChange={handleChange} placeholder="Tu ciudad" className="bg-background h-9" />
+              <div className="py-3">
+                <label className="app-input-label">Ciudad</label>
+                <input name="city" value={formData.city} onChange={handleChange} placeholder="Tu ciudad" className="app-input" />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="instagram_handle" className="text-sm flex items-center gap-1.5">
-                  <Instagram className="w-3.5 h-3.5 text-primary" />Instagram
-                </Label>
-                <Input id="instagram_handle" name="instagram_handle" value={formData.instagram_handle} onChange={handleChange} placeholder="@tu_usuario" className="bg-background h-9" />
+              <div className="py-3">
+                <label className="app-input-label">Instagram</label>
+                <input name="instagram_handle" value={formData.instagram_handle} onChange={handleChange} placeholder="@tu_usuario" className="app-input" />
               </div>
 
-              <Button type="submit" disabled={isSaving} className="w-full btn-primary">
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                Guardar cambios
-              </Button>
+              <div className="pt-6">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={cn("btn-primary w-full py-4 text-base font-bold flex items-center justify-center gap-2", isSaving && "opacity-70")}
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Guardar cambios
+                </button>
+              </div>
             </form>
           </div>
         )}

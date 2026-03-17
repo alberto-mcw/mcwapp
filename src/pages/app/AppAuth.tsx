@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { MasterChefLogo } from '@/components/MasterChefLogo';
-import { Flame, Mail, Lock, User, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowLeft, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useSystemTheme } from '@/hooks/useSystemTheme';
 import { LegalCheckboxes } from '@/components/LegalCheckboxes';
+import logoVerticalLight from '@/assets/logo-vertical-light.png';
 
 const CHEF_AVATARS = [
   { emoji: '🍕', label: 'Pizza' },
@@ -206,66 +205,77 @@ const AppAuth = () => {
     }
   };
 
+  const modeConfig = {
+    login: { heading: 'Accede a tu cuenta', sub: 'Entra en tu zona de entrenamiento' },
+    signup: { heading: 'Únete al Reto', sub: 'Crea tu perfil y empieza' },
+    forgot: { heading: 'Recuperar contraseña', sub: 'Te enviaremos un email de recuperación' },
+    reset: { heading: 'Nueva contraseña', sub: 'Introduce tu nueva contraseña' },
+  };
+
   return (
-    <div className="min-h-screen bg-background flex flex-col px-4 py-8">
-      {/* Logo */}
-      <div className="text-center mb-6">
-        <div className="flex justify-center mb-3">
-          <div className="relative">
-            <MasterChefLogo className="w-14 h-14" />
-            <div className="absolute -top-1 -right-1">
-              <Flame className="w-5 h-5 text-primary animate-pulse" />
-            </div>
-          </div>
-        </div>
-        <h1 className="font-unbounded text-xl font-bold mb-1">
-          {mode === 'login' ? 'Accede a tu cuenta' : 
-           mode === 'signup' ? 'Únete al Reto' :
-           mode === 'forgot' ? 'Recuperar contraseña' : 'Nueva contraseña'}
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Hero with concentric circles */}
+      <div className="concentric-circles-bg flex flex-col items-center pt-12 pb-6 px-4"
+        style={{ paddingTop: 'calc(48px + env(safe-area-inset-top, 0px))' }}
+      >
+        {/* Back button */}
+        {(mode === 'forgot' || mode === 'signup') && (
+          <button
+            onClick={() => { setMode('login'); setErrors({}); }}
+            className="absolute left-4 top-4 w-10 h-10 rounded-full border border-border bg-card/50 backdrop-blur-sm flex items-center justify-center z-20"
+            style={{ top: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+        )}
+
+        <img
+          src={logoVerticalLight}
+          alt="El Reto - MasterChef World App"
+          className="relative z-10 h-28 w-auto object-contain mb-4"
+        />
+        <h1 className="relative z-10 font-display text-2xl font-black text-gradient-primary text-center leading-tight">
+          {modeConfig[mode].heading}
         </h1>
-        <p className="text-sm text-muted-foreground">
-          {mode === 'login' ? 'Entra en tu zona de entrenamiento' :
-           mode === 'signup' ? 'Crea tu perfil y empieza' :
-           mode === 'forgot' ? 'Te enviaremos un email' : 'Introduce tu nueva contraseña'}
+        <p className="relative z-10 text-sm text-muted-foreground text-center mt-1.5 max-w-xs">
+          {modeConfig[mode].sub}
         </p>
       </div>
 
-      {/* Form */}
-      <div className="bg-card border border-border rounded-2xl p-5 flex-1">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Form area */}
+      <div className="flex-1 px-5 pb-8 pt-4">
+        <form onSubmit={handleSubmit} className="space-y-0">
           {mode === 'signup' && (
             <>
-              <div className="space-y-1.5">
-                <Label htmlFor="displayName" className="text-sm flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-primary" />
-                  Nombre de Chef
-                </Label>
-                <Input
-                  id="displayName"
+              {/* Chef Name */}
+              <div className="py-3">
+                <label className="app-input-label">Nombre de Chef</label>
+                <input
                   type="text"
                   placeholder="Tu nombre de chef"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="bg-background h-10"
+                  className="app-input"
                 />
                 {errors.displayName && (
-                  <p className="text-xs text-destructive">{errors.displayName}</p>
+                  <p className="app-input-error"><X className="w-3 h-3" />{errors.displayName}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm">Elige tu avatar</Label>
-                <div className="grid grid-cols-10 gap-1">
+              {/* Avatar selection */}
+              <div className="py-3">
+                <label className="app-input-label">Elige tu avatar</label>
+                <div className="grid grid-cols-10 gap-1.5 mt-2">
                   {CHEF_AVATARS.map((avatar) => (
                     <button
                       key={avatar.emoji}
                       type="button"
                       onClick={() => setSelectedAvatar(avatar.emoji)}
                       className={cn(
-                        "aspect-square rounded-lg text-lg flex items-center justify-center transition-all border",
+                        "aspect-square rounded-xl text-lg flex items-center justify-center transition-all",
                         selectedAvatar === avatar.emoji
-                          ? "border-primary bg-primary/10 scale-105"
-                          : "border-border bg-background"
+                          ? "bg-primary/15 ring-2 ring-primary scale-110"
+                          : "bg-card hover:bg-muted"
                       )}
                     >
                       {avatar.emoji}
@@ -273,106 +283,95 @@ const AppAuth = () => {
                   ))}
                 </div>
                 {errors.avatar && (
-                  <p className="text-xs text-destructive">{errors.avatar}</p>
+                  <p className="app-input-error"><X className="w-3 h-3" />{errors.avatar}</p>
                 )}
               </div>
             </>
           )}
 
           {mode !== 'reset' && (
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-primary" />
-                Email
-              </Label>
-              <Input
-                id="email"
+            <div className="py-3">
+              <label className="app-input-label">Email</label>
+              <input
                 type="email"
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-background h-10"
+                className="app-input"
               />
               {errors.email && (
-                <p className="text-xs text-destructive">{errors.email}</p>
+                <p className="app-input-error"><X className="w-3 h-3" />{errors.email}</p>
               )}
             </div>
           )}
 
           {(mode === 'login' || mode === 'signup') && (
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-primary" />
-                Contraseña
-              </Label>
+            <div className="py-3">
+              <label className="app-input-label">Contraseña</label>
               <div className="relative">
-                <Input
-                  id="password"
+                <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-background h-10 pr-10"
+                  className="app-input pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-destructive">{errors.password}</p>
+                <p className="app-input-error"><X className="w-3 h-3" />{errors.password}</p>
               )}
             </div>
           )}
 
           {mode === 'reset' && (
             <>
-              <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-sm flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-primary" />
-                  Nueva contraseña
-                </Label>
-                <Input
-                  id="password"
+              <div className="py-3">
+                <label className="app-input-label">Nueva contraseña</label>
+                <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-background h-10"
+                  className="app-input"
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="confirmPassword" className="text-sm">Confirmar contraseña</Label>
-                <Input
-                  id="confirmPassword"
+              <div className="py-3">
+                <label className="app-input-label">Confirmar contraseña</label>
+                <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-background h-10"
+                  className="app-input"
                 />
                 {errors.confirmPassword && (
-                  <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+                  <p className="app-input-error"><X className="w-3 h-3" />{errors.confirmPassword}</p>
                 )}
               </div>
             </>
           )}
 
           {mode === 'signup' && (
-            <LegalCheckboxes
-              acceptTerms={acceptTerms}
-              acceptPrivacy={acceptPrivacy}
-              onTermsChange={setAcceptTerms}
-              onPrivacyChange={setAcceptPrivacy}
-              errors={errors}
-            />
+            <div className="pt-4">
+              <LegalCheckboxes
+                acceptTerms={acceptTerms}
+                acceptPrivacy={acceptPrivacy}
+                onTermsChange={setAcceptTerms}
+                onPrivacyChange={setAcceptPrivacy}
+                errors={errors}
+              />
+            </div>
           )}
 
           {mode === 'login' && (
-            <div className="text-right">
+            <div className="text-right pt-2 pb-2">
               <button
                 type="button"
                 onClick={() => { setMode('forgot'); setErrors({}); }}
@@ -383,19 +382,26 @@ const AppAuth = () => {
             </div>
           )}
 
-          <Button type="submit" disabled={isLoading} className="w-full btn-primary h-11">
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <Flame className="w-4 h-4 mr-2" />
-            )}
-            {mode === 'login' ? 'Entrar' : 
-             mode === 'signup' ? 'Crear cuenta' : 
-             mode === 'reset' ? 'Guardar' : 'Enviar email'}
-          </Button>
+          {/* Submit button */}
+          <div className="pt-6">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={cn(
+                "btn-primary w-full py-4 text-base font-bold flex items-center justify-center gap-2 transition-all",
+                isLoading && "opacity-70"
+              )}
+            >
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {mode === 'login' ? 'Entrar' : 
+               mode === 'signup' ? 'Crear cuenta' : 
+               mode === 'reset' ? 'Guardar' : 'Enviar email'}
+            </button>
+          </div>
         </form>
 
-        <div className="mt-5 text-center">
+        {/* Mode switch */}
+        <div className="mt-6 text-center">
           {mode === 'forgot' ? (
             <button
               onClick={() => { setMode('login'); setErrors({}); }}
@@ -411,7 +417,7 @@ const AppAuth = () => {
                 onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setErrors({}); }}
                 className="text-primary font-medium ml-1 hover:underline"
               >
-                {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
+                {mode === 'login' ? 'Crear cuenta' : 'Inicia sesión'}
               </button>
             </p>
           )}

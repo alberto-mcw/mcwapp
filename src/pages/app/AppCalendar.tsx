@@ -1,8 +1,8 @@
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
 import { AppHeader } from '@/components/app/AppHeader';
-import { SectionTitle } from '@/components/app/SectionTitle';
 import { FireCircle } from '@/components/FireCircle';
 import { CheckCircle2, Lock, Unlock } from 'lucide-react';
+import logoVerticalLight from '@/assets/logo-vertical-light.png';
 
 const timelineEvents = [
   {
@@ -60,11 +60,23 @@ const AppCalendar = () => {
   return (
     <MobileAppLayout>
       <AppHeader />
-      <SectionTitle
-        topLabel="2026"
-        title="Calendario"
-        subtitle="Tu camino hacia la cima empieza aquí"
-      />
+
+      {/* Hero */}
+      <div className="concentric-circles-bg px-4 pt-4 pb-6">
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <img
+            src={logoVerticalLight}
+            alt="El Reto"
+            className="h-20 w-auto object-contain mb-3"
+          />
+          <h1 className="font-display text-2xl font-black text-gradient-primary leading-tight">
+            Calendario
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1.5">
+            Tu camino hacia la cima empieza aquí
+          </p>
+        </div>
+      </div>
 
       <div className="px-4 py-4">
         {/* Timeline */}
@@ -97,7 +109,7 @@ const AppCalendar = () => {
               </div>
 
               {/* Content */}
-              <div className={`flex-1 bg-card border rounded-xl p-4 ${
+              <div className={`flex-1 bg-card border rounded-2xl p-4 ${
                 event.unlocked ? "border-primary/30" : "border-border"
               }`}>
                 <span className={`inline-block text-[10px] font-bold uppercase tracking-wider mb-1 ${
@@ -105,7 +117,7 @@ const AppCalendar = () => {
                 }`}>
                   {event.period}
                 </span>
-                <h3 className="font-unbounded text-sm font-bold mb-1">
+                <h3 className="font-display text-sm font-bold mb-1">
                   {event.title}
                 </h3>
                 <p className="text-xs text-muted-foreground">
