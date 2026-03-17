@@ -14,9 +14,10 @@ import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Flame, Mail, Lock, User, Eye, EyeOff, Loader2,
-  CheckCircle2, Smartphone, Trophy, Video, BookOpen, ChevronLeft
+  CheckCircle2, Smartphone, Trophy, Video, BookOpen, ArrowLeft
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -53,7 +54,7 @@ const Inscripcion = () => {
   };
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
+  const [authMode, setAuthMode] = useState<'signup' | 'login' | 'forgot'>('signup');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -75,6 +76,10 @@ const Inscripcion = () => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    if (authMode === 'forgot') {
+      return handleForgotPassword();
+    }
 
     try {
       if (authMode === 'signup') {
@@ -104,10 +109,37 @@ const Inscripcion = () => {
       } else {
         const { error } = await signUp(email, password, displayName, selectedAvatar);
         if (error) {
-          toast({ title: 'Error', description: error.message.includes('already registered') ? 'Este email ya está registrado' : error.message, variant: 'destructive' });
+          toast({ title: 'Error', description: error.message.includes('already registered') ? 'Este email ya está registrado. Prueba a iniciar sesión.' : error.message, variant: 'destructive' });
         } else {
           toast({ title: '¡Cuenta creada!', description: 'Verifica tu email para continuar' });
         }
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    try {
+      z.string().email('Email inválido').parse(email);
+      setErrors({});
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors({ email: error.errors[0]?.message || 'Email inválido' });
+      }
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?mode=reset`
+      });
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Email enviado', description: 'Revisa tu bandeja de entrada para restablecer tu contraseña' });
+        setAuthMode('login');
       }
     } finally {
       setIsSubmitting(false);
@@ -162,20 +194,37 @@ const Inscripcion = () => {
               <motion.div key="step1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                 <div className="text-center mb-6">
                   <MasterChefLogo className="w-14 h-14 mx-auto mb-4" />
-                  <h1 className="font-unbounded text-2xl font-bold mb-2">Paso 1: Crea tu cuenta</h1>
-                  <p className="text-muted-foreground text-sm">Regístrate o inicia sesión para continuar</p>
+                  {authMode === 'forgot' ? (
+                    <>
+                      <h1 className="font-unbounded text-2xl font-bold mb-2">Recuperar contraseña</h1>
+                      <p className="text-muted-foreground text-sm">Te enviaremos un email para restablecer tu contraseña</p>
+                    </>
+                  ) : (
+                    <>
+                      <h1 className="font-unbounded text-2xl font-bold mb-2">
+                        Paso 1: {authMode === 'signup' ? 'Crea tu cuenta' : 'Inicia sesión'}
+                      </h1>
+                      <p className="text-muted-foreground text-sm">
+                        {authMode === 'signup'
+                          ? 'Necesitas una cuenta para inscribirte a El Reto'
+                          : '¿Ya tienes cuenta? Inicia sesión para continuar'}
+                      </p>
+                    </>
+                  )}
                 </div>
 
-                <div className="flex bg-muted rounded-xl p-1 mb-6">
-                  <button onClick={() => { setAuthMode('signup'); setErrors({}); }}
-                    className={cn("flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                      authMode === 'signup' ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
-                    )}>Crear cuenta</button>
-                  <button onClick={() => { setAuthMode('login'); setErrors({}); }}
-                    className={cn("flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
-                      authMode === 'login' ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
-                    )}>Iniciar sesión</button>
-                </div>
+                {authMode !== 'forgot' && (
+                  <div className="flex bg-muted rounded-xl p-1 mb-6">
+                    <button onClick={() => { setAuthMode('signup'); setErrors({}); }}
+                      className={cn("flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                        authMode === 'signup' ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+                      )}>Crear cuenta</button>
+                    <button onClick={() => { setAuthMode('login'); setErrors({}); }}
+                      className={cn("flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+                        authMode === 'login' ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+                      )}>Ya tengo cuenta</button>
+                  </div>
+                )}
 
                 <form onSubmit={handleAuth} className="bg-card border border-border rounded-2xl p-6 space-y-4">
                   {authMode === 'signup' && (
@@ -207,16 +256,30 @@ const Inscripcion = () => {
                     {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2"><Lock className="w-4 h-4 text-primary" />Contraseña</Label>
-                    <div className="relative">
-                      <Input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="bg-background pr-10" />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {authMode !== 'forgot' && (
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><Lock className="w-4 h-4 text-primary" />Contraseña</Label>
+                      <div className="relative">
+                        <Input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="bg-background pr-10" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                    </div>
+                  )}
+
+                  {authMode === 'login' && (
+                    <div className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode('forgot'); setErrors({}); }}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        ¿Olvidaste tu contraseña?
                       </button>
                     </div>
-                    {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-                  </div>
+                  )}
 
                   {authMode === 'signup' && (
                     <LegalCheckboxes
@@ -227,9 +290,21 @@ const Inscripcion = () => {
 
                   <Button type="submit" disabled={isSubmitting} className="w-full gap-2">
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />}
-                    {authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+                    {authMode === 'login' ? 'Iniciar sesión' : authMode === 'forgot' ? 'Enviar email de recuperación' : 'Crear cuenta'}
                   </Button>
                 </form>
+
+                {authMode === 'forgot' && (
+                  <div className="mt-4 text-center">
+                    <button
+                      onClick={() => { setAuthMode('login'); setErrors({}); }}
+                      className="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Volver a iniciar sesión
+                    </button>
+                  </div>
+                )}
               </motion.div>
             )}
 

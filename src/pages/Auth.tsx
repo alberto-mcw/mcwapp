@@ -274,8 +274,8 @@ const Auth = () => {
 
   const getTitle = () => {
     switch (mode) {
-      case 'login': return 'Accede a tu cuenta';
-      case 'signup': return 'Únete al Reto';
+      case 'login': return 'Iniciar sesión';
+      case 'signup': return 'Crear cuenta';
       case 'forgot': return 'Recuperar contraseña';
       case 'reset': return 'Nueva contraseña';
     }
@@ -283,8 +283,8 @@ const Auth = () => {
 
   const getSubtitle = () => {
     switch (mode) {
-      case 'login': return 'Entra en tu zona de entrenamiento';
-      case 'signup': return 'Crea tu perfil y empieza a competir';
+      case 'login': return 'Accede a tu zona de entrenamiento';
+      case 'signup': return 'Crea tu perfil para acceder a la plataforma';
       case 'forgot': return 'Te enviaremos un email para restablecer tu contraseña';
       case 'reset': return 'Introduce tu nueva contraseña';
     }
@@ -523,7 +523,7 @@ const Auth = () => {
                     }}
                     className="text-primary hover:underline ml-1 font-medium"
                   >
-                    {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
+                    {mode === 'login' ? 'Crear cuenta' : 'Iniciar sesión'}
                   </button>
                 </p>
               )}
