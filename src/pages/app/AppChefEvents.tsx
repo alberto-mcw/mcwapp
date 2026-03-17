@@ -36,7 +36,7 @@ const AppChefEvents = () => {
       <AppHeader />
       <div className="px-4 pt-2 pb-6 space-y-6">
         <SectionTitle title="Sigue al Chef" subtitle="Cocina en directo con chefs profesionales" />
-          <div className="flex justify-center py-20">
+          {loading ? (
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : events.length === 0 ? (
