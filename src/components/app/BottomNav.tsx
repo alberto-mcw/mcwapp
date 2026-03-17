@@ -26,49 +26,41 @@ export const BottomNav = () => {
   };
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-    >
-      {/* Top border line */}
-      <div className="bg-[hsl(0_0%_0%)] border-t border-[hsl(0_0%_18%)]">
-        <div className="flex items-center justify-around h-14">
-          {navItems.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors",
-                  active ? "text-primary" : "text-[hsl(0_0%_50%)]"
-                )}
-              >
-                {/* Active indicator dot */}
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute -top-[1px] w-8 h-[2px] rounded-full bg-primary"
-                  />
-                )}
-                <item.icon
-                  className={cn(
-                    "w-5 h-5",
-                    item.isAccent && active && "text-primary"
-                  )}
-                  strokeWidth={active ? 2.5 : 1.5}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
+      <div className="flex items-center justify-around h-16">
+        {navItems.map((item) => {
+          const active = isActive(item.path);
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "relative flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors",
+                active ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              {active && (
+                <span
+                  aria-hidden
+                  className="absolute -top-[1px] w-8 h-[2px] rounded-full bg-primary"
                 />
-                <span className={cn(
-                  "text-[10px] leading-none font-medium",
-                  active && "text-primary font-semibold"
-                )}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+              )}
+              <item.icon
+                className="w-5 h-5"
+                strokeWidth={active ? 2.5 : 1.5}
+              />
+              <span className={cn(
+                "text-[10px] leading-none",
+                active ? "text-primary font-semibold" : "font-medium"
+              )}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
       </div>
+      {/* iOS home indicator safe area */}
+      <div style={{ height: 'env(safe-area-inset-bottom, 0px)' }} className="bg-background" />
     </nav>
   );
 };

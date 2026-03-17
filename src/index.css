@@ -232,17 +232,24 @@
     box-shadow: 0 4px 20px hsl(0 0% 50% / 0.06);
   }
 
-  /* Button Variants — pill shape */
+  /* Button Variants — pill shape, matches Main0-Datos-Error.png */
   .btn-primary {
-    @apply relative overflow-hidden font-bold tracking-wide transition-all duration-300;
+    @apply relative overflow-hidden font-semibold transition-all duration-300 text-primary-foreground;
+    font-family: 'Onest', sans-serif;
+    font-size: 1rem;
     border-radius: 9999px;
-    background: var(--gradient-primary);
-    box-shadow: 0 4px 20px hsl(15 97% 60% / 0.3);
+    background: hsl(var(--primary));
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 24px hsl(15 97% 60% / 0.35);
   }
 
   .btn-primary:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: var(--glow-medium);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
   }
 
   .btn-outline {
