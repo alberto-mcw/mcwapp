@@ -242,7 +242,7 @@ const AppRanking = () => {
                   <Target className="w-4 h-4 text-primary mx-auto mb-1" />
                   {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
-                      <p className="font-display font-bold">{profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%</p>
+                      <p className="font-bold">{profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%</p>
                       <p className="text-[10px] text-muted-foreground">Mini Retos</p>
                     </>
                   ) : null}
