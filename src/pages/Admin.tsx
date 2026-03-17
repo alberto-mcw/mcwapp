@@ -23,6 +23,7 @@ import { AdminCalendar } from '@/components/admin/AdminCalendar';
 import { AdminPresentationVideos } from '@/components/admin/AdminPresentationVideos';
 import { AdminVideoUpload } from '@/components/admin/AdminVideoUpload';
 import { SuperLikeButton } from '@/components/gallery/SuperLikeButton';
+import { AdminChefEvents } from '@/components/admin/AdminChefEvents';
 
 interface Challenge {
   id: string;
