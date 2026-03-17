@@ -83,7 +83,7 @@ const AppChefEvents = () => {
 
             {upcomingEvents.length > 0 && (
               <section>
-                <h2 className="font-display text-base font-bold mb-3 flex items-center gap-2">
+                <h2 className="text-base font-bold mb-3 flex items-center gap-2">
                   <CalendarDays className="w-4 h-4 text-primary" />
                   Próximos
                 </h2>
