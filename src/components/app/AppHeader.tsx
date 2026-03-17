@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { useProfile } from '@/hooks/useProfile';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Zap, ChefHat, Shield } from 'lucide-react';
-import logoLight from '@/assets/logo-light.png';
+import logoCompact from '@/assets/logo-m-masterchef.svg';
 
 interface AppHeaderProps {
   rightAction?: ReactNode;
