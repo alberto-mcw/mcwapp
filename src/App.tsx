@@ -88,6 +88,10 @@ const App = () => (
             <Route path="/app/perfil" element={<AppProfile />} />
             <Route path="/app/auth" element={<AppAuth />} />
             <Route path="/app/ranking" element={<AppRanking />} />
+            <Route path="/app/sigue-al-chef" element={<AppChefEvents />} />
+            <Route path="/app/sigue-al-chef/:id" element={<AppChefLobby />} />
+            <Route path="/app/sigue-al-chef/:id/live" element={<AppChefLive />} />
+            <Route path="/app/sigue-al-chef/:id/resultado" element={<AppChefResult />} />
             
             {/* Recetario Routes */}
             <Route path="/recetario" element={<RecetarioLanding />} />
