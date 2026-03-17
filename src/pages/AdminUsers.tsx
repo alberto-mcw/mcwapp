@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/select';
 import {
   Loader2, Search, ChefHat, Shield, Ban, Undo2,
-  Zap, ExternalLink, Users, ArrowUpDown, ArrowDown, ArrowUp
+  Zap, ExternalLink, Users, ArrowUpDown, ArrowDown, ArrowUp, ShieldCheck, ShieldOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -44,6 +44,7 @@ interface UserRow {
   created_at: string;
   banned_at: string | null;
   instagram_handle: string | null;
+  isAdmin?: boolean;
 }
 
 const AdminUsers = () => {
@@ -57,6 +58,7 @@ const AdminUsers = () => {
   const [cityFilter, setCityFilter] = useState<string | null>(null);
   const [sortByEnergy, setSortByEnergy] = useState<'desc' | 'asc' | null>(null);
   const [banDialog, setBanDialog] = useState<UserRow | null>(null);
+  const [roleDialog, setRoleDialog] = useState<UserRow | null>(null);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -80,7 +82,20 @@ const AdminUsers = () => {
       .select('id, user_id, display_name, email, avatar_url, total_energy, country, city, created_at, banned_at, instagram_handle')
       .order('created_at', { ascending: false });
 
-    if (!error && data) setUsers(data);
+    // Fetch admin roles
+    const { data: adminRoles } = await supabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('role', 'admin');
+
+    const adminUserIds = new Set(adminRoles?.map(r => r.user_id) || []);
+
+    if (!error && data) {
+      setUsers(data.map(u => ({
+        ...u,
+        isAdmin: adminUserIds.has(u.user_id),
+      })));
+    }
     setLoading(false);
   };
 
@@ -100,6 +115,39 @@ const AdminUsers = () => {
     }
     setProcessing(false);
     setBanDialog(null);
+  };
+
+  const handleToggleAdmin = async (u: UserRow) => {
+    setProcessing(true);
+    if (u.isAdmin) {
+      // Remove admin role
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', u.user_id)
+        .eq('role', 'admin');
+
+      if (error) {
+        toast.error('Error al quitar rol de administrador');
+      } else {
+        toast.success(`${u.display_name || u.email} ya no es administrador`);
+        fetchUsers();
+      }
+    } else {
+      // Add admin role
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: u.user_id, role: 'admin' });
+
+      if (error) {
+        toast.error('Error al asignar rol de administrador');
+      } else {
+        toast.success(`${u.display_name || u.email} ahora es administrador`);
+        fetchUsers();
+      }
+    }
+    setProcessing(false);
+    setRoleDialog(null);
   };
 
   const cities = Array.from(new Set(users.map(u => u.city).filter(Boolean) as string[])).sort();
@@ -144,6 +192,11 @@ const AdminUsers = () => {
     );
   };
 
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
   if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -162,7 +215,7 @@ const AdminUsers = () => {
           <div className="flex items-center gap-3 mb-6">
             <Users className="w-6 h-6 text-primary" />
             <h1 className="font-unbounded text-2xl font-bold">
-              Usuarios registrados
+              Gestión de usuarios
             </h1>
             <Badge variant="secondary" className="ml-auto">
               {users.length} usuarios
@@ -229,6 +282,12 @@ const AdminUsers = () => {
                           <p className="font-medium text-sm truncate">
                             {u.display_name || 'Sin nombre'}
                           </p>
+                          {u.isAdmin && (
+                            <Badge variant="default" className="text-[10px] px-1.5 py-0 gap-1">
+                              <Shield className="w-2.5 h-2.5" />
+                              Admin
+                            </Badge>
+                          )}
                           {isBanned && (
                             <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
                               Baneado
@@ -249,9 +308,25 @@ const AdminUsers = () => {
                           {u.city && (
                             <span className="text-xs text-muted-foreground">{u.city}</span>
                           )}
+                          <span className="text-xs text-muted-foreground">
+                            Registro: {formatDate(u.created_at)}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setRoleDialog(u)}
+                          title={u.isAdmin ? 'Quitar administrador' : 'Hacer administrador'}
+                        >
+                          {u.isAdmin ? (
+                            <ShieldOff className="w-4 h-4 text-primary" />
+                          ) : (
+                            <ShieldCheck className="w-4 h-4 text-muted-foreground" />
+                          )}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -310,6 +385,35 @@ const AdminUsers = () => {
             >
               {processing && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {banDialog?.banned_at ? 'Desbanear' : 'Banear'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Role confirmation dialog */}
+      <Dialog open={!!roleDialog} onOpenChange={() => setRoleDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {roleDialog?.isAdmin ? 'Quitar rol de Administrador' : 'Asignar rol de Administrador'}
+            </DialogTitle>
+            <DialogDescription>
+              {roleDialog?.isAdmin
+                ? `¿Quieres quitar el rol de administrador a ${roleDialog?.display_name || roleDialog?.email}? Perderá acceso al panel de administración.`
+                : `¿Quieres hacer administrador a ${roleDialog?.display_name || roleDialog?.email}? Podrá gestionar usuarios, crear retos y desafíos.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRoleDialog(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant={roleDialog?.isAdmin ? 'destructive' : 'default'}
+              onClick={() => roleDialog && handleToggleAdmin(roleDialog)}
+              disabled={processing}
+            >
+              {processing && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {roleDialog?.isAdmin ? 'Quitar administrador' : 'Hacer administrador'}
             </Button>
           </DialogFooter>
         </DialogContent>

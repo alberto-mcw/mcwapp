@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MasterChefLogo } from "./MasterChefLogo";
-import { Menu, X, Download, User, LogIn, Shield, ChefHat, BookOpen, Flame, Settings, KeyRound, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, Download, User, LogIn, Shield, ChefHat, BookOpen, Flame, Settings, KeyRound, LogOut, ChevronDown, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -130,7 +130,10 @@ export const Header = () => {
                         <DropdownItem icon={<User className="w-4 h-4" />} label="Perfil" onClick={() => { navigate('/profile'); setAccountOpen(false); }} />
                         <DropdownItem icon={<BookOpen className="w-4 h-4" />} label="Mi Recetario" onClick={() => { navigate('/recetario/biblioteca'); setAccountOpen(false); }} />
                         {isAdmin && (
-                          <DropdownItem icon={<Shield className="w-4 h-4" />} label="Admin" onClick={() => { navigate('/admin'); setAccountOpen(false); }} />
+                          <>
+                            <DropdownItem icon={<Shield className="w-4 h-4" />} label="Administrar el sitio" onClick={() => { navigate('/admin'); setAccountOpen(false); }} />
+                            <DropdownItem icon={<Users className="w-4 h-4" />} label="Gestión de usuarios" onClick={() => { navigate('/admin/usuarios'); setAccountOpen(false); }} />
+                          </>
                         )}
                         <div className="my-1.5 border-t border-border" />
                         <DropdownItem icon={<Settings className="w-4 h-4" />} label="Editar perfil y redes" onClick={() => { navigate('/profile'); setAccountOpen(false); }} />
