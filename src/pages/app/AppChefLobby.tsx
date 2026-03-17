@@ -111,6 +111,8 @@ const AppChefLobby = () => {
 
   return (
     <MobileAppLayout showNav={false}>
+      <SecondaryHeader title={event.title} onBack={() => navigate('/app/sigue-al-chef')} />
+      
       {/* Cover */}
       <div className="relative">
         {event.cover_image_url ? (
@@ -120,11 +122,8 @@ const AppChefLobby = () => {
             <ChefHat className="w-16 h-16 text-primary/30" />
           </div>
         )}
-        <button onClick={() => navigate('/app/sigue-al-chef')} className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-2">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
         {event.status === 'live' && (
-          <Badge className="absolute top-4 right-4 bg-red-500 text-white border-0">🔴 EN DIRECTO</Badge>
+          <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground border-0">🔴 EN DIRECTO</Badge>
         )}
       </div>
 

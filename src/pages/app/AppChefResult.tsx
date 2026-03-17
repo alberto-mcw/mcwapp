@@ -75,10 +75,9 @@ const AppChefResult = () => {
 
   return (
     <MobileAppLayout showNav={false}>
+      <SecondaryHeader title="Resultado" onBack={() => navigate('/app/sigue-al-chef')} />
+      
       <div className="px-4 pt-4 pb-8 space-y-5">
-        <button onClick={() => navigate('/app/sigue-al-chef')} className="flex items-center gap-2 text-sm text-muted-foreground">
-          <ArrowLeft className="w-4 h-4" /> Volver
-        </button>
 
         {/* Score hero */}
         <div className="text-center space-y-3 py-6">
