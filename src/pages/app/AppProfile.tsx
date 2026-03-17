@@ -128,7 +128,7 @@ const AppProfile = () => {
               <ChefHat className="w-10 h-10 text-primary" />
             )}
           </div>
-          <h1 className="text-2xl font-bold text-gradient-primary">
+          <h1 className="app-title">
             {profile?.display_name || 'Chef'}
           </h1>
           {profile?.city && (
