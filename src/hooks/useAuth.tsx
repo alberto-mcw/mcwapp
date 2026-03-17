@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, displayName?: string, avatar?: string, country?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -53,6 +53,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     });
+    
+    // Save GDPR timestamps after successful signup
+    if (!error && data.user) {
+      const now = new Date().toISOString();
+      await supabase
+        .from('profiles')
+        .update({
+          accepted_terms_at: now,
+          accepted_privacy_at: now,
+        } as any)
+        .eq('user_id', data.user.id);
+    }
     
     return { error: error as Error | null };
   };

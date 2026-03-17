@@ -6,15 +6,19 @@ export interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
+  full_name: string | null;
   email: string | null;
   avatar_url: string | null;
   bio: string | null;
   city: string | null;
   country: string | null;
+  auth_provider: string | null;
   instagram_handle: string | null;
   tiktok_handle: string | null;
   twitter_handle: string | null;
   total_energy: number;
+  accepted_terms_at: string | null;
+  accepted_privacy_at: string | null;
   created_at: string;
   updated_at: string;
 }

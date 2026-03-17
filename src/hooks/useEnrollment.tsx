@@ -67,6 +67,7 @@ export const useEnrollment = () => {
 
     try {
       const fullAddress = `${data.street} ${data.street_number}, ${data.postal_code} ${data.address_city}`;
+      const now = new Date().toISOString();
       const { error } = await supabase
         .from('reto_enrollments')
         .insert({
@@ -80,6 +81,7 @@ export const useEnrollment = () => {
           date_of_birth: data.date_of_birth,
           accepted_legal_bases: data.accepted_legal_bases,
           postal_address: fullAddress,
+          accepted_bases_at: now,
         } as any);
 
       if (error) throw error;
