@@ -230,7 +230,7 @@ const AppAuth = () => {
         )}
 
         <img
-          src={logoVerticalLight}
+          src={logoVertical}
           alt="El Reto - MasterChef World App"
           className="h-28 w-auto object-contain mb-4"
         />

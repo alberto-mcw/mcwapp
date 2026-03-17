@@ -16,7 +16,7 @@ export const MasterChefLogo = ({ className, size = "md" }: MasterChefLogoProps) 
 
   return (
     <img 
-      src={logoHorizontal}
+      src={logoVertical}
       alt="MasterChef World App"
       className={cn(sizeClasses[size], "w-auto object-contain", className)}
     />
