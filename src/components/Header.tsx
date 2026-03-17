@@ -212,19 +212,19 @@ export const Header = () => {
                       <Button asChild size="sm" variant="outline" className="gap-2 w-full">
                         <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
                           <User className="w-4 h-4" />
-                          Mi cuenta
+                          {t('nav.dashboard')}
                         </Link>
                       </Button>
                       {isAdmin && (
                         <Button asChild size="sm" variant="outline" className="gap-2 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                           <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
                             <Shield className="w-4 h-4" />
-                            Admin
+                            {t('nav.admin')}
                           </Link>
                         </Button>
                       )}
                       <button onClick={() => { handleSignOut(); setIsMenuOpen(false); }} className="text-sm text-destructive py-2 text-left">
-                        Cerrar sesión
+                        {t('nav.signOut')}
                       </button>
                     </>
                   ) : (
