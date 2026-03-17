@@ -127,13 +127,40 @@
 }
 
 /* ===== /app pages: all Onest typography ===== */
+.app-typography,
 .app-typography h1,
 .app-typography h2,
 .app-typography h3,
 .app-typography h4,
 .app-typography h5,
-.app-typography h6 {
+.app-typography h6,
+.app-typography p,
+.app-typography span,
+.app-typography a,
+.app-typography button,
+.app-typography input,
+.app-typography textarea,
+.app-typography label {
   font-family: 'Onest', sans-serif;
+}
+
+/* App section titles: Onest Regular 32px, orange, tight kerning */
+.app-typography .app-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: hsl(var(--primary));
+}
+
+/* App body text: Onest 16px white */
+.app-typography .app-body {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: hsl(0 0% 100%);
 }
 
 @layer components {
