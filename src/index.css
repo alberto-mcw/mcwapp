@@ -232,24 +232,24 @@
     box-shadow: 0 4px 20px hsl(0 0% 50% / 0.06);
   }
 
-  /* Button Variants — pill shape, matches Main0-Datos-Error.png */
+  /* Button Variants — matches Main0-Bases-del-Concurso.png */
   .btn-primary {
-    @apply relative overflow-hidden font-semibold transition-all duration-300 text-primary-foreground;
+    @apply relative overflow-hidden transition-all duration-200;
     font-family: 'Onest', sans-serif;
-    font-size: 1rem;
-    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 24px;
     background: hsl(var(--primary));
-    padding: 1rem 2rem;
-    box-shadow: 0 4px 24px hsl(15 97% 60% / 0.35);
+    color: #000000;
+    padding: 0.875rem 1.5rem;
   }
 
   .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--glow-medium);
+    opacity: 0.9;
   }
 
   .btn-primary:active {
-    transform: translateY(0);
+    transform: scale(0.98);
   }
 
   .btn-outline {
