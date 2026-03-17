@@ -3,11 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
+import { SecondaryHeader } from '@/components/app/SecondaryHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, Trophy, Clock, Eye, Star, CheckCircle2, Share2, ArrowLeft } from 'lucide-react';
+import { Loader2, Trophy, Clock, Eye, Star, CheckCircle2, Share2 } from 'lucide-react';
 
 const AppChefResult = () => {
   const { id } = useParams<{ id: string }>();
@@ -74,10 +75,9 @@ const AppChefResult = () => {
 
   return (
     <MobileAppLayout showNav={false}>
+      <SecondaryHeader title="Resultado" onBack={() => navigate('/app/sigue-al-chef')} />
+      
       <div className="px-4 pt-4 pb-8 space-y-5">
-        <button onClick={() => navigate('/app/sigue-al-chef')} className="flex items-center gap-2 text-sm text-muted-foreground">
-          <ArrowLeft className="w-4 h-4" /> Volver
-        </button>
 
         {/* Score hero */}
         <div className="text-center space-y-3 py-6">

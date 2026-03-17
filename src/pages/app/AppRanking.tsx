@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
-import { AppHeader } from '@/components/app/AppHeader';
-import { FireCircle } from '@/components/FireCircle';
-import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, ArrowLeft, Search, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
+import { SecondaryHeader } from '@/components/app/SecondaryHeader';
+import { Trophy, TrendingUp, Zap, MapPin, Instagram, Target, Video, Search, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useRanking, formatEnergy, formatTotalEnergy, countryFlag, countryName, type RankedItem, type ProfileStats } from '@/hooks/useRanking';
@@ -20,10 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import logoVerticalLight from '@/assets/logo-vertical-light.png';
 
 const AppRanking = () => {
-  const navigate = useNavigate();
   const {
     profiles, loading, stats, currentPage, totalPages, totalCount,
     searchQuery, countryFilter, countries, myPosition, highlightUserId, user,
@@ -50,31 +46,8 @@ const AppRanking = () => {
   };
 
   return (
-    <MobileAppLayout>
-      <AppHeader
-        rightAction={
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        }
-      />
-
-      {/* Hero */}
-      <div className="px-4 pt-4 pb-6">
-        <div className="flex flex-col items-center text-center">
-          <img
-            src={logoVerticalLight}
-            alt="El Reto"
-            className="h-20 w-auto object-contain mb-3"
-          />
-          <h1 className="app-title">
-            Ranking
-          </h1>
-          <p className="app-body mt-2">
-            Se actualiza diariamente
-          </p>
-        </div>
-      </div>
+    <MobileAppLayout showNav={false}>
+      <SecondaryHeader title="Ranking" />
 
       <div className="px-4 py-4 space-y-4">
         {/* My Rank Card */}
@@ -167,9 +140,6 @@ const AppRanking = () => {
                     }`}
                   >
                     <div className="relative w-8 flex-shrink-0">
-                      {pos <= 3 && (
-                        <FireCircle size="sm" intensity={pos === 1 ? "high" : "medium"} className="absolute -inset-1" />
-                      )}
                       <span className={`relative z-10 text-lg font-black block text-center ${
                         pos <= 3 ? "text-primary" : "text-muted-foreground"
                       }`}>

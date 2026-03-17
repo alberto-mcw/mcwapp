@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ChefHat, Clock, Flame, CalendarDays } from 'lucide-react';
 import { format, isPast, isFuture } from 'date-fns';
 import { es } from 'date-fns/locale';
-import logoVerticalLight from '@/assets/logo-vertical-light.png';
 
 const AppChefEvents = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -38,15 +37,10 @@ const AppChefEvents = () => {
       {/* Hero */}
       <div className="px-4 pt-4 pb-6">
         <div className="flex flex-col items-center text-center">
-          <img
-            src={logoVerticalLight}
-            alt="El Reto"
-            className="h-20 w-auto object-contain mb-3"
-          />
-          <h1 className="text-2xl font-bold text-gradient-primary leading-tight">
+          <h1 className="app-title">
             Sigue al Chef
           </h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
+          <p className="app-body mt-2">
             Cocina en directo con chefs profesionales
           </p>
         </div>

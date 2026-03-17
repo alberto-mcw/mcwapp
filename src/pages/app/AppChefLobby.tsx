@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileAppLayout } from '@/components/app/MobileAppLayout';
+import { SecondaryHeader } from '@/components/app/SecondaryHeader';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, ChefHat, Clock, Flame, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, ChefHat, Clock, Flame, CheckCircle2, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -97,7 +98,7 @@ const AppChefLobby = () => {
           <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Evento no encontrado</p>
           <Button variant="ghost" className="mt-4" onClick={() => navigate('/app/sigue-al-chef')}>
-            <ArrowLeft className="w-4 h-4 mr-2" /> Volver
+            Volver
           </Button>
         </div>
       </MobileAppLayout>
@@ -110,6 +111,8 @@ const AppChefLobby = () => {
 
   return (
     <MobileAppLayout showNav={false}>
+      <SecondaryHeader title={event.title} onBack={() => navigate('/app/sigue-al-chef')} />
+      
       {/* Cover */}
       <div className="relative">
         {event.cover_image_url ? (
@@ -119,11 +122,8 @@ const AppChefLobby = () => {
             <ChefHat className="w-16 h-16 text-primary/30" />
           </div>
         )}
-        <button onClick={() => navigate('/app/sigue-al-chef')} className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-2">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
         {event.status === 'live' && (
-          <Badge className="absolute top-4 right-4 bg-red-500 text-white border-0">🔴 EN DIRECTO</Badge>
+          <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground border-0">🔴 EN DIRECTO</Badge>
         )}
       </div>
 
