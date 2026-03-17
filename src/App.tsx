@@ -71,6 +71,12 @@ const App = () => (
             <Route path="/install" element={<Install />} />
             <Route path="/inscripcion" element={<Inscripcion />} />
             
+            {/* Sigue al Chef */}
+            <Route path="/sigue-al-chef" element={<ChefEventList />} />
+            <Route path="/sigue-al-chef/:id" element={<ChefEventLobby />} />
+            <Route path="/sigue-al-chef/:id/live" element={<ChefEventLive />} />
+            <Route path="/sigue-al-chef/:id/resultado" element={<ChefEventResult />} />
+            
             {/* Mobile App Routes */}
             <Route path="/app" element={<AppChallenges />} />
             <Route path="/app/calendario" element={<AppCalendar />} />
