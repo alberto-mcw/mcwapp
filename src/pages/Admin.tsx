@@ -506,7 +506,7 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="calendario" className="space-y-6">
-            <TabsList className="grid w-full max-w-4xl grid-cols-6">
+            <TabsList className="grid w-full max-w-5xl grid-cols-7">
               <TabsTrigger value="calendario" className="gap-2">
                 <CalendarDays className="w-4 h-4" />
                 Calendario
@@ -519,6 +519,9 @@ const Admin = () => {
               <TabsTrigger value="challenges" className="gap-2">
                 <Calendar className="w-4 h-4" />
                 Desafíos
+              </TabsTrigger>
+              <TabsTrigger value="chef-events" className="gap-2">
+                🍳 Chef
               </TabsTrigger>
               <TabsTrigger value="submissions" className="gap-2">
                 <Video className="w-4 h-4" />
