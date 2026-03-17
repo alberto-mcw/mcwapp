@@ -72,7 +72,7 @@ const AppChallenges = () => {
 
         {/* Daily Trivia */}
         <section>
-          <h2 className="font-display text-base font-bold flex items-center gap-2 mb-3 text-foreground">
+          <h2 className="text-base font-bold flex items-center gap-2 mb-3 text-foreground">
             ⚡ Mini reto diario
           </h2>
           <DailyTrivia onEnergyEarned={handleEnergyEarned} />
