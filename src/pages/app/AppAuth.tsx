@@ -334,6 +334,22 @@ const AppAuth = () => {
                 <p className="app-input-error"><X className="w-3 h-3" />{errors.password}</p>
               )}
             </div>
+           )}
+
+          {mode === 'signup' && (
+            <div className="py-3">
+              <label className="app-input-label">Repetir contraseña</label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="app-input"
+              />
+              {errors.confirmPassword && (
+                <p className="app-input-error"><X className="w-3 h-3" />{errors.confirmPassword}</p>
+              )}
+            </div>
           )}
 
           {mode === 'reset' && (
