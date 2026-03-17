@@ -69,7 +69,7 @@ const AppChefEvents = () => {
           <>
             {liveEvents.length > 0 && (
               <section>
-                <h2 className="font-display text-base font-bold mb-3 flex items-center gap-2">
+                <h2 className="text-base font-bold mb-3 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-destructive" />
                   En directo
                 </h2>
