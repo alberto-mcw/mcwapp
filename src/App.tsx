@@ -34,6 +34,10 @@ import AppGallery from "./pages/app/AppGallery";
 import AppProfile from "./pages/app/AppProfile";
 import AppAuth from "./pages/app/AppAuth";
 import AppRanking from "./pages/app/AppRanking";
+import AppChefEvents from "./pages/app/AppChefEvents";
+import AppChefLobby from "./pages/app/AppChefLobby";
+import AppChefLive from "./pages/app/AppChefLive";
+import AppChefResult from "./pages/app/AppChefResult";
 
 // Recetario Pages
 import RecetarioLanding from "./pages/recetario/RecetarioLanding";
