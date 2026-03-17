@@ -15,6 +15,7 @@ const useNavItems = () => {
 };
 
 export const BottomNav = () => {
+  const navItems = useNavItems();
   const location = useLocation();
 
   const isActive = (path: string) => {

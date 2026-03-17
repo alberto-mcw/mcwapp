@@ -60,7 +60,8 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
           alt="El Reto"
           className="h-7 w-auto object-contain"
         />
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
+          <LanguageSelector variant="minimal" />
           {isAdmin && (
             <Link
               to="/admin/usuarios"
