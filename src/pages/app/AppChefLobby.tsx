@@ -7,7 +7,7 @@ import { SecondaryHeader } from '@/components/app/SecondaryHeader';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, ChefHat, Clock, Flame, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, ChefHat, Clock, Flame, CheckCircle2, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
