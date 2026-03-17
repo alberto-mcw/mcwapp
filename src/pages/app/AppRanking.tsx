@@ -227,7 +227,7 @@ const AppRanking = () => {
               <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-3xl mx-auto mb-3">
                 {selectedProfile.avatarUrl || '👨‍🍳'}
               </div>
-              <h3 className="font-display text-lg font-bold mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
+              <h3 className="text-lg font-bold mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
               <p className="text-primary text-sm font-bold mb-1">Nivel {selectedProfile.level}</p>
               {selectedProfile.country && (
                 <p className="text-xs text-muted-foreground mb-2">{countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}</p>
