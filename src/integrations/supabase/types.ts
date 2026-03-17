@@ -156,6 +156,311 @@ export type Database = {
         }
         Relationships: []
       }
+      chef_ai_evaluations: {
+        Row: {
+          completeness_score: number | null
+          confidence_score: number | null
+          created_at: string
+          id: string
+          manual_override_score: number | null
+          manual_review_at: string | null
+          manual_review_by: string | null
+          needs_manual_review: boolean
+          presentation_score: number | null
+          reasoning: string | null
+          submission_id: string
+          timing_score: number | null
+          visual_fidelity_score: number | null
+        }
+        Insert: {
+          completeness_score?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          manual_override_score?: number | null
+          manual_review_at?: string | null
+          manual_review_by?: string | null
+          needs_manual_review?: boolean
+          presentation_score?: number | null
+          reasoning?: string | null
+          submission_id: string
+          timing_score?: number | null
+          visual_fidelity_score?: number | null
+        }
+        Update: {
+          completeness_score?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          manual_override_score?: number | null
+          manual_review_at?: string | null
+          manual_review_by?: string | null
+          needs_manual_review?: boolean
+          presentation_score?: number | null
+          reasoning?: string | null
+          submission_id?: string
+          timing_score?: number | null
+          visual_fidelity_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_ai_evaluations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "chef_step_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chef_event_participants: {
+        Row: {
+          current_step: number
+          event_id: string
+          finished_at: string | null
+          id: string
+          joined_at: string
+          status: string
+          total_score: number | null
+          user_id: string
+        }
+        Insert: {
+          current_step?: number
+          event_id: string
+          finished_at?: string | null
+          id?: string
+          joined_at?: string
+          status?: string
+          total_score?: number | null
+          user_id: string
+        }
+        Update: {
+          current_step?: number
+          event_id?: string
+          finished_at?: string | null
+          id?: string
+          joined_at?: string
+          status?: string
+          total_score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_event_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "chef_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chef_event_scores: {
+        Row: {
+          badge: string | null
+          completeness: number
+          created_at: string
+          energy_awarded: number
+          id: string
+          participant_id: string
+          presentation: number
+          timing: number
+          total_score: number
+          visual_fidelity: number
+        }
+        Insert: {
+          badge?: string | null
+          completeness?: number
+          created_at?: string
+          energy_awarded?: number
+          id?: string
+          participant_id: string
+          presentation?: number
+          timing?: number
+          total_score?: number
+          visual_fidelity?: number
+        }
+        Update: {
+          badge?: string | null
+          completeness?: number
+          created_at?: string
+          energy_awarded?: number
+          id?: string
+          participant_id?: string
+          presentation?: number
+          timing?: number
+          total_score?: number
+          visual_fidelity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_event_scores_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: true
+            referencedRelation: "chef_event_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chef_event_steps: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_seconds: number
+          event_id: string
+          id: string
+          photo_required: boolean
+          reference_image_url: string | null
+          step_number: number
+          tips: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number
+          event_id: string
+          id?: string
+          photo_required?: boolean
+          reference_image_url?: string | null
+          step_number: number
+          tips?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number
+          event_id?: string
+          id?: string
+          photo_required?: boolean
+          reference_image_url?: string | null
+          step_number?: number
+          tips?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_event_steps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "chef_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chef_events: {
+        Row: {
+          chef_avatar_url: string | null
+          chef_name: string
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_minutes: number
+          energy_reward: number
+          evaluation_criteria: string | null
+          final_dish_image_url: string | null
+          id: string
+          ingredients: Json
+          rules: string | null
+          scheduled_at: string
+          status: string
+          title: string
+          twitch_url: string
+          updated_at: string
+          utensils: Json
+        }
+        Insert: {
+          chef_avatar_url?: string | null
+          chef_name: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          energy_reward?: number
+          evaluation_criteria?: string | null
+          final_dish_image_url?: string | null
+          id?: string
+          ingredients?: Json
+          rules?: string | null
+          scheduled_at: string
+          status?: string
+          title: string
+          twitch_url: string
+          updated_at?: string
+          utensils?: Json
+        }
+        Update: {
+          chef_avatar_url?: string | null
+          chef_name?: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          energy_reward?: number
+          evaluation_criteria?: string | null
+          final_dish_image_url?: string | null
+          id?: string
+          ingredients?: Json
+          rules?: string | null
+          scheduled_at?: string
+          status?: string
+          title?: string
+          twitch_url?: string
+          updated_at?: string
+          utensils?: Json
+        }
+        Relationships: []
+      }
+      chef_step_submissions: {
+        Row: {
+          created_at: string
+          id: string
+          participant_id: string
+          photo_url: string | null
+          status: string
+          step_id: string
+          submitted_at: string
+          time_taken_seconds: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_id: string
+          photo_url?: string | null
+          status?: string
+          step_id: string
+          submitted_at?: string
+          time_taken_seconds?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_id?: string
+          photo_url?: string | null
+          status?: string
+          step_id?: string
+          submitted_at?: string
+          time_taken_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chef_step_submissions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "chef_event_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chef_step_submissions_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "chef_event_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_trivias: {
         Row: {
           approved_at: string | null
