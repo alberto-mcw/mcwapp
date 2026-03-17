@@ -21,6 +21,12 @@ import NotFound from "./pages/NotFound";
 import Install from "./pages/Install";
 import Inscripcion from "./pages/Inscripcion";
 
+// Sigue al Chef
+import ChefEventList from "./pages/ChefEventList";
+import ChefEventLobby from "./pages/ChefEventLobby";
+import ChefEventLive from "./pages/ChefEventLive";
+import ChefEventResult from "./pages/ChefEventResult";
+
 // Mobile App Pages
 import AppChallenges from "./pages/app/AppChallenges";
 import AppCalendar from "./pages/app/AppCalendar";
