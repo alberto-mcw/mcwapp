@@ -1,14 +1,18 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Flame, CalendarDays, Images, UserRound, ChefHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { icon: Flame, label: 'El Reto', path: '/app' },
-  { icon: ChefHat, label: 'Chef', path: '/app/sigue-al-chef' },
-  { icon: CalendarDays, label: 'Calendario', path: '/app/calendario' },
-  { icon: Images, label: 'Galería', path: '/app/galeria' },
-  { icon: UserRound, label: 'Perfil', path: '/app/perfil' },
-];
+const useNavItems = () => {
+  const { t } = useTranslation();
+  return [
+    { icon: Flame, label: t('appNav.elReto'), path: '/app' },
+    { icon: ChefHat, label: t('appNav.chef'), path: '/app/sigue-al-chef' },
+    { icon: CalendarDays, label: t('appNav.calendar'), path: '/app/calendario' },
+    { icon: Images, label: t('appNav.gallery'), path: '/app/galeria' },
+    { icon: UserRound, label: t('appNav.profile'), path: '/app/perfil' },
+  ];
+};
 
 export const BottomNav = () => {
   const location = useLocation();
