@@ -318,9 +318,9 @@ const AppGallery = () => {
   return (
     <MobileAppLayout>
       <AppHeader />
-      <div className="concentric-circles-bg px-4 pt-4 pb-6">
-        <div className="relative z-10 text-center">
-          <h1 className="font-display text-2xl font-black text-gradient-primary leading-tight">
+      <div className="px-4 pt-4 pb-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gradient-primary leading-tight">
             Galería
           </h1>
           <p className="text-sm text-muted-foreground mt-1.5">{submissions.length} vídeos</p>

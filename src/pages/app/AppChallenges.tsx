@@ -32,15 +32,15 @@ const AppChallenges = () => {
       
       <AppHeader />
 
-      {/* Hero section with concentric circles */}
-      <div className="concentric-circles-bg px-4 pt-4 pb-6">
-        <div className="relative z-10 flex flex-col items-center text-center">
+      {/* Hero section */}
+      <div className="px-4 pt-4 pb-6">
+        <div className="flex flex-col items-center text-center">
           <img
             src={logoVerticalLight}
             alt="El Reto"
             className="h-24 w-auto object-contain mb-3"
           />
-          <h1 className="font-display text-xl font-black text-gradient-primary leading-tight mb-1">
+          <h1 className="text-xl font-bold text-gradient-primary leading-tight mb-1">
             Enciende los fogones: comienza El Reto
           </h1>
           <p className="text-sm text-muted-foreground max-w-xs">
@@ -62,7 +62,7 @@ const AppChallenges = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Tus puntos</p>
-                <p className="text-2xl font-black text-primary tabular-nums font-display">
+                <p className="text-2xl font-black text-primary tabular-nums">
                   {localEnergy.toLocaleString()}
                 </p>
               </div>
@@ -72,7 +72,7 @@ const AppChallenges = () => {
 
         {/* Daily Trivia */}
         <section>
-          <h2 className="font-display text-base font-bold flex items-center gap-2 mb-3 text-foreground">
+          <h2 className="text-base font-bold flex items-center gap-2 mb-3 text-foreground">
             ⚡ Mini reto diario
           </h2>
           <DailyTrivia onEnergyEarned={handleEnergyEarned} />
@@ -83,7 +83,7 @@ const AppChallenges = () => {
 
         {/* Weekly Challenges */}
         <section>
-          <h2 className="font-display text-base font-bold flex items-center gap-2 mb-3 text-foreground">
+          <h2 className="text-base font-bold flex items-center gap-2 mb-3 text-foreground">
             🏆 Desafíos semanales
           </h2>
           <WeeklyChallenges />
@@ -91,7 +91,7 @@ const AppChallenges = () => {
 
         {/* Info Card */}
         <div className="bg-card border border-border rounded-2xl p-4">
-          <h3 className="font-display text-sm font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
+          <h3 className="text-sm font-bold mb-3 text-foreground">📱 ¿Cómo ganar más puntos?</h3>
           <ul className="space-y-2 text-muted-foreground text-xs">
             <li className="flex items-center gap-2">
               <span className="text-primary">•</span>

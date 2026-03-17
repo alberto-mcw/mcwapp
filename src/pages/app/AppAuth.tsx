@@ -213,16 +213,16 @@ const AppAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Hero with concentric circles */}
-      <div className="concentric-circles-bg flex flex-col items-center pt-12 pb-6 px-4"
+    <div className="min-h-screen bg-background flex flex-col app-typography">
+      {/* Hero */}
+      <div className="flex flex-col items-center pt-12 pb-6 px-4"
         style={{ paddingTop: 'calc(48px + env(safe-area-inset-top, 0px))' }}
       >
         {/* Back button */}
         {(mode === 'forgot' || mode === 'signup') && (
           <button
             onClick={() => { setMode('login'); setErrors({}); }}
-            className="absolute left-4 top-4 w-10 h-10 rounded-full border border-border bg-card/50 backdrop-blur-sm flex items-center justify-center z-20"
+            className="absolute left-4 top-4 w-10 h-10 rounded-full border border-[hsl(0_0%_25%)] bg-[hsl(0_0%_7%)] flex items-center justify-center z-20"
             style={{ top: 'calc(16px + env(safe-area-inset-top, 0px))' }}
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -232,12 +232,12 @@ const AppAuth = () => {
         <img
           src={logoVerticalLight}
           alt="El Reto - MasterChef World App"
-          className="relative z-10 h-28 w-auto object-contain mb-4"
+          className="h-28 w-auto object-contain mb-4"
         />
-        <h1 className="relative z-10 font-display text-2xl font-black text-gradient-primary text-center leading-tight">
+        <h1 className="text-2xl font-bold text-gradient-primary text-center leading-tight">
           {modeConfig[mode].heading}
         </h1>
-        <p className="relative z-10 text-sm text-muted-foreground text-center mt-1.5 max-w-xs">
+        <p className="text-sm text-muted-foreground text-center mt-1.5 max-w-xs">
           {modeConfig[mode].sub}
         </p>
       </div>

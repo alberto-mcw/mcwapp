@@ -62,14 +62,14 @@ const AppCalendar = () => {
       <AppHeader />
 
       {/* Hero */}
-      <div className="concentric-circles-bg px-4 pt-4 pb-6">
-        <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="px-4 pt-4 pb-6">
+        <div className="flex flex-col items-center text-center">
           <img
             src={logoVerticalLight}
             alt="El Reto"
             className="h-20 w-auto object-contain mb-3"
           />
-          <h1 className="font-display text-2xl font-black text-gradient-primary leading-tight">
+          <h1 className="text-2xl font-bold text-gradient-primary leading-tight">
             Calendario
           </h1>
           <p className="text-sm text-muted-foreground mt-1.5">
@@ -117,7 +117,7 @@ const AppCalendar = () => {
                 }`}>
                   {event.period}
                 </span>
-                <h3 className="font-display text-sm font-bold mb-1">
+                <h3 className="text-sm font-bold mb-1">
                   {event.title}
                 </h3>
                 <p className="text-xs text-muted-foreground">

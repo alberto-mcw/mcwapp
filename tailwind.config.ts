@@ -88,8 +88,8 @@ export default {
           "50%": { opacity: "0.8", transform: "scale(1.05)" },
         },
         "glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(21 100% 50% / 0.4)" },
-          "50%": { boxShadow: "0 0 40px hsl(21 100% 50% / 0.7)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(15 97% 60% / 0.4)" },
+          "50%": { boxShadow: "0 0 40px hsl(15 97% 60% / 0.7)" },
         },
       },
       animation: {

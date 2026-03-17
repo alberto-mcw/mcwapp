@@ -10,9 +10,9 @@
 
 @layer base {
   :root {
-    /* El Reto 2026 — Brand System (#ff5700) */
-    --brand-orange: 21 100% 50%;
-    --brand-black: 220 15% 8%;
+    /* El Reto 2026 — Brand System (#FC6B37) */
+    --brand-orange: 15 97% 60%;
+    --brand-black: 0 0% 0%;
     --brand-white: 0 0% 100%;
     
     --background: 0 0% 100%;
@@ -24,7 +24,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 8%;
 
-    --primary: 21 100% 50%;
+    --primary: 15 97% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 10% 95%;
@@ -33,7 +33,7 @@
     --muted: 220 10% 93%;
     --muted-foreground: 220 10% 42%;
 
-    --accent: 21 100% 50%;
+    --accent: 15 97% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -41,64 +41,64 @@
 
     --border: 220 10% 90%;
     --input: 220 10% 93%;
-    --ring: 21 100% 50%;
+    --ring: 15 97% 60%;
 
     --radius: 2rem;
 
-    /* Glows — atmosphere, never noise */
-    --glow-soft: 0 0 30px hsl(21 100% 50% / 0.12), 0 0 60px hsl(21 100% 50% / 0.06);
-    --glow-medium: 0 0 40px hsl(21 100% 50% / 0.20), 0 0 80px hsl(21 100% 50% / 0.10);
-    --glow-intense: 0 0 50px hsl(21 100% 50% / 0.30), 0 0 100px hsl(21 100% 50% / 0.15);
+    /* Glows */
+    --glow-soft: 0 0 30px hsl(15 97% 60% / 0.12), 0 0 60px hsl(15 97% 60% / 0.06);
+    --glow-medium: 0 0 40px hsl(15 97% 60% / 0.20), 0 0 80px hsl(15 97% 60% / 0.10);
+    --glow-intense: 0 0 50px hsl(15 97% 60% / 0.30), 0 0 100px hsl(15 97% 60% / 0.15);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(21 100% 45%) 0%, hsl(30 100% 55%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(21 100% 45%) 0%, hsl(25 100% 40%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(15 97% 55%) 0%, hsl(25 100% 65%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(15 97% 55%) 0%, hsl(20 100% 50%) 100%);
     --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 10% 97%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 10% 98%) 100%);
 
     /* Recetario Eterno — warm sub-brand */
-    --recetario-bg: 30 100% 97%;        /* #FFF8F0 */
-    --recetario-fg: 20 31% 16%;         /* #3D2B1F */
-    --recetario-primary: 21 100% 50%;    /* #ff5700 */
-    --recetario-primary-hover: 21 100% 42%; /* #D64900 */
-    --recetario-muted: 25 19% 40%;      /* #6B5744 */
-    --recetario-muted-light: 30 22% 47%; /* #8B7355 */
-    --recetario-surface: 30 37% 92%;    /* #F5E6D3 */
-    --recetario-border: 28 35% 84%;     /* #E8D5C4 */
+    --recetario-bg: 30 100% 97%;
+    --recetario-fg: 20 31% 16%;
+    --recetario-primary: 15 97% 60%;
+    --recetario-primary-hover: 15 97% 50%;
+    --recetario-muted: 25 19% 40%;
+    --recetario-muted-light: 30 22% 47%;
+    --recetario-surface: 30 37% 92%;
+    --recetario-border: 28 35% 84%;
     --recetario-card: 0 0% 100%;
-    --recetario-healthy: 113 24% 41%;   /* #558250 */
-    --recetario-healthy-bg: 120 38% 93%; /* #E8F5E8 */
+    --recetario-healthy: 113 24% 41%;
+    --recetario-healthy-bg: 120 38% 93%;
   }
 
   .dark {
-    --background: 20 10% 5%;
-    --foreground: 30 5% 96%;
-    --card: 20 8% 10%;
-    --card-foreground: 30 5% 96%;
-    --popover: 20 8% 10%;
-    --popover-foreground: 30 5% 96%;
-    --primary: 21 100% 50%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 15 97% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 20 8% 15%;
-    --secondary-foreground: 30 5% 90%;
-    --muted: 20 8% 18%;
-    --muted-foreground: 20 5% 55%;
-    --accent: 21 100% 50%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 15 97% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 20 8% 16%;
-    --input: 20 8% 14%;
-    --ring: 21 100% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 12%;
+    --ring: 15 97% 60%;
 
-    --glow-soft: 0 0 30px hsl(21 100% 50% / 0.15), 0 0 60px hsl(21 100% 50% / 0.08);
-    --glow-medium: 0 0 40px hsl(21 100% 50% / 0.25), 0 0 80px hsl(21 100% 50% / 0.12);
-    --glow-intense: 0 0 50px hsl(21 100% 50% / 0.35), 0 0 100px hsl(21 100% 50% / 0.18);
+    --glow-soft: 0 0 30px hsl(15 97% 60% / 0.15), 0 0 60px hsl(15 97% 60% / 0.08);
+    --glow-medium: 0 0 40px hsl(15 97% 60% / 0.25), 0 0 80px hsl(15 97% 60% / 0.12);
+    --glow-intense: 0 0 50px hsl(15 97% 60% / 0.35), 0 0 100px hsl(15 97% 60% / 0.18);
 
-    --gradient-primary: linear-gradient(135deg, hsl(21 100% 45%) 0%, hsl(30 100% 55%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(21 100% 45%) 0%, hsl(25 100% 40%) 100%);
-    --gradient-soft: linear-gradient(180deg, hsl(20 10% 5%) 0%, hsl(20 8% 8%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(20 8% 10%) 0%, hsl(20 8% 12%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(15 97% 55%) 0%, hsl(25 100% 65%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(15 97% 55%) 0%, hsl(20 100% 50%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(0 0% 0%) 0%, hsl(0 0% 5%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 7%) 0%, hsl(0 0% 10%) 100%);
   }
 }
 
@@ -126,6 +126,16 @@
   }
 }
 
+/* ===== /app pages: all Onest typography ===== */
+.app-typography h1,
+.app-typography h2,
+.app-typography h3,
+.app-typography h4,
+.app-typography h5,
+.app-typography h6 {
+  font-family: 'Onest', sans-serif;
+}
+
 @layer components {
   /* Recetario Eterno — vichy pattern background */
   .recetario-vichy-bg {
@@ -133,39 +143,40 @@
     background-image:
       linear-gradient(
         0deg,
-        hsl(21 100% 50% / 0.06) 50%,
+        hsl(15 97% 60% / 0.06) 50%,
         transparent 50%
       ),
       linear-gradient(
         90deg,
-        hsl(21 100% 50% / 0.06) 50%,
+        hsl(15 97% 60% / 0.06) 50%,
         transparent 50%
       );
     background-size: 24px 24px;
   }
-  /* Glass Card — 32px radius, subtle border + blur */
+
+  /* Glass Card */
   .glass-card {
     @apply relative bg-card/80 backdrop-blur-md border border-border/50;
     border-radius: 2rem;
-    box-shadow: 0 4px 24px hsl(220 10% 50% / 0.05);
+    box-shadow: 0 4px 24px hsl(0 0% 50% / 0.05);
     transition: all 0.3s ease;
   }
 
   .glass-card:hover {
-    box-shadow: 0 8px 32px hsl(220 10% 50% / 0.08);
+    box-shadow: 0 8px 32px hsl(0 0% 50% / 0.08);
     transform: translateY(-2px);
   }
 
-  /* Modern Card — solid variant */
+  /* Modern Card */
   .modern-card {
     @apply relative bg-card border border-border;
     border-radius: 2rem;
-    box-shadow: 0 4px 20px hsl(220 10% 50% / 0.06);
+    box-shadow: 0 4px 20px hsl(0 0% 50% / 0.06);
     transition: all 0.3s ease;
   }
 
   .modern-card:hover {
-    box-shadow: 0 8px 30px hsl(220 10% 50% / 0.1);
+    box-shadow: 0 8px 30px hsl(0 0% 50% / 0.1);
     transform: translateY(-2px);
   }
 
@@ -191,7 +202,7 @@
   .feature-panel {
     @apply relative bg-card border border-border p-6;
     border-radius: 2rem;
-    box-shadow: 0 4px 20px hsl(220 10% 50% / 0.06);
+    box-shadow: 0 4px 20px hsl(0 0% 50% / 0.06);
   }
 
   /* Button Variants — pill shape */
@@ -199,7 +210,7 @@
     @apply relative overflow-hidden font-bold tracking-wide transition-all duration-300;
     border-radius: 9999px;
     background: var(--gradient-primary);
-    box-shadow: 0 4px 20px hsl(21 100% 50% / 0.3);
+    box-shadow: 0 4px 20px hsl(15 97% 60% / 0.3);
   }
 
   .btn-primary:hover {
@@ -220,9 +231,9 @@
   .badge-primary {
     @apply inline-flex items-center px-4 py-1.5 text-xs font-bold uppercase tracking-wider;
     border-radius: 9999px;
-    background: hsl(21 100% 50% / 0.1);
-    border: 1px solid hsl(21 100% 50% / 0.3);
-    color: hsl(21 100% 45%);
+    background: hsl(15 97% 60% / 0.1);
+    border: 1px solid hsl(15 97% 60% / 0.3);
+    color: hsl(15 97% 55%);
   }
 
   .badge-muted {
@@ -369,7 +380,7 @@
   height: 220px;
   top: -60px;
   left: -60px;
-  background: radial-gradient(circle, hsl(21 100% 50% / 0.40) 0%, hsl(30 100% 55% / 0.12) 60%, transparent 100%);
+  background: radial-gradient(circle, hsl(15 97% 60% / 0.40) 0%, hsl(25 100% 65% / 0.12) 60%, transparent 100%);
   animation: glow-drift-1 12s ease-in-out infinite alternate;
 }
 
@@ -378,7 +389,7 @@
   height: 200px;
   top: -50px;
   right: -50px;
-  background: radial-gradient(circle, hsl(25 100% 50% / 0.38) 0%, hsl(21 100% 50% / 0.10) 60%, transparent 100%);
+  background: radial-gradient(circle, hsl(20 97% 60% / 0.38) 0%, hsl(15 97% 60% / 0.10) 60%, transparent 100%);
   animation: glow-drift-2 14s ease-in-out infinite alternate;
 }
 
@@ -387,7 +398,7 @@
   height: 160px;
   top: -20px;
   left: 30%;
-  background: radial-gradient(circle, hsl(21 100% 50% / 0.22) 0%, transparent 70%);
+  background: radial-gradient(circle, hsl(15 97% 60% / 0.22) 0%, transparent 70%);
   animation: glow-drift-3 10s ease-in-out infinite alternate;
 }
 
@@ -398,25 +409,25 @@
   left: 0;
   border-radius: 0;
   filter: blur(40px);
-  background: linear-gradient(90deg, hsl(21 100% 50% / 0.15) 0%, hsl(25 100% 50% / 0.08) 50%, hsl(21 100% 50% / 0.15) 100%);
+  background: linear-gradient(90deg, hsl(15 97% 60% / 0.15) 0%, hsl(20 97% 60% / 0.08) 50%, hsl(15 97% 60% / 0.15) 100%);
   animation: glow-drift-4 16s ease-in-out infinite alternate;
 }
 
-/* Dark mode blobs – richer, higher opacity */
+/* Dark mode blobs */
 .dark .blob-1 {
-  background: radial-gradient(circle, hsl(21 100% 48% / 0.55) 0%, hsl(30 100% 45% / 0.18) 60%, transparent 100%);
+  background: radial-gradient(circle, hsl(15 97% 55% / 0.55) 0%, hsl(25 100% 55% / 0.18) 60%, transparent 100%);
 }
 
 .dark .blob-2 {
-  background: radial-gradient(circle, hsl(25 100% 48% / 0.50) 0%, hsl(21 100% 50% / 0.15) 60%, transparent 100%);
+  background: radial-gradient(circle, hsl(20 97% 55% / 0.50) 0%, hsl(15 97% 60% / 0.15) 60%, transparent 100%);
 }
 
 .dark .blob-3 {
-  background: radial-gradient(circle, hsl(21 100% 50% / 0.35) 0%, transparent 70%);
+  background: radial-gradient(circle, hsl(15 97% 60% / 0.35) 0%, transparent 70%);
 }
 
 .dark .blob-4 {
-  background: linear-gradient(90deg, hsl(21 100% 48% / 0.22) 0%, hsl(25 100% 48% / 0.10) 50%, hsl(21 100% 50% / 0.22) 100%);
+  background: linear-gradient(90deg, hsl(15 97% 55% / 0.22) 0%, hsl(20 97% 55% / 0.10) 50%, hsl(15 97% 60% / 0.22) 100%);
 }
 
 @keyframes glow-drift-1 {
@@ -461,49 +472,16 @@
   }
 }
 
-/* ===== Concentric Circles Hero Background ===== */
-.concentric-circles-bg {
-  position: relative;
-  overflow: hidden;
-}
-
-.concentric-circles-bg::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 600px;
-  height: 600px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, transparent 58px, hsl(var(--primary) / 0.06) 58px, hsl(var(--primary) / 0.06) 60px, transparent 60px),
-    radial-gradient(circle, transparent 98px, hsl(var(--primary) / 0.05) 98px, hsl(var(--primary) / 0.05) 100px, transparent 100px),
-    radial-gradient(circle, transparent 138px, hsl(var(--primary) / 0.045) 138px, hsl(var(--primary) / 0.045) 140px, transparent 140px),
-    radial-gradient(circle, transparent 178px, hsl(var(--primary) / 0.04) 178px, hsl(var(--primary) / 0.04) 180px, transparent 180px),
-    radial-gradient(circle, transparent 218px, hsl(var(--primary) / 0.035) 218px, hsl(var(--primary) / 0.035) 220px, transparent 220px),
-    radial-gradient(circle, transparent 258px, hsl(var(--primary) / 0.03) 258px, hsl(var(--primary) / 0.03) 260px, transparent 260px),
-    radial-gradient(circle, transparent 298px, hsl(var(--primary) / 0.025) 298px, hsl(var(--primary) / 0.025) 300px, transparent 300px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.dark .concentric-circles-bg::before {
-  background:
-    radial-gradient(circle, transparent 58px, hsl(var(--primary) / 0.10) 58px, hsl(var(--primary) / 0.10) 60px, transparent 60px),
-    radial-gradient(circle, transparent 98px, hsl(var(--primary) / 0.08) 98px, hsl(var(--primary) / 0.08) 100px, transparent 100px),
-    radial-gradient(circle, transparent 138px, hsl(var(--primary) / 0.07) 138px, hsl(var(--primary) / 0.07) 140px, transparent 140px),
-    radial-gradient(circle, transparent 178px, hsl(var(--primary) / 0.06) 178px, hsl(var(--primary) / 0.06) 180px, transparent 180px),
-    radial-gradient(circle, transparent 218px, hsl(var(--primary) / 0.05) 218px, hsl(var(--primary) / 0.05) 220px, transparent 220px),
-    radial-gradient(circle, transparent 258px, hsl(var(--primary) / 0.04) 258px, hsl(var(--primary) / 0.04) 260px, transparent 260px),
-    radial-gradient(circle, transparent 298px, hsl(var(--primary) / 0.03) 298px, hsl(var(--primary) / 0.03) 300px, transparent 300px);
-}
-
 /* ===== App Minimal Input — bottom border only ===== */
 .app-input {
-  @apply w-full bg-transparent border-0 border-b border-border rounded-none px-0 py-3 text-lg font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0;
-  border-bottom: 1px solid hsl(var(--border));
+  @apply w-full bg-transparent border-0 border-b rounded-none px-0 py-3 text-lg font-medium focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0;
+  border-bottom: 1px solid hsl(0 0% 25%);
+  color: hsl(0 0% 100%);
   transition: border-color 0.2s ease;
+}
+
+.app-input::placeholder {
+  color: hsl(0 0% 40%);
 }
 
 .app-input:focus {
@@ -511,11 +489,13 @@
 }
 
 .app-input-label {
-  @apply block text-xs text-muted-foreground font-medium mb-0.5;
+  @apply block text-xs font-medium mb-0.5;
+  color: hsl(0 0% 55%);
 }
 
 .app-input-helper {
-  @apply text-xs text-muted-foreground/60 mt-1;
+  @apply text-xs mt-1;
+  color: hsl(0 0% 40%);
 }
 
 .app-input-error {

@@ -60,14 +60,14 @@ const AppRanking = () => {
       />
 
       {/* Hero */}
-      <div className="concentric-circles-bg px-4 pt-4 pb-6">
-        <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="px-4 pt-4 pb-6">
+        <div className="flex flex-col items-center text-center">
           <img
             src={logoVerticalLight}
             alt="El Reto"
             className="h-20 w-auto object-contain mb-3"
           />
-          <h1 className="font-display text-2xl font-black text-gradient-primary leading-tight">
+          <h1 className="text-2xl font-bold text-gradient-primary leading-tight">
             Ranking
           </h1>
           <p className="text-sm text-muted-foreground mt-1.5">
@@ -82,7 +82,7 @@ const AppRanking = () => {
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between gap-3">
             <div>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Tu posición</p>
-              <p className="font-display text-xl font-black text-primary">
+              <p className="text-xl font-black text-primary">
                 #{myPosition.rank}
                 <span className="text-xs font-normal text-muted-foreground ml-2">{formatEnergy(myPosition.energy)} ⚡</span>
               </p>
@@ -97,17 +97,17 @@ const AppRanking = () => {
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <Trophy className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-lg font-display font-black">{formatTotalEnergy(stats.topEnergy)}</p>
+            <p className="text-lg font-black">{formatTotalEnergy(stats.topEnergy)}</p>
             <p className="text-[10px] text-muted-foreground">Top</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-lg font-display font-black">{formatTotalEnergy(stats.totalEnergy)}</p>
+            <p className="text-lg font-black">{formatTotalEnergy(stats.totalEnergy)}</p>
             <p className="text-[10px] text-muted-foreground">Total</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <TrendingUp className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-lg font-display font-black">{stats.totalParticipants}</p>
+            <p className="text-lg font-black">{stats.totalParticipants}</p>
             <p className="text-[10px] text-muted-foreground">Usuarios</p>
           </div>
         </div>
@@ -170,7 +170,7 @@ const AppRanking = () => {
                       {pos <= 3 && (
                         <FireCircle size="sm" intensity={pos === 1 ? "high" : "medium"} className="absolute -inset-1" />
                       )}
-                      <span className={`relative z-10 font-display text-lg font-black block text-center ${
+                      <span className={`relative z-10 text-lg font-black block text-center ${
                         pos <= 3 ? "text-primary" : "text-muted-foreground"
                       }`}>
                         {pos}
@@ -192,7 +192,7 @@ const AppRanking = () => {
                     </div>
                     
                     <div className="text-right flex-shrink-0">
-                      <p className="font-display text-sm font-bold text-primary">{formatEnergy(profile.energy)}</p>
+                      <p className="text-sm font-bold text-primary">{formatEnergy(profile.energy)}</p>
                     </div>
                   </div>
                 );
@@ -227,14 +227,14 @@ const AppRanking = () => {
               <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-3xl mx-auto mb-3">
                 {selectedProfile.avatarUrl || '👨‍🍳'}
               </div>
-              <h3 className="font-display text-lg font-bold mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
+              <h3 className="text-lg font-bold mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
               <p className="text-primary text-sm font-bold mb-1">Nivel {selectedProfile.level}</p>
               {selectedProfile.country && (
                 <p className="text-xs text-muted-foreground mb-2">{countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}</p>
               )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="font-display text-sm font-bold text-primary">{formatEnergy(selectedProfile.energy)} puntos</span>
+                <span className="text-sm font-bold text-primary">{formatEnergy(selectedProfile.energy)} puntos</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-4">
@@ -242,7 +242,7 @@ const AppRanking = () => {
                   <Target className="w-4 h-4 text-primary mx-auto mb-1" />
                   {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
-                      <p className="font-display font-bold">{profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%</p>
+                      <p className="font-bold">{profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%</p>
                       <p className="text-[10px] text-muted-foreground">Mini Retos</p>
                     </>
                   ) : null}
@@ -251,7 +251,7 @@ const AppRanking = () => {
                   <Video className="w-4 h-4 text-primary mx-auto mb-1" />
                   {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
-                      <p className="font-display font-bold">{profileStats.challengesCompleted}</p>
+                      <p className="font-bold">{profileStats.challengesCompleted}</p>
                       <p className="text-[10px] text-muted-foreground">Desafíos</p>
                     </>
                   ) : null}

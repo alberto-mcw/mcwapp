@@ -117,8 +117,8 @@ const AppProfile = () => {
       />
 
       {/* Profile Hero */}
-      <div className="concentric-circles-bg px-4 pt-4 pb-6">
-        <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="px-4 pt-4 pb-6">
+        <div className="flex flex-col items-center text-center">
           <div className="w-20 h-20 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center mb-3 glow-soft">
             {isEmojiAvatar ? (
               <span className="text-4xl">{profile?.avatar_url}</span>
@@ -128,7 +128,7 @@ const AppProfile = () => {
               <ChefHat className="w-10 h-10 text-primary" />
             )}
           </div>
-          <h1 className="font-display text-2xl font-black text-gradient-primary">
+          <h1 className="text-2xl font-bold text-gradient-primary">
             {profile?.display_name || 'Chef'}
           </h1>
           {profile?.city && (
@@ -139,7 +139,7 @@ const AppProfile = () => {
           {/* Energy pill */}
           <div className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1.5 mt-3">
             <Zap className="w-4 h-4 text-primary fill-primary" />
-            <span className="font-display text-sm font-bold text-primary tabular-nums">
+            <span className="text-sm font-bold text-primary tabular-nums">
               {profile?.total_energy?.toLocaleString() || 0} puntos
             </span>
           </div>
@@ -171,7 +171,7 @@ const AppProfile = () => {
         {/* Enrollment Form */}
         {showEnrollForm && !isEnrolled && (
           <div className="bg-card border border-border rounded-2xl p-4">
-            <h3 className="font-display text-sm font-bold mb-3">Inscripción a El Reto 2026</h3>
+            <h3 className="text-sm font-bold mb-3">Inscripción a El Reto 2026</h3>
             <EnrollmentForm
               userCountry={profile?.country}
               onSubmit={handleEnroll}

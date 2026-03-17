@@ -34,11 +34,11 @@ export const MobileAppLayout = ({ children, showNav = true }: MobileAppLayoutPro
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col app-typography">
       <main 
-        className={showNav ? "flex-1" : "flex-1"}
+        className="flex-1"
         style={{
-          paddingBottom: showNav ? 'calc(80px + env(safe-area-inset-bottom, 0px))' : undefined
+          paddingBottom: showNav ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : undefined
         }}
       >
         {children}
