@@ -97,7 +97,7 @@ const AppRanking = () => {
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <Trophy className="w-5 h-5 text-primary mx-auto mb-1" />
-            <p className="text-lg font-black">{formatTotalEnergy(stats.topEnergy)}</p>
+            <p className="text-lg font-bold text-foreground">{formatTotalEnergy(stats.topEnergy)}</p>
             <p className="text-[10px] text-muted-foreground">Top</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
