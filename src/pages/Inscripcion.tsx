@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MasterChefLogo } from '@/components/MasterChefLogo';
 import { LegalCheckboxes } from '@/components/LegalCheckboxes';
+import { SocialAuthButtons } from '@/components/SocialAuthButtons';
 import { EnrollmentForm } from '@/components/enrollment/EnrollmentForm';
 import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
