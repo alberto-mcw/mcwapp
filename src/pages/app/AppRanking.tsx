@@ -51,6 +51,7 @@ const AppRanking = () => {
 
       <div className="px-4 py-4 space-y-4">
         {/* My Rank Card */}
+        {user && myPosition && (
           <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between gap-3">
             <div>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Tu posición</p>
