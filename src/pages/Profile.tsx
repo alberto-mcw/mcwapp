@@ -51,6 +51,7 @@ import {
 const ProfilePage = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, updateProfile } = useProfile();
+  const { isEnrolled, loading: enrollLoading } = useEnrollment();
   const { video: presentationVideo, loading: videoLoading, uploadVideo } = usePresentationVideo();
   const navigate = useNavigate();
   const { toast } = useToast();
