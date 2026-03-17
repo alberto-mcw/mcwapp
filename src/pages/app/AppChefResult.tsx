@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, Trophy, Clock, Eye, Star, CheckCircle2, Share2, ArrowLeft } from 'lucide-react';
+import { Loader2, Trophy, Clock, Eye, Star, CheckCircle2, Share2 } from 'lucide-react';
 
 const AppChefResult = () => {
   const { id } = useParams<{ id: string }>();
