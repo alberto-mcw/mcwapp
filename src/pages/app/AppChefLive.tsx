@@ -31,8 +31,8 @@ const AppChefLive = () => {
   const [tipsDialogOpen, setTipsDialogOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const globalTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const stepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const globalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (id && user) loadData();

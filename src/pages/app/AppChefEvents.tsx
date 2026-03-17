@@ -15,7 +15,7 @@ const AppChefEvents = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchEvents = async () => {
       const { data } = await supabase
         .from('chef_events')
         .select('*')
@@ -24,7 +24,7 @@ const AppChefEvents = () => {
       setEvents(data || []);
       setLoading(false);
     };
-    fetch();
+    fetchEvents();
   }, []);
 
   const liveEvents = events.filter(e => e.status === 'live');
@@ -34,9 +34,10 @@ const AppChefEvents = () => {
   return (
     <MobileAppLayout>
       <AppHeader />
-      <div className="px-4 pt-2 pb-6 space-y-6">
-        <SectionTitle title="Sigue al Chef" subtitle="Cocina en directo con chefs profesionales" />
-          {loading ? (
+      <SectionTitle title="Sigue al Chef" subtitle="Cocina en directo con chefs profesionales" />
+      <div className="px-4 pb-6 space-y-6">
+        {loading ? (
+          <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : events.length === 0 ? (
@@ -51,12 +52,10 @@ const AppChefEvents = () => {
           <>
             {liveEvents.length > 0 && (
               <section>
-                <SectionTitle>
-                  <span className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-                    En directo
-                  </span>
-                </SectionTitle>
+                <h2 className="font-unbounded text-base font-bold mb-3 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-destructive" />
+                  En directo
+                </h2>
                 <div className="space-y-3">
                   {liveEvents.map(event => (
                     <MobileEventCard key={event.id} event={event} />
@@ -67,12 +66,10 @@ const AppChefEvents = () => {
 
             {upcomingEvents.length > 0 && (
               <section>
-                <SectionTitle>
-                  <span className="flex items-center gap-2">
-                    <CalendarDays className="w-4 h-4 text-primary" />
-                    Próximos
-                  </span>
-                </SectionTitle>
+                <h2 className="font-unbounded text-base font-bold mb-3 flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-primary" />
+                  Próximos
+                </h2>
                 <div className="space-y-3">
                   {upcomingEvents.map(event => (
                     <MobileEventCard key={event.id} event={event} />
@@ -83,7 +80,7 @@ const AppChefEvents = () => {
 
             {pastEvents.length > 0 && (
               <section>
-                <SectionTitle>Anteriores</SectionTitle>
+                <h2 className="font-unbounded text-base font-bold mb-3">Anteriores</h2>
                 <div className="space-y-3">
                   {pastEvents.map(event => (
                     <MobileEventCard key={event.id} event={event} />
@@ -104,7 +101,7 @@ const MobileEventCard = ({ event }: { event: any }) => {
 
   return (
     <Link to={`/app/sigue-al-chef/${event.id}`}>
-      <Card className={`overflow-hidden active:scale-[0.98] transition-transform ${isLive ? 'border-red-500/30 ring-1 ring-red-500/20' : ''}`}>
+      <Card className={`overflow-hidden active:scale-[0.98] transition-transform ${isLive ? 'border-destructive/30 ring-1 ring-destructive/20' : ''}`}>
         {event.cover_image_url && (
           <div className="h-32 overflow-hidden">
             <img src={event.cover_image_url} alt="" className="w-full h-full object-cover" />
@@ -112,7 +109,7 @@ const MobileEventCard = ({ event }: { event: any }) => {
         )}
         <CardContent className="p-3 space-y-1.5">
           <div className="flex items-center gap-2">
-            {isLive && <Badge className="bg-red-500 text-white border-0 text-[10px]">🔴 LIVE</Badge>}
+            {isLive && <Badge className="bg-destructive text-destructive-foreground border-0 text-[10px]">🔴 LIVE</Badge>}
             {isFinished && <Badge variant="outline" className="text-[10px]">Finalizado</Badge>}
           </div>
           <h3 className="font-unbounded font-bold text-sm">{event.title}</h3>
