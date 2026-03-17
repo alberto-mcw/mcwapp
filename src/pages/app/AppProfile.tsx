@@ -137,22 +137,13 @@ const AppProfile = () => {
             </p>
           )}
 
-          {/* User state badge */}
-          <div className="flex items-center gap-2 mt-3">
-            <span className={cn(
-              "text-xs font-bold px-3 py-1 rounded-full",
-              isEnrolled 
-                ? "bg-primary/15 text-primary" 
-                : "bg-muted text-muted-foreground"
-            )}>
-              {isEnrolled ? '🔥 Concursante' : '👤 Supporter'}
-            </span>
-            {profile?.auth_provider && profile.auth_provider !== 'email' && (
+          {profile?.auth_provider && profile.auth_provider !== 'email' && (
+            <div className="mt-3">
               <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground capitalize">
                 {profile.auth_provider === 'google' ? '🔵 Google' : '🍎 Apple'}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Energy pill */}
           <div className="flex items-center gap-1.5 bg-card border border-border rounded-full px-3 py-1.5 mt-3">
