@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MasterChefLogo } from "./MasterChefLogo";
-import { Menu, X, Download, User, LogIn, Shield, ChefHat, BookOpen, Flame, Settings, KeyRound, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, Download, User, LogIn, Shield, ChefHat, BookOpen, Flame, Settings, KeyRound, LogOut, ChevronDown, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
