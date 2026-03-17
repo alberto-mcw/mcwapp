@@ -89,7 +89,7 @@ const Inscripcion = () => {
 
     try {
       if (authMode === 'signup') {
-        signupSchema.parse({ displayName, email, password, avatar: selectedAvatar, acceptTerms, acceptPrivacy });
+        signupSchema.parse({ displayName, email, password, confirmPassword, avatar: selectedAvatar, acceptTerms, acceptPrivacy });
       } else {
         loginSchema.parse({ email, password });
       }
