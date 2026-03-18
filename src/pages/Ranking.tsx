@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useRanking, formatEnergy, formatTotalEnergy, getLevel, countryFlag, countryName, type ProfileStats, type RankedItem } from "@/hooks/useRanking";
+import { useTranslation } from "react-i18next";
+import { useRanking, formatEnergy, formatTotalEnergy, countryFlag, countryName, type ProfileStats, type RankedItem } from "@/hooks/useRanking";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -23,6 +24,9 @@ import {
 } from "@/components/ui/select";
 
 const Ranking = () => {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language?.startsWith("en") ? "en-US" : "es-ES";
+
   const {
     profiles, loading, stats, currentPage, totalPages, totalCount,
     searchQuery, countryFilter, countries, myPosition, jumpingToMe, highlightUserId, user,
@@ -54,21 +58,19 @@ const Ranking = () => {
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Hero */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-6">
               <Trophy className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold uppercase tracking-wider text-primary">Ranking</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">{t('rankingSection.title')}</span>
             </div>
             
-            <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">El Ranking</h1>
+            <h1 className="font-unbounded text-4xl md:text-6xl font-black uppercase mb-4">{t('rankingSection.heroTitle')}</h1>
             
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Clasificación de los participantes por país. Los puntos acumulados determinan tu posición. Se actualiza diariamente.
+              {t('rankingSection.heroDesc')}
             </p>
           </div>
 
-          {/* My Rank Card (logged in only) */}
           {user && myPosition && (
             <div className="max-w-2xl mx-auto mb-6">
               <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex items-center justify-between gap-4">
@@ -77,48 +79,46 @@ const Ranking = () => {
                     <Trophy className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Tu posición</p>
+                    <p className="text-sm text-muted-foreground">{t('rankingSection.yourPosition')}</p>
                     <p className="font-unbounded text-2xl font-black text-primary">
                       #{myPosition.rank}
                       <span className="text-sm font-normal text-muted-foreground ml-2">
-                        · {formatEnergy(myPosition.energy)} puntos
+                        · {formatEnergy(myPosition.energy)} {t('rankingSection.points')}
                       </span>
                     </p>
                   </div>
                 </div>
                 <Button variant="outline" className="gap-2 shrink-0" onClick={jumpToMyPosition} disabled={jumpingToMe}>
                   <Zap className="w-4 h-4" />
-                  {jumpingToMe ? 'Buscando...' : 'Ver en la lista'}
+                  {jumpingToMe ? t('rankingSection.searching') : t('rankingSection.viewInList')}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{formatTotalEnergy(stats.topEnergy)}</p>
-              <p className="text-xs text-muted-foreground">Top Puntos</p>
+              <p className="text-xs text-muted-foreground">{t('rankingSection.topPoints')}</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <Zap className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{formatTotalEnergy(stats.totalEnergy)}</p>
-              <p className="text-xs text-muted-foreground">Puntos Totales</p>
+              <p className="text-xs text-muted-foreground">{t('rankingSection.totalPoints')}</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
               <p className="text-2xl font-unbounded font-black">{stats.totalParticipants}</p>
-              <p className="text-xs text-muted-foreground">Participantes</p>
+              <p className="text-xs text-muted-foreground">{t('rankingSection.participantsLabel')}</p>
             </div>
           </div>
 
-          {/* Search + Country Filter */}
           <div className="max-w-2xl mx-auto mb-6 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar participante..."
+                placeholder={t('rankingSection.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-9"
@@ -130,10 +130,10 @@ const Ranking = () => {
             >
               <SelectTrigger className="w-full sm:w-48 shrink-0">
                 <Globe className="w-4 h-4 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Todos los países" />
+                <SelectValue placeholder={t('rankingSection.allCountries')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">🌍 Todos los países</SelectItem>
+                <SelectItem value="all">{t('rankingSection.allCountries')}</SelectItem>
                 {countries.map(c => (
                   <SelectItem key={c.country} value={c.country}>
                     {countryFlag(c.country)} {countryName(c.country)} ({c.userCount})
@@ -143,24 +143,23 @@ const Ranking = () => {
             </Select>
           </div>
 
-          {/* Ranking List */}
           <div className="max-w-2xl mx-auto">
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
               <div className="bg-secondary/50 px-6 py-4 border-b border-border">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold uppercase tracking-wider">
-                    {totalCount} participantes
+                    {totalCount} {t('rankingSection.participants')}
                     {countryFilter && <span className="ml-1">{countryFlag(countryFilter)}</span>}
                   </span>
-                  <span className="text-xs text-muted-foreground">Actualizado diariamente</span>
+                  <span className="text-xs text-muted-foreground">{t('rankingSection.updatedDaily')}</span>
                 </div>
               </div>
               
               {loading ? (
-                <div className="py-12 text-center text-muted-foreground">Cargando ranking...</div>
+                <div className="py-12 text-center text-muted-foreground">{t('rankingSection.loading')}</div>
               ) : profiles.length === 0 ? (
                 <div className="py-12 text-center text-muted-foreground">
-                  {searchQuery ? 'Sin resultados para esa búsqueda' : 'No hay participantes aún'}
+                  {searchQuery ? t('rankingSection.noResults') : t('rankingSection.noParticipants')}
                 </div>
               ) : (
                 <div className="divide-y divide-border">
@@ -196,17 +195,17 @@ const Ranking = () => {
                         
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">
-                            {profile.alias || 'Chef Anónimo'}
-                            {isMe && <span className="ml-2 text-xs text-primary font-bold">(Tú)</span>}
+                            {profile.alias || t('rankingSection.anonymousChef')}
+                            {isMe && <span className="ml-2 text-xs text-primary font-bold">{t('rankingSection.you')}</span>}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {countryFlag(profile.country)} Nivel {profile.level}
+                            {countryFlag(profile.country)} {t('rankingSection.level')} {profile.level}
                           </p>
                         </div>
                         
                         <div className="text-right">
                           <p className="font-unbounded font-bold text-primary">{formatEnergy(profile.energy)}</p>
-                          <p className="text-xs text-muted-foreground">puntos</p>
+                          <p className="text-xs text-muted-foreground">{t('rankingSection.points')}</p>
                         </div>
                       </div>
                     );
@@ -215,14 +214,13 @@ const Ranking = () => {
               )}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-6">
                 <Button variant="outline" size="icon" disabled={currentPage <= 1} onClick={() => goToPage(currentPage - 1)}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <span className="text-sm text-muted-foreground px-4">
-                  Página {currentPage} de {totalPages}
+                  {t('rankingSection.page')} {currentPage} {t('rankingSection.of')} {totalPages}
                 </span>
                 <Button variant="outline" size="icon" disabled={currentPage >= totalPages} onClick={() => goToPage(currentPage + 1)}>
                   <ChevronRight className="w-4 h-4" />
@@ -230,17 +228,14 @@ const Ranking = () => {
               </div>
             )}
 
-            {/* Bottom CTA */}
             <div className="text-center mt-8">
               {!user && (
                 <>
-                  <p className="text-muted-foreground mb-4">
-                    Inicia sesión para ver tu posición destacada
-                  </p>
+                  <p className="text-muted-foreground mb-4">{t('rankingSection.signInToSee')}</p>
                   <Button asChild size="lg" className="gap-2">
                     <Link to="/auth">
                       <LogIn className="w-5 h-5" />
-                      Iniciar sesión
+                      {t('nav.signIn')}
                     </Link>
                   </Button>
                 </>
@@ -250,11 +245,10 @@ const Ranking = () => {
         </div>
       </main>
 
-      {/* Profile Dialog */}
       <Dialog open={!!selectedProfile} onOpenChange={() => setSelectedProfile(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="sr-only">Perfil del usuario</DialogTitle>
+            <DialogTitle className="sr-only">{t('rankingSection.profileTitle')}</DialogTitle>
           </DialogHeader>
           
           {selectedProfile && (
@@ -263,9 +257,9 @@ const Ranking = () => {
                 {selectedProfile.avatarUrl || '👨‍🍳'}
               </div>
               <h3 className="font-unbounded text-xl font-bold mb-1">
-                {selectedProfile.alias || 'Chef Anónimo'}
+                {selectedProfile.alias || t('rankingSection.anonymousChef')}
               </h3>
-              <p className="text-primary font-bold mb-1">Nivel {selectedProfile.level}</p>
+              <p className="text-primary font-bold mb-1">{t('rankingSection.level')} {selectedProfile.level}</p>
               {selectedProfile.country && (
                 <p className="text-sm text-muted-foreground mb-2">
                   {countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}
@@ -273,7 +267,7 @@ const Ranking = () => {
               )}
               <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-4">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="font-unbounded font-bold text-primary">{formatEnergy(selectedProfile.energy)} puntos</span>
+                <span className="font-unbounded font-bold text-primary">{formatEnergy(selectedProfile.energy)} {t('rankingSection.points')}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
@@ -286,7 +280,7 @@ const Ranking = () => {
                       <p className="font-unbounded font-bold text-lg">
                         {profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%
                       </p>
-                      <p className="text-xs text-muted-foreground">Mini Retos acertados</p>
+                      <p className="text-xs text-muted-foreground">{t('rankingSection.miniRetosAccuracy')}</p>
                       <p className="text-[10px] text-muted-foreground/70">({profileStats.triviaCorrect}/{profileStats.triviaTotal})</p>
                     </>
                   ) : null}
@@ -298,7 +292,7 @@ const Ranking = () => {
                   ) : profileStats ? (
                     <>
                       <p className="font-unbounded font-bold text-lg">{profileStats.challengesCompleted}</p>
-                      <p className="text-xs text-muted-foreground">Desafíos completados</p>
+                      <p className="text-xs text-muted-foreground">{t('rankingSection.challengesCompleted')}</p>
                     </>
                   ) : null}
                 </div>

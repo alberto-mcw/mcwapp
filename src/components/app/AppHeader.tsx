@@ -5,6 +5,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Zap, ChefHat, Shield } from 'lucide-react';
 import logoCompact from '@/assets/logo-m-masterchef.svg';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 interface AppHeaderProps {
   rightAction?: ReactNode;
@@ -58,6 +59,7 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
           className="h-7 w-auto object-contain"
         />
         <div className="flex items-center gap-2">
+          <LanguageSelector variant="minimal" />
           {isAdmin && (
             <Link
               to="/admin/usuarios"
