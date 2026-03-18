@@ -995,7 +995,7 @@ const VideosGallery = () => {
                     <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
                       <span className="text-xs">🥬</span>
                     </div>
-                    Ingredientes
+                    {t('videosPage.ingredients')}
                   </h3>
                   <ul className="space-y-2">
                     {getRecipeData(recipeModal.recipe_data)!.ingredients!.map((ingredient, idx) => (
