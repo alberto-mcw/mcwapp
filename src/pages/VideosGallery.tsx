@@ -249,7 +249,7 @@ const VideoGrid = ({
                   className={`flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 transition-colors ${
                     isOwnVideo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-black/80'
                   }`}
-                  title={isOwnVideo ? 'No puedes darte like a ti mismo' : ''}
+                  title={isOwnVideo ? t('videosPage.cantLikeSelf') : ''}
                 >
                   <Heart 
                     className={`w-4 h-4 transition-colors ${
