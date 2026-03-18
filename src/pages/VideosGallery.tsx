@@ -891,7 +891,7 @@ const VideosGallery = () => {
                 {renderAvatar(selectedVideo.profile?.avatar_url, 'md')}
                 <div>
                   <p className="font-medium">
-                    {selectedVideo.profile?.display_name || 'Chef Anónimo'}
+                    {selectedVideo.profile?.display_name || t('videosPage.anonymousChef')}
                   </p>
                   <p className="text-xs text-white/50">
                     {new Date(selectedVideo.created_at).toLocaleDateString('es-ES', {
