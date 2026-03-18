@@ -233,7 +233,7 @@ export default function RecetarioLanding() {
                   <span className="text-2xl sm:text-3xl">{step.emoji}</span>
                 </div>
               </div>
-              <div className="text-[10px] sm:text-xs font-bold text-recetario-primary mb-1.5 font-display uppercase tracking-wider">Paso {i + 1}</div>
+              <div className="text-[10px] sm:text-xs font-bold text-recetario-primary mb-1.5 font-display uppercase tracking-wider">{t('recetarioLanding.step')} {i + 1}</div>
               <h3 className="font-display text-base sm:text-lg font-bold mb-1.5 text-recetario-fg">{step.title}</h3>
               <p className="text-xs sm:text-sm text-recetario-muted leading-relaxed font-body max-w-[240px] mx-auto">{step.desc}</p>
             </motion.div>
