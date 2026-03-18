@@ -754,31 +754,31 @@ const VideosGallery = () => {
                   <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
                   <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Ordenar por..." />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="likes">
                         <div className="flex items-center gap-2">
                           <Heart className="w-4 h-4" />
-                           Más likes
+                          {t('videosPage.sortByLikes')}
                         </div>
                       </SelectItem>
                       <SelectItem value="superlikes">
                         <div className="flex items-center gap-2">
                           <Star className="w-4 h-4" />
-                          SuperLikes
+                          {t('videosPage.sortBySuperLikes')}
                         </div>
                       </SelectItem>
                       <SelectItem value="date-desc">
                         <div className="flex items-center gap-2">
                           <CalendarDays className="w-4 h-4" />
-                          Más recientes
+                          {t('videosPage.sortByNewest')}
                         </div>
                       </SelectItem>
                       <SelectItem value="date-asc">
                         <div className="flex items-center gap-2">
                           <CalendarDays className="w-4 h-4" />
-                          Más antiguos
+                          {t('videosPage.sortByOldest')}
                         </div>
                       </SelectItem>
                     </SelectContent>
