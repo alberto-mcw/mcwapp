@@ -716,14 +716,14 @@ const VideosGallery = () => {
                 <Trophy className="w-10 h-10 text-muted-foreground" />
               </div>
               <h2 className="font-unbounded text-xl font-bold mb-2">
-                Aún no hay vídeos
+                {t('videosPage.noVideosYet')}
               </h2>
               <p className="text-muted-foreground mb-6">
-                Sé el primero en participar en el desafío semanal
+                {t('videosPage.beFirst')}
               </p>
               <Button asChild className="gap-2">
                 <Link to="/dashboard">
-                  Ir al Dashboard
+                  {t('videosPage.goToDashboard')}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
