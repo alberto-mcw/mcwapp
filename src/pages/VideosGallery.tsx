@@ -642,8 +642,8 @@ const VideosGallery = () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast({
-        title: '✅ ¡Enlace copiado!',
-        description: 'Compártelo con tus amigos'
+        title: '✅ ' + t('videosPage.linkCopied'),
+        description: t('videosPage.shareWithFriends')
       });
       setShowShareModal(null);
     } catch (err) {
