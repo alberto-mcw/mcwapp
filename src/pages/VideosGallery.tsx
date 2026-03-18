@@ -1016,7 +1016,7 @@ const VideosGallery = () => {
                     <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
                       <ListOrdered className="w-3 h-3 text-blue-500" />
                     </div>
-                    Preparación
+                    {t('videosPage.preparation')}
                   </h3>
                   <ol className="space-y-3">
                     {getRecipeData(recipeModal.recipe_data)!.steps!.map((step, idx) => (
