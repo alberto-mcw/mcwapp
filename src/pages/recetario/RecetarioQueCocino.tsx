@@ -218,7 +218,7 @@ export default function RecetarioQueCocino() {
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center cursor-pointer" onClick={() => navigate("/recetario")}>
-          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-12" />
+          <img src="/images/recetario-logo.png" alt="Mi Recetario Eterno" className="h-44 sm:h-40 w-auto object-contain -my-12" />
         </div>
         <div className="flex items-center gap-2">
           <Button
