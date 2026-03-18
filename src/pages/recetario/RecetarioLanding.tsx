@@ -310,11 +310,11 @@ export default function RecetarioLanding() {
       <section className="px-4 sm:px-6 pb-16 sm:pb-20 text-center">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
           <p className="font-display text-lg sm:text-xl md:text-2xl text-recetario-muted mb-5 sm:mb-6 max-w-lg mx-auto leading-snug">
-            Cada receta manuscrita es un tesoro.<br />No dejes que se pierda.
+            {t('recetarioLanding.finalCta1')}<br />{t('recetarioLanding.finalCta2')}
           </p>
           <Button onClick={handleCTA}
             className="bg-recetario-primary hover:bg-recetario-primary-hover text-white text-base sm:text-lg px-8 py-6 rounded-full shadow-lg shadow-recetario-primary/25 hover:scale-[1.02] transition-all">
-            Digitalizar mi receta
+            {t('recetarioLanding.ctaDigitize')}
             <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
         </motion.div>
