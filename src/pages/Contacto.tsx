@@ -76,8 +76,8 @@ const Contacto = () => {
                   <div>
                     <h3 className="font-bold mb-1">{t('contacto.supportEmail')}</h3>
                     <p className="text-muted-foreground text-sm mb-2">{t('contacto.supportEmailDesc')}</p>
-                    <a href="mailto:elreto@masterchefworld.com" className="text-primary hover:underline">
-                      elreto@masterchefworld.com
+                    <a href="mailto:hello@masterchefworld.app" className="text-primary hover:underline">
+                      hello@masterchefworld.app
                     </a>
                   </div>
                 </div>
