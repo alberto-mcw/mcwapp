@@ -122,10 +122,10 @@ export default function RecetarioLanding() {
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <Button onClick={handleCTA}
             className="bg-recetario-primary hover:bg-recetario-primary-hover text-white text-base sm:text-lg px-8 py-6 rounded-full shadow-lg shadow-recetario-primary/25 transition-all hover:shadow-xl hover:shadow-recetario-primary/30 hover:scale-[1.02] w-full sm:w-auto">
-            Digitalizar mi primera receta
+            {t('recetarioLanding.ctaMain')}
             <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
-          <span className="text-xs text-recetario-muted-light font-body">Sin registro · 100% gratis</span>
+          <span className="text-xs text-recetario-muted-light font-body">{t('recetarioLanding.ctaNote')}</span>
         </motion.div>
       </section>
 
