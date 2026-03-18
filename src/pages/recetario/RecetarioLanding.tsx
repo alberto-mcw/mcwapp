@@ -135,10 +135,10 @@ export default function RecetarioLanding() {
           className="relative grid md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {/* Before */}
           <div className="relative bg-recetario-surface/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-recetario-border text-center group hover:border-recetario-primary/30 transition-colors">
-            <div className="absolute top-4 left-4 bg-recetario-muted-light/20 text-recetario-muted text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full font-display">Antes</div>
+            <div className="absolute top-4 left-4 bg-recetario-muted-light/20 text-recetario-muted text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full font-display">{t('recetarioLanding.before')}</div>
             <div className="mt-6 mb-3">
-              <p className="font-display text-base sm:text-lg text-recetario-muted mb-1">📝 Receta manuscrita</p>
-              <p className="text-xs sm:text-sm text-recetario-muted-light font-body">Letra de abuela, manchas de aceite, papel amarillento...</p>
+              <p className="font-display text-base sm:text-lg text-recetario-muted mb-1">{t('recetarioLanding.handwrittenRecipe')}</p>
+              <p className="text-xs sm:text-sm text-recetario-muted-light font-body">{t('recetarioLanding.handwrittenDesc')}</p>
             </div>
             <div className="h-44 sm:h-56 rounded-xl overflow-hidden shadow-inner">
               <img src={recetaEjemploImg} alt="Receta manuscrita antigua - Compota de Victoria" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
