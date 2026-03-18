@@ -30,7 +30,7 @@ export const HeroSection = () => {
       <div className="container relative z-10 max-w-4xl mx-auto text-center">
         {/* Logo */}
         <div className="flex justify-center mb-10 animate-fade-in">
-          <MasterChefLogo size="lg" />
+          <MasterChefLogo size="lg" variant="vertical" />
         </div>
 
         {/* Badge */}

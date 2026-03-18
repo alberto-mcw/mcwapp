@@ -69,7 +69,7 @@ const Index = () => {
           </div>
           <div className="container relative z-10 max-w-4xl mx-auto text-center">
             <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp} className="flex justify-center mb-8">
-              <MasterChefLogo size="lg" />
+              <MasterChefLogo size="lg" variant="vertical" />
             </motion.div>
             <motion.div initial="hidden" animate="visible" custom={1} variants={fadeUp}>
               <span className="inline-block bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider rounded-full px-4 py-1.5 mb-6">
