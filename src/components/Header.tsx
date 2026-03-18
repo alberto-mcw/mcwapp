@@ -25,7 +25,11 @@ const useNavItems = () => {
   ];
 };
 
-export const Header = () => {
+interface HeaderProps {
+  showLanguageSelectorAlways?: boolean;
+}
+
+export const Header = ({ showLanguageSelectorAlways = false }: HeaderProps) => {
   const { t } = useTranslation();
   const navItems = useNavItems();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,7 +51,7 @@ export const Header = () => {
       redirectTo: `${window.location.origin}/auth`,
     });
     if (error) {
-    toast.error(t('common.error'));
+      toast.error(t('common.error'));
     } else {
       toast.success(t('auth.resetEmailSent'));
     }
@@ -166,14 +170,16 @@ export const Header = () => {
             <LanguageSelector />
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-foreground"
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            {showLanguageSelectorAlways && <LanguageSelector variant="minimal" />}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-foreground"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -195,9 +201,11 @@ export const Header = () => {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-3 border-t border-border mt-2">
-                <div className="flex justify-center mb-2">
-                  <LanguageSelector />
-                </div>
+                {!showLanguageSelectorAlways && (
+                  <div className="flex justify-center mb-2">
+                    <LanguageSelector />
+                  </div>
+                )}
                 {!isEnrolled && (
                   <Button asChild size="sm" className="gap-2 w-full">
                     <Link to="/inscripcion" onClick={() => setIsMenuOpen(false)}>
