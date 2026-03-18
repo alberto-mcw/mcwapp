@@ -160,10 +160,12 @@ const VideoGrid = ({
   getRecipeData,
   showChallenge 
 }: VideoGridProps) => {
+  const { t } = useTranslation();
+
   if (videos.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No hay vídeos en esta categoría
+        {t('videosPage.noVideosCategory')}
       </div>
     );
   }
