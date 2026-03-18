@@ -736,7 +736,7 @@ const VideosGallery = () => {
                     value="all" 
                     className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4"
                   >
-                    🏆 Todos ({submissions.length})
+                    🏆 {t('videosPage.all')} ({submissions.length})
                   </TabsTrigger>
                   {challengeTabs.map((tab) => (
                     <TabsTrigger 
