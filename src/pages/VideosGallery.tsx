@@ -597,8 +597,8 @@ const VideosGallery = () => {
     } catch (error) {
       console.error('Error toggling like:', error);
       toast({
-        title: 'Error',
-        description: 'No se pudo procesar el like',
+        title: t('common.error'),
+        description: t('videosPage.errorLike'),
         variant: 'destructive'
       });
     } finally {
