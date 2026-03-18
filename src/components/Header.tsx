@@ -171,7 +171,7 @@ export const Header = ({ showLanguageSelectorAlways = false }: HeaderProps) => {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            {showLanguageSelectorAlways && <LanguageSelector variant="minimal" />}
+            <LanguageSelector variant="minimal" />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-foreground"
