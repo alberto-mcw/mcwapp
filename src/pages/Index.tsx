@@ -58,7 +58,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header showLanguageSelectorAlways />
       <main className="pt-16">
 
         {/* ─── 1. Hero ─── */}
