@@ -293,13 +293,13 @@ export default function RecetarioLanding() {
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-recetario-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-recetario-primary/20">
               <UtensilsCrossed className="w-7 h-7 sm:w-8 sm:h-8 text-recetario-primary" />
             </div>
-            <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-recetario-fg mb-2 sm:mb-3">¿Qué cocino hoy?</h2>
+            <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-recetario-fg mb-2 sm:mb-3">{t('recetarioLanding.whatToCook')}</h2>
             <p className="text-sm sm:text-base text-recetario-muted font-body mb-5 sm:mb-6 max-w-md mx-auto">
-              Sube una foto de tu nevera o escribe tus ingredientes y te sugerimos recetas perfectas.
+              {t('recetarioLanding.whatToCookDesc')}
             </p>
             <Button onClick={() => navigate("/recetario/que-cocino")}
               className="bg-recetario-primary hover:bg-recetario-primary-hover text-white text-base sm:text-lg px-8 py-6 rounded-full shadow-lg shadow-recetario-primary/25 hover:scale-[1.02] transition-all">
-              Descubrir recetas
+              {t('recetarioLanding.discoverRecipes')}
               <ArrowRight className="w-5 h-5 ml-1" />
             </Button>
           </div>
