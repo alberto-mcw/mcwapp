@@ -275,7 +275,7 @@ const VideoGrid = ({
               
               {/* 2. Dish name */}
               <p className="text-sm font-semibold text-foreground line-clamp-2">
-                {submission.dish_name || 'Nombre por determinar'}
+                {submission.dish_name || t('videosPage.namePending')}
               </p>
 
               {/* 3. Chef avatar and name */}
