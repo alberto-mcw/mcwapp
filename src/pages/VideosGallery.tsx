@@ -969,7 +969,7 @@ const VideosGallery = () => {
               className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
             >
               <Copy className="w-4 h-4" />
-              <span className="text-sm font-medium">Copiar enlace</span>
+              <span className="text-sm font-medium">{t('videosPage.copyLink')}</span>
             </button>
           </div>
         </div>
