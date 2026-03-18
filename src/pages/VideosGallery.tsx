@@ -338,6 +338,7 @@ const VideoGrid = ({
 };
 
 const VideosGallery = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
   const { toast } = useToast();
