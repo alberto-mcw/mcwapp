@@ -239,7 +239,7 @@ const AppChefLive = () => {
       </div>
 
       {/* Fixed bottom actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-xl border-t border-border" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-xl border-t border-border" style={{ paddingBottom: 'max(var(--sab), 16px)' }}>
         <div className="flex gap-3">
           {currentStep?.photo_required || !stepSubmitted ? (
             <Button variant="outline" className="flex-1 gap-2 h-12 text-base" onClick={() => setTipsDialogOpen(true)}>

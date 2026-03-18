@@ -22,7 +22,7 @@ export const SecondaryHeader = ({ title, rightAction, onBack }: SecondaryHeaderP
   return (
     <header className="sticky top-0 z-40 bg-background border-b border-border/40">
       {/* iOS safe area spacer */}
-      <div className="bg-background" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
+      <div className="bg-background" style={{ height: 'var(--sat)' }} />
       <div className="flex items-center justify-between py-3 px-4 min-h-[48px]">
         <button
           onClick={handleBack}

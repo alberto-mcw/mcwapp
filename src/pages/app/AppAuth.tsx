@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
-import { MasterChefLogo } from '@/components/MasterChefLogo';
+import { ConcentricBg } from '@/components/app/ConcentricBg';
 import { Eye, EyeOff, Loader2, ArrowLeft, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
@@ -220,31 +220,34 @@ const AppAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col app-typography">
-      {/* Hero */}
-      <div className="flex flex-col items-center pt-12 pb-6 px-4"
-        style={{ paddingTop: 'calc(48px + env(safe-area-inset-top, 0px))' }}
-      >
-        {/* Back button */}
-        {(mode === 'forgot' || mode === 'signup') && (
-          <button
-            onClick={() => { setMode('login'); setErrors({}); }}
-            className="absolute left-4 top-4 w-10 h-10 rounded-full border border-[hsl(0_0%_25%)] bg-[hsl(0_0%_7%)] flex items-center justify-center z-20"
-            style={{ top: 'calc(16px + env(safe-area-inset-top, 0px))' }}
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
-        )}
+    <ConcentricBg>
+    <div className="flex flex-col app-typography">
+      {/* Safe area top */}
+      <div style={{ height: 'var(--sat)' }} />
 
+      {/* Back to app — always visible */}
+      <button
+        onClick={() => mode === 'login' ? navigate(-1) : (setMode('login'), setErrors({}))}
+        className="absolute left-4 w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center z-20"
+        style={{ top: 'calc(16px + var(--sat))' }}
+      >
+        <ArrowLeft className="w-5 h-5 text-foreground" strokeWidth={1.5} />
+      </button>
+
+      {/* Hero — compact so login fits one screen */}
+      <div className="flex flex-col items-center pt-8 pb-4 px-4">
         <img
           src={logoVertical}
           alt="El Reto - MasterChef World App"
-          className="h-56 w-auto object-contain mb-4"
+          className={cn(
+            "w-auto object-contain mb-3",
+            mode === 'login' ? "h-20" : "h-16"
+          )}
         />
-        <h1 className="text-2xl font-bold text-gradient-primary text-center leading-tight">
+        <h1 className="app-title">
           {modeConfig[mode].heading}
         </h1>
-        <p className="text-sm text-muted-foreground text-center mt-1.5 max-w-xs">
+        <p className="app-body-sm text-center mt-1 max-w-xs">
           {modeConfig[mode].sub}
         </p>
       </div>
@@ -411,13 +414,13 @@ const AppAuth = () => {
               type="submit"
               disabled={isLoading}
               className={cn(
-                "btn-primary w-full py-4 text-base font-bold flex items-center justify-center gap-2 transition-all",
-                isLoading && "opacity-70"
+                "w-full py-4 text-base font-semibold rounded-full flex items-center justify-center gap-2 transition-all",
+                isLoading ? "opacity-70 btn-primary" : "btn-primary"
               )}
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {mode === 'login' ? 'Entrar' : 
-               mode === 'signup' ? 'Crear cuenta' : 
+              {mode === 'login' ? 'Entrar' :
+               mode === 'signup' ? 'Crear cuenta' :
                mode === 'reset' ? 'Guardar' : 'Enviar email'}
             </button>
           </div>
@@ -451,6 +454,7 @@ const AppAuth = () => {
         </div>
       </div>
     </div>
+    </ConcentricBg>
   );
 };
 

@@ -54,7 +54,7 @@ const AppRanking = () => {
         {user && myPosition && (
           <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Tu posición</p>
+              <p className="app-caption">Tu posición</p>
               <p className="text-xl font-black text-primary">
                 #{myPosition.rank}
                 <span className="text-xs font-normal text-muted-foreground ml-2">{formatEnergy(myPosition.energy)} ⚡</span>
@@ -71,17 +71,17 @@ const AppRanking = () => {
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <Trophy className="w-5 h-5 text-primary mx-auto mb-1" />
             <p className="text-lg font-bold text-foreground">{formatTotalEnergy(stats.topEnergy)}</p>
-            <p className="text-[10px] text-muted-foreground">Top</p>
+            <p className="app-caption">Top</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
             <p className="text-lg font-bold text-foreground">{formatTotalEnergy(stats.totalEnergy)}</p>
-            <p className="text-[10px] text-muted-foreground">Total</p>
+            <p className="app-caption">Total</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-3 text-center">
             <TrendingUp className="w-5 h-5 text-primary mx-auto mb-1" />
             <p className="text-lg font-bold text-foreground">{stats.totalParticipants}</p>
-            <p className="text-[10px] text-muted-foreground">Usuarios</p>
+            <p className="app-caption">Usuarios</p>
           </div>
         </div>
 
@@ -197,7 +197,7 @@ const AppRanking = () => {
               <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-3xl mx-auto mb-3">
                 {selectedProfile.avatarUrl || '👨‍🍳'}
               </div>
-              <h3 className="text-lg font-bold mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
+              <h3 className="app-heading mb-1">{selectedProfile.alias || 'Chef Anónimo'}</h3>
               <p className="text-primary text-sm font-bold mb-1">Nivel {selectedProfile.level}</p>
               {selectedProfile.country && (
                 <p className="text-xs text-muted-foreground mb-2">{countryFlag(selectedProfile.country)} {countryName(selectedProfile.country)}</p>
@@ -213,7 +213,7 @@ const AppRanking = () => {
                   {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
                       <p className="font-bold">{profileStats.triviaTotal > 0 ? Math.round((profileStats.triviaCorrect / profileStats.triviaTotal) * 100) : 0}%</p>
-                      <p className="text-[10px] text-muted-foreground">Mini Retos</p>
+                      <p className="app-caption">Mini Retos</p>
                     </>
                   ) : null}
                 </div>
@@ -222,7 +222,7 @@ const AppRanking = () => {
                   {loadingStats ? <p className="text-xs text-muted-foreground">...</p> : profileStats ? (
                     <>
                       <p className="font-bold">{profileStats.challengesCompleted}</p>
-                      <p className="text-[10px] text-muted-foreground">Desafíos</p>
+                      <p className="app-caption">Desafíos</p>
                     </>
                   ) : null}
                 </div>

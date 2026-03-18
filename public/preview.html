@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>iPhone Preview — El Reto</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #0d0d0d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, 'SF Pro Text', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Scaling wrapper ─────────────────────────── */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      /* scale set by JS */
+      transform-origin: center center;
+    }
+
+    /* ── iPhone 14 Pro shell ──────────────────────── */
+    /* Physical size: 147.5 × 71.5 mm → we model at 430 × 932px */
+    .phone {
+      position: relative;
+      width: 430px;
+      height: 932px;
+      background: #141414;
+      border-radius: 56px;
+      /* Titanium-style border */
+      box-shadow:
+        0 0 0 1px #3c3c3c,
+        0 0 0 3px #1a1a1a,
+        0 0 0 4px #404040,
+        0 40px 100px rgba(0,0,0,0.85),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    /* Side buttons – volume */
+    .phone::before {
+      content: '';
+      position: absolute;
+      left: -4px; top: 172px;
+      width: 4px; height: 34px;
+      background: #2a2a2a;
+      border-radius: 2px 0 0 2px;
+      box-shadow: 0 52px 0 #2a2a2a, 0 100px 0 #2a2a2a;
+    }
+    /* Side button – power */
+    .phone::after {
+      content: '';
+      position: absolute;
+      right: -4px; top: 228px;
+      width: 4px; height: 80px;
+      background: #2a2a2a;
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* ── Screen cutout ────────────────────────────── */
+    .screen {
+      position: absolute;
+      inset: 8px;
+      border-radius: 49px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* ── Dynamic Island ───────────────────────────── */
+    /* iPhone 14 Pro: 126×37px pill centered ~11px from top of screen */
+    .dynamic-island {
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 20;
+      /* subtle inner shadow to look recessed */
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    /* Tiny front camera dot inside island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 22px; top: 50%;
+      transform: translateY(-50%);
+      width: 10px; height: 10px;
+      background: #1a1a1a;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px #0d0d0d;
+    }
+
+    /* ── Home indicator ───────────────────────────── */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px; height: 5px;
+      background: rgba(255,255,255,0.28);
+      border-radius: 3px;
+      z-index: 20;
+    }
+
+    /* ── iframe fills screen ──────────────────────── */
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* ── Controls bar ────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+
+    .controls input {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      width: 230px;
+      outline: none;
+    }
+
+    .controls input::placeholder { color: rgba(255,255,255,0.25); }
+
+    .controls button {
+      background: #FC6B37;
+      color: #000;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+    .controls button:hover { opacity: 0.85; }
+
+    .divider {
+      width: 1px; height: 14px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .device-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stage" id="stage">
+    <div class="phone">
+      <div class="screen">
+        <div class="dynamic-island"></div>
+        <iframe id="frame" src="/app" title="App Preview"></iframe>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="urlInput" value="/app" placeholder="/app/perfil" />
+      <div class="divider"></div>
+      <button onclick="go()">Ir</button>
+      <div class="divider"></div>
+      <span class="device-label">iPhone 14 Pro · 393×852</span>
+    </div>
+  </div>
+
+  <script>
+    const FRAME = document.getElementById('frame');
+    const INPUT = document.getElementById('urlInput');
+    const STAGE = document.getElementById('stage');
+
+    // ── Safe-area simulation ──────────────────────
+    // Dynamic Island top = 59px, home indicator bottom = 34px
+    function injectSafeAreas() {
+      try {
+        const root = FRAME.contentDocument?.documentElement;
+        if (!root) return;
+        root.style.setProperty('--sat', '59px');
+        root.style.setProperty('--sab', '34px');
+      } catch (e) {
+        // cross-origin guard (shouldn't happen on localhost)
+      }
+    }
+
+    FRAME.addEventListener('load', () => {
+      injectSafeAreas();
+      // re-inject after Vite HMR full reloads (small delay for DOM ready)
+      setTimeout(injectSafeAreas, 200);
+    });
+
+    // ── Viewport scaling ──────────────────────────
+    // Phone shell is 932px tall. Scale it so it fits with 24px margin.
+    function scale() {
+      const availH = window.innerHeight - 24;
+      const availW = window.innerWidth  - 24;
+      const s = Math.min(availH / 932, availW / 430, 1);
+      STAGE.style.transform = `scale(${s})`;
+    }
+
+    window.addEventListener('resize', scale);
+    scale();
+
+    // ── Navigation ───────────────────────────────
+    function go() {
+      let path = INPUT.value.trim();
+      if (!path.startsWith('/')) path = '/' + path;
+      FRAME.src = path;
+      INPUT.value = path;
+    }
+
+    INPUT.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  </script>
+</body>
+</html>

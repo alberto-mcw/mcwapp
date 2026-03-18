@@ -8,14 +8,12 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useEnrollment } from '@/hooks/useEnrollment';
 import { EnrollmentBadge } from '@/components/enrollment/EnrollmentBadge';
 import { EnrollmentForm } from '@/components/enrollment/EnrollmentForm';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { 
-  MapPin, Instagram, Loader2, Save, LogOut, Trophy, Shield,
-  Zap, ChefHat, ChevronRight, Flame, X
+import {
+  MapPin, Loader2, Save, LogOut, Trophy, Shield,
+  Zap, ChefHat, ChevronRight, Flame, Settings, ArrowLeft
 } from 'lucide-react';
-import logoVerticalLight from '@/assets/logo-vertical-light.png';
 
 const CHEF_AVATARS = [
   { emoji: '🍕', label: 'Pizza' }, { emoji: '🍷', label: 'Vino' }, { emoji: '🥐', label: 'Croissant' },
@@ -94,6 +92,28 @@ const AppProfile = () => {
     navigate('/app/auth');
   };
 
+  // Guest state — show prompt with nav intact
+  if (!user && !profileLoading) {
+    return (
+      <MobileAppLayout>
+        <div className="flex flex-col items-center justify-center px-6 py-20 text-center gap-5 min-h-[70vh]">
+          <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+            <ChefHat className="w-10 h-10 text-white/20" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="app-section-title">Tu perfil de chef</h2>
+            <p className="app-body-sm max-w-xs">
+              Inicia sesión para ver tu perfil, tus puntos y participar en El Reto 2026.
+            </p>
+          </div>
+          <Link to="/app/auth" className="btn-primary w-full max-w-xs">
+            Iniciar sesión
+          </Link>
+        </div>
+      </MobileAppLayout>
+    );
+  }
+
   if (profileLoading || enrollLoading) {
     return (
       <MobileAppLayout>
@@ -106,19 +126,91 @@ const AppProfile = () => {
 
   const isEmojiAvatar = profile?.avatar_url && CHEF_AVATARS.some(a => a.emoji === profile.avatar_url);
 
+  // Settings view
+  if (showEditForm) {
+    return (
+      <MobileAppLayout>
+        <AppHeader
+          rightAction={
+            <button onClick={() => setShowEditForm(false)} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <ArrowLeft className="w-4 h-4" /> Volver
+            </button>
+          }
+        />
+        <div className="px-4 py-6 space-y-0">
+          <h2 className="app-section-title text-left mb-5">Ajustes de perfil</h2>
+
+          {/* Avatar Selection */}
+          <div className="mb-5">
+            <label className="app-input-label">Tu avatar</label>
+            <div className="grid grid-cols-10 gap-1.5 mt-2">
+              {CHEF_AVATARS.map((avatar) => (
+                <button
+                  key={avatar.emoji}
+                  type="button"
+                  onClick={async () => {
+                    await updateProfile({ avatar_url: avatar.emoji });
+                    toast({ title: '¡Avatar actualizado!' });
+                  }}
+                  className={cn(
+                    "aspect-square rounded-xl text-lg flex items-center justify-center transition-all",
+                    profile?.avatar_url === avatar.emoji
+                      ? "bg-primary/15 ring-2 ring-primary scale-110"
+                      : "bg-background hover:bg-muted"
+                  )}
+                >{avatar.emoji}</button>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-0">
+            <div className="py-3">
+              <label className="app-input-label">Nombre de Chef</label>
+              <input name="display_name" value={formData.display_name} onChange={handleChange} placeholder="Tu nombre de chef" className="app-input" />
+            </div>
+            <div className="py-3">
+              <label className="app-input-label">Bio</label>
+              <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Cuéntanos sobre ti..." className="app-input resize-none" rows={2} />
+            </div>
+            <div className="py-3">
+              <label className="app-input-label">Ciudad</label>
+              <input name="city" value={formData.city} onChange={handleChange} placeholder="Tu ciudad" className="app-input" />
+            </div>
+            <div className="py-3">
+              <label className="app-input-label">Instagram</label>
+              <input name="instagram_handle" value={formData.instagram_handle} onChange={handleChange} placeholder="@tu_usuario" className="app-input" />
+            </div>
+            <div className="pt-6">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className={cn("btn-primary w-full py-4 text-base font-bold flex items-center justify-center gap-2", isSaving && "opacity-70")}
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Guardar cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </MobileAppLayout>
+    );
+  }
+
   return (
     <MobileAppLayout>
-      <AppHeader
-        rightAction={
-          <button onClick={() => setShowEditForm(!showEditForm)} className="text-primary text-sm font-medium">
-            {showEditForm ? 'Cancelar' : 'Editar'}
-          </button>
-        }
-      />
+      <AppHeader />
 
       {/* Profile Hero */}
       <div className="px-4 pt-4 pb-6">
-        <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center text-center relative">
+          {/* Settings icon */}
+          <button
+            onClick={() => setShowEditForm(true)}
+            className="absolute top-0 right-0 w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
+          >
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </button>
+
           <div className="w-20 h-20 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center mb-3 glow-soft">
             {isEmojiAvatar ? (
               <span className="text-4xl">{profile?.avatar_url}</span>
@@ -139,8 +231,8 @@ const AppProfile = () => {
 
           {profile?.auth_provider && profile.auth_provider !== 'email' && (
             <div className="mt-3">
-              <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground capitalize">
-                {profile.auth_provider === 'google' ? '🔵 Google' : '🍎 Apple'}
+              <span className="app-caption px-2.5 py-1 rounded-full bg-white/5 border border-white/10 capitalize">
+                {profile.auth_provider === 'google' ? 'Google' : 'Apple'}
               </span>
             </div>
           )}
@@ -180,74 +272,13 @@ const AppProfile = () => {
         {/* Enrollment Form */}
         {showEnrollForm && !isEnrolled && (
           <div className="bg-card border border-border rounded-2xl p-4">
-            <h3 className="text-sm font-bold mb-3">Inscripción a El Reto 2026</h3>
+            <h3 className="app-heading mb-3">Inscripción a El Reto 2026</h3>
             <EnrollmentForm
               userCountry={profile?.country}
               onSubmit={handleEnroll}
               onCancel={() => setShowEnrollForm(false)}
               isSubmitting={enrollSubmitting}
             />
-          </div>
-        )}
-
-        {/* Edit Form */}
-        {showEditForm && (
-          <div className="bg-card border border-border rounded-2xl p-5">
-            {/* Avatar Selection */}
-            <div className="mb-5">
-              <label className="app-input-label">Tu avatar</label>
-              <div className="grid grid-cols-10 gap-1.5 mt-2">
-                {CHEF_AVATARS.map((avatar) => (
-                  <button
-                    key={avatar.emoji}
-                    type="button"
-                    onClick={async () => {
-                      await updateProfile({ avatar_url: avatar.emoji });
-                      toast({ title: '¡Avatar actualizado!', description: 'Tu avatar se ha cambiado' });
-                    }}
-                    className={cn(
-                      "aspect-square rounded-xl text-lg flex items-center justify-center transition-all",
-                      profile?.avatar_url === avatar.emoji
-                        ? "bg-primary/15 ring-2 ring-primary scale-110"
-                        : "bg-background hover:bg-muted"
-                    )}
-                  >{avatar.emoji}</button>
-                ))}
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-0">
-              <div className="py-3">
-                <label className="app-input-label">Nombre de Chef</label>
-                <input name="display_name" value={formData.display_name} onChange={handleChange} placeholder="Tu nombre de chef" className="app-input" />
-              </div>
-
-              <div className="py-3">
-                <label className="app-input-label">Bio</label>
-                <Textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Cuéntanos sobre ti..." className="bg-transparent border-0 border-b border-border rounded-none px-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0" rows={2} />
-              </div>
-
-              <div className="py-3">
-                <label className="app-input-label">Ciudad</label>
-                <input name="city" value={formData.city} onChange={handleChange} placeholder="Tu ciudad" className="app-input" />
-              </div>
-
-              <div className="py-3">
-                <label className="app-input-label">Instagram</label>
-                <input name="instagram_handle" value={formData.instagram_handle} onChange={handleChange} placeholder="@tu_usuario" className="app-input" />
-              </div>
-
-              <div className="pt-6">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className={cn("btn-primary w-full py-4 text-base font-bold flex items-center justify-center gap-2", isSaving && "opacity-70")}
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Guardar cambios
-                </button>
-              </div>
-            </form>
           </div>
         )}
 

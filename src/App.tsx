@@ -29,6 +29,7 @@ import ChefEventResult from "./pages/ChefEventResult";
 
 // Mobile App Pages
 import AppChallenges from "./pages/app/AppChallenges";
+import AppRecetas from "./pages/app/AppRecetas";
 import AppCalendar from "./pages/app/AppCalendar";
 import AppGallery from "./pages/app/AppGallery";
 import AppProfile from "./pages/app/AppProfile";
@@ -83,6 +84,7 @@ const App = () => (
             
             {/* Mobile App Routes */}
             <Route path="/app" element={<AppChallenges />} />
+            <Route path="/app/recetas" element={<AppRecetas />} />
             <Route path="/app/calendario" element={<AppCalendar />} />
             <Route path="/app/galeria" element={<AppGallery />} />
             <Route path="/app/perfil" element={<AppProfile />} />

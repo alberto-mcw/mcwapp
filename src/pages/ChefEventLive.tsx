@@ -330,7 +330,7 @@ const ChefEventLive = () => {
 
       {/* Sticky bottom actions */}
       {!allDone && currentStep && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border p-4 z-30" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}>
+        <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border p-4 z-30" style={{ paddingBottom: 'max(var(--sab), 16px)' }}>
           <div className="flex gap-3 max-w-lg mx-auto">
             <Button
               variant="outline"

@@ -1,21 +1,17 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Home, BookOpen, ChefHat, UtensilsCrossed, Flame } from 'lucide-react';
+import { Tv, BookOpen, Flame, Grid2x2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const useNavItems = () => {
-  const { t } = useTranslation();
-  return [
-    { icon: Home, label: t('appNav.elReto', 'Inicio'), path: '/app' },
-    { icon: BookOpen, label: t('appNav.gallery', 'Recetas'), path: '/app/galeria' },
-    { icon: ChefHat, label: 'MasterChef', path: '/app/sigue-al-chef', isCenter: true },
-    { icon: UtensilsCrossed, label: t('appNav.calendar', 'Kitchen'), path: '/app/calendario' },
-    { icon: Flame, label: 'El Reto', path: '/app/perfil', isAccent: true },
-  ];
-};
+const NAV_ITEMS = [
+  { icon: Tv,        label: 'Directos', path: '/app/sigue-al-chef' },
+  { icon: BookOpen,  label: 'Recetas',  path: '/app/recetas' },
+  { icon: Flame,     label: 'El Reto',  path: '/app', isCenter: true },
+  { icon: Grid2x2,   label: 'Galería',  path: '/app/galeria' },
+  { icon: User,      label: 'Perfil',   path: '/app/perfil' },
+];
 
 export const BottomNav = () => {
-  const navItems = useNavItems();
+  const navItems = NAV_ITEMS;
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -27,8 +23,8 @@ export const BottomNav = () => {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      className="fixed bottom-0 left-0 right-0 z-50 bg-black border-t border-white/8"
+      style={{ paddingBottom: 'var(--sab)' }}
     >
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
@@ -37,24 +33,18 @@ export const BottomNav = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={cn(
-                "relative flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors",
-                active ? "text-primary" : "text-muted-foreground"
-              )}
+              className="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors"
             >
-              {active && (
-                <span
-                  aria-hidden
-                  className="absolute -top-[1px] w-8 h-[2px] rounded-full bg-primary"
-                />
-              )}
               <item.icon
-                className="w-5 h-5"
+                className={cn(
+                  "w-5 h-5 transition-colors",
+                  active ? "text-primary" : "text-white/35"
+                )}
                 strokeWidth={active ? 2.5 : 1.5}
               />
               <span className={cn(
-                "text-[10px] leading-none",
-                active ? "text-primary font-semibold" : "font-medium"
+                "text-[10px] leading-none font-medium",
+                active ? "text-primary" : "text-white/35"
               )}>
                 {item.label}
               </span>
