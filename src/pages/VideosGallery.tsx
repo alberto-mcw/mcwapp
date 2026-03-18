@@ -981,7 +981,7 @@ const VideosGallery = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-unbounded">
               <ChefHat className="w-5 h-5 text-primary" />
-              Receta
+              {t('videosPage.recipe')}
             </DialogTitle>
           </DialogHeader>
           
