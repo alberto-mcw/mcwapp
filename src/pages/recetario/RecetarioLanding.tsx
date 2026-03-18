@@ -105,9 +105,9 @@ export default function RecetarioLanding() {
 
         <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1}
           className="font-display text-[2rem] sm:text-4xl md:text-6xl font-bold leading-[1.08] mb-5 sm:mb-6 text-recetario-fg">
-          Las recetas de tu abuela,{" "}
+          {t('recetarioLanding.heroTitle1')}{" "}
           <span className="relative inline-block">
-            <span className="text-recetario-primary">para siempre</span>
+            <span className="text-recetario-primary">{t('recetarioLanding.heroTitle2')}</span>
             <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
               <path d="M2 6C50 2 150 2 198 6" stroke="hsl(var(--recetario-primary))" strokeWidth="3" strokeLinecap="round" opacity="0.4"/>
             </svg>
