@@ -201,11 +201,9 @@ export const Header = ({ showLanguageSelectorAlways = false }: HeaderProps) => {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-3 border-t border-border mt-2">
-                {!showLanguageSelectorAlways && (
-                  <div className="flex justify-center mb-2">
-                    <LanguageSelector />
-                  </div>
-                )}
+                <div className="flex justify-center mb-2">
+                  <LanguageSelector />
+                </div>
                 {!isEnrolled && (
                   <Button asChild size="sm" className="gap-2 w-full">
                     <Link to="/inscripcion" onClick={() => setIsMenuOpen(false)}>
