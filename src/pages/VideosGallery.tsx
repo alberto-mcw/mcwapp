@@ -684,22 +684,22 @@ const VideosGallery = () => {
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <h1 className="font-unbounded text-3xl md:text-4xl font-bold mb-2">
-              🎬 <span className="text-gradient-fire">Galería de Vídeos</span>
+              🎬 <span className="text-gradient-fire">{t('videosPage.title')}</span>
             </h1>
             <p className="text-muted-foreground">
-              Descubre las creaciones de nuestros chefs participantes
+              {t('videosPage.subtitle')}
             </p>
             <div className="flex items-center justify-between mt-2">
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 <Heart className="w-4 h-4 text-red-500" />
-                Da like para que el chef gane +1 punto
+                {t('videosPage.likeInfo')}
                 <Zap className="w-4 h-4 text-primary" />
               </p>
               {isAdmin && (
                 <Button asChild variant="outline" size="sm" className="gap-2">
                   <Link to="/admin">
                     <Plus className="w-4 h-4" />
-                    Añadir vídeo
+                    {t('videosPage.addVideo')}
                   </Link>
                 </Button>
               )}
