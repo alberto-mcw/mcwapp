@@ -1039,7 +1039,7 @@ const VideosGallery = () => {
                     <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center">
                       <UtensilsCrossed className="w-3 h-3 text-orange-500" />
                     </div>
-                    Utensilios
+                    {t('videosPage.utensils')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {getRecipeData(recipeModal.recipe_data)!.utensils!.map((utensil, idx) => (
