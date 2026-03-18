@@ -322,7 +322,7 @@ export default function RecetarioLanding() {
 
       {/* Footer */}
       <footer className="px-6 py-8 border-t border-recetario-border text-center text-xs sm:text-sm text-recetario-muted-light font-body">
-        <p>El Recetario Eterno · Preservando la memoria culinaria familiar</p>
+        <p>{t('recetarioLanding.footer')}</p>
       </footer>
     </div>
   );
