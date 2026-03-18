@@ -282,7 +282,7 @@ const VideoGrid = ({
               <div className="flex items-center gap-2">
                 {renderAvatar(submission.profile?.avatar_url, 'sm')}
                 <span className="text-xs text-muted-foreground truncate">
-                  {submission.profile?.display_name || 'Chef Anónimo'}
+                  {submission.profile?.display_name || t('videosPage.anonymousChef')}
                 </span>
               </div>
 
