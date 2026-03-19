@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Tv, BookOpen, Flame, Grid2x2, User } from 'lucide-react';
+import { ChefHat, BookOpen, Flame, Grid2x2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { icon: Tv,        label: 'Directos', path: '/app/sigue-al-chef' },
-  { icon: BookOpen,  label: 'Recetas',  path: '/app/recetas' },
-  { icon: Flame,     label: 'El Reto',  path: '/app', isCenter: true },
-  { icon: Grid2x2,   label: 'Galería',  path: '/app/galeria' },
-  { icon: User,      label: 'Perfil',   path: '/app/perfil' },
+  { icon: Grid2x2,   label: 'Galería',      path: '/app/galeria' },
+  { icon: BookOpen,  label: 'Recetas',      path: '/app/recetas' },
+  { icon: Flame,     label: 'El Reto',      path: '/app', isCenter: true },
+  { icon: ChefHat,   label: 'The Kitchen',  path: '/app/the-kitchen' },
+  { icon: User,      label: 'Perfil',       path: '/app/perfil' },
 ];
 
 export const BottomNav = () => {

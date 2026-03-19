@@ -8,7 +8,10 @@ import { DailyTrivia } from '@/components/dashboard/DailyTrivia';
 import { PastTrivias } from '@/components/dashboard/PastTrivias';
 import { WeeklyChallenges } from '@/components/dashboard/WeeklyChallenges';
 import { SuperLikeNotification } from '@/components/dashboard/SuperLikeNotification';
-import { Zap, Trophy, Flame, ChevronRight, TrendingUp, ChefHat } from 'lucide-react';
+import { Zap, Trophy, Flame, ChevronRight, TrendingUp, ChefHat, CalendarDays, Clock, Tv, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { format, isFuture, isPast } from 'date-fns';
+import { es } from 'date-fns/locale';
 import logoVertical from '@/assets/logo-elreto-vertical.svg';
 import concentricSvg from '@/assets/concentric-circles.svg';
 
@@ -136,6 +139,126 @@ const GuestView = () => {
   );
 };
 
+const DirectosEventCard = ({ event, fullWidth }: { event: any; fullWidth?: boolean }) => {
+  const isLive     = event.status === 'live';
+  const isFinished = event.status === 'finished';
+
+  return (
+    <Link to={`/app/sigue-al-chef/${event.id}`} className={fullWidth ? 'block w-full' : 'flex-shrink-0 w-64 block'}>
+      <div className={`overflow-hidden rounded-2xl border transition-transform active:scale-[0.98] ${isLive ? 'border-primary/60 ring-1 ring-primary/30' : 'border-border'}`}>
+        {event.cover_image_url && (
+          <div className="h-28 overflow-hidden">
+            <img src={event.cover_image_url} alt="" className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className={`p-3 space-y-1.5 ${isLive ? 'bg-gradient-to-b from-[#F3AD68] to-[#FC6B37]' : 'bg-card'}`}>
+          <div className="flex items-center gap-2">
+            {isLive && (
+              <span className="flex items-center gap-1 text-[10px] font-bold text-black uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+                LIVE
+              </span>
+            )}
+            {isFinished && (
+              <span className="text-[10px] font-medium text-white/40 border border-white/15 rounded-full px-2 py-0.5">
+                Finalizado
+              </span>
+            )}
+          </div>
+          <h3 className={`app-heading line-clamp-2 leading-snug ${isLive ? 'text-black' : ''}`}>{event.title}</h3>
+          <div className="flex items-center gap-3">
+            <span className={`flex items-center gap-1 app-caption ${isLive ? 'text-black/60' : ''}`}>
+              <ChefHat className="w-3 h-3" strokeWidth={1.5} />{event.chef_name}
+            </span>
+            <span className={`flex items-center gap-1 app-caption ${isLive ? 'text-black/60' : ''}`}>
+              <Clock className="w-3 h-3" strokeWidth={1.5} />{event.duration_minutes} min
+            </span>
+            <span className={`flex items-center gap-1 app-caption ${isLive ? 'text-black/70 font-bold' : 'text-primary'}`}>
+              <Flame className="w-3 h-3" strokeWidth={1.5} />+{event.energy_reward}
+            </span>
+          </div>
+          <p className={`app-caption ${isLive ? 'text-black/50' : ''}`}>
+            {format(new Date(event.scheduled_at), "d MMM · HH:mm'h'", { locale: es })}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+const DirectosSection = ({ userId }: { userId: string }) => {
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const { data } = await supabase
+        .from('chef_events')
+        .select('*')
+        .in('status', ['published', 'live', 'finished'])
+        .order('scheduled_at', { ascending: false });
+      setEvents(data || []);
+      setLoading(false);
+    };
+    fetchEvents();
+  }, [userId]);
+
+  const liveEvents     = events.filter(e => e.status === 'live');
+  const upcomingEvents = events.filter(e => e.status === 'published' && isFuture(new Date(e.scheduled_at)));
+  const pastEvents     = events.filter(e => e.status === 'finished' || (e.status === 'published' && isPast(new Date(e.scheduled_at))));
+
+  return (
+    <section>
+      <h2 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+        <Tv className="w-4 h-4 text-primary" strokeWidth={1.5} />
+        Directos
+      </h2>
+
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" strokeWidth={1.5} />
+        </div>
+      ) : events.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center border border-border rounded-2xl">
+          <ChefHat className="w-10 h-10 text-white/20 mb-3" strokeWidth={1.5} />
+          <p className="app-body-sm">Próximamente — ¡Vuelve pronto!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {liveEvents.length > 0 && (
+            <div>
+              <p className="flex items-center gap-2 app-caption text-white/50 mb-2">
+                <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                En directo
+              </p>
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                {liveEvents.map(e => <DirectosEventCard key={e.id} event={e} />)}
+              </div>
+            </div>
+          )}
+          {upcomingEvents.length > 0 && (
+            <div>
+              <p className="flex items-center gap-2 app-caption text-white/50 mb-2">
+                <CalendarDays className="w-3 h-3 text-primary" strokeWidth={1.5} />
+                Próximos
+              </p>
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                {upcomingEvents.map(e => <DirectosEventCard key={e.id} event={e} />)}
+              </div>
+            </div>
+          )}
+          {pastEvents.length > 0 && (
+            <div>
+              <p className="app-caption text-white/50 mb-2">Anterior</p>
+              <DirectosEventCard event={pastEvents[0]} fullWidth />
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+};
+
 const AppChallenges = () => {
   const { user } = useAuth();
   const { profile, refetch } = useProfile();
@@ -183,6 +306,9 @@ const AppChallenges = () => {
             </Link>
           </div>
         </div>
+
+        {/* Directos */}
+        <DirectosSection userId={user.id} />
 
         {/* Daily Trivia */}
         <section>
