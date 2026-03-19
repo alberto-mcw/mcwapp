@@ -6,23 +6,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Play, 
-  Loader2, 
-  Heart, 
-  Share2, 
+import {
+  Play,
+  Loader2,
+  Heart,
+  Share2,
   X,
   ChefHat,
   UtensilsCrossed,
   ListOrdered,
-  Star
+  Star,
+  ChevronDown
 } from 'lucide-react';
 
 interface RecipeData {
@@ -317,37 +317,32 @@ const AppGallery = () => {
 
   return (
     <MobileAppLayout>
-      <AppHeader />
-      <div className="px-4 pt-4 pb-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gradient-primary leading-tight">
-            Galería
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1.5">{submissions.length} vídeos</p>
+      {/* AppHeader + title/filter merged into one sticky glass block */}
+      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl">
+        <AppHeader bare />
+        <div className="px-4 pt-2 pb-3">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="app-section-title text-left shrink-0">Galería</h1>
+          <div className="relative min-w-0 max-w-[9rem]">
+            <select
+              value={activeTab}
+              onChange={e => setActiveTab(e.target.value)}
+              className="appearance-none w-full bg-white/5 border border-white/15 text-white text-xs font-medium rounded-xl pl-3 pr-7 py-2 focus:outline-none focus:border-white/30 cursor-pointer truncate"
+            >
+              <option value="all">Todos ({submissions.length})</option>
+              {challengeTabs.map(tab => (
+                <option key={tab.id} value={tab.id}>
+                  {tab.title} ({tab.count})
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/50 pointer-events-none" />
+          </div>
         </div>
       </div>
+      </div>
 
-      <div className="px-4 py-3">
-        {/* Challenge Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full h-auto flex flex-wrap gap-1 bg-transparent p-0 mb-4">
-            <TabsTrigger 
-              value="all" 
-              className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Todos ({submissions.length})
-            </TabsTrigger>
-            {challengeTabs.map(tab => (
-              <TabsTrigger 
-                key={tab.id}
-                value={tab.id}
-                className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {tab.title} ({tab.count})
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
+      <div className="px-4 pt-3 pb-3">
           {/* Video Grid */}
           <div className="grid grid-cols-2 gap-3">
             {currentVideos.map((submission, index) => {
@@ -465,7 +460,6 @@ const AppGallery = () => {
               No hay vídeos en esta categoría
             </div>
           )}
-        </Tabs>
       </div>
 
       {/* Video Modal */}

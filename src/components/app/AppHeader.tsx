@@ -10,11 +10,13 @@ import logoCompact from '@/assets/logo-m-masterchef.svg';
 interface AppHeaderProps {
   rightAction?: ReactNode;
   className?: string;
+  noBorder?: boolean;
+  bare?: boolean;
 }
 
 const EMOJI_AVATARS = ['🍕', '🍷', '🥐', '🍣', '☕', '🍞', '🍾', '🍜', '🦪', '🍰', '🔪', '🍏', '🌯', '🍫', '🍔', '🧋', '🍝', '🍦', '🥘', '🍪'];
 
-export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
+export const AppHeader = ({ rightAction, className, noBorder, bare }: AppHeaderProps) => {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { isAdmin } = useAdmin();
@@ -47,42 +49,40 @@ export const AppHeader = ({ rightAction, className }: AppHeaderProps) => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40",
+        bare ? '' : 'sticky top-0 z-40',
         className
       )}
     >
       {/* iOS safe area spacer */}
-      <div className="bg-black" style={{ height: 'var(--sat)' }} />
+      <div className={bare ? '' : 'bg-black'} style={{ height: 'var(--sat)' }} />
       {/* Glass backdrop */}
-      <div className="relative bg-black/80 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center justify-between py-3 px-4">
+      <div className={bare ? 'relative' : `relative bg-black/80 backdrop-blur-xl ${noBorder ? '' : 'border-b border-white/5'}`}>
+        <div className={`flex items-center py-3 px-4 ${user ? 'justify-between' : 'justify-center'}`}>
           <img
             src={logoCompact}
             alt="MasterChef"
-            className="h-6 w-auto object-contain"
+            className="h-9 w-auto object-contain"
           />
-          <div className="flex items-center gap-2">
-            {user && isAdmin && (
-              <Link
-                to="/admin/usuarios"
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10"
-              >
-                <Shield className="w-3.5 h-3.5 text-primary" />
-              </Link>
-            )}
-            {user && (
-              <>
-                {/* Energy pill */}
-                <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 rounded-full px-2.5 py-1">
-                  <Zap className="w-3.5 h-3.5 text-primary fill-primary" />
-                  <span className="text-sm font-bold text-primary tabular-nums">
-                    {profile?.total_energy?.toLocaleString() || 0}
-                  </span>
-                </div>
-                {renderAvatar()}
-              </>
-            )}
-          </div>
+          {user && (
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Link
+                  to="/admin/usuarios"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10"
+                >
+                  <Shield className="w-3.5 h-3.5 text-primary" />
+                </Link>
+              )}
+              {/* Energy pill */}
+              <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 rounded-full px-2.5 py-1">
+                <Zap className="w-3.5 h-3.5 text-primary fill-primary" />
+                <span className="text-sm font-bold text-primary tabular-nums">
+                  {profile?.total_energy?.toLocaleString() || 0}
+                </span>
+              </div>
+              {renderAvatar()}
+            </div>
+          )}
         </div>
 
         {rightAction && (
