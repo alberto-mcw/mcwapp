@@ -7,19 +7,92 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function verifyRecipeOwnership(
+  supabase: any,
+  recipeId: string,
+  userId: string | null,
+  leadId: string | null
+): Promise<boolean> {
+  const { data: recipe } = await supabase
+    .from("recipes")
+    .select("user_id, lead_id")
+    .eq("id", recipeId)
+    .single();
+
+  if (!recipe) return false;
+
+  // Authenticated user must own the recipe
+  if (userId && recipe.user_id === userId) return true;
+
+  // Anonymous lead flow: recipe must belong to a lead (no user_id) and leadId must match
+  if (!userId && leadId && recipe.lead_id === leadId && !recipe.user_id) return true;
+
+  return false;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { imageUrl, recipeId, action, recipeData, servings, recipeText, audioUrl, videoUrl } = await req.json();
+    const { imageUrl, recipeId, action, recipeData, servings, recipeText, audioUrl, videoUrl, leadId } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    // Validate recipeId format
+    if (recipeId && !UUID_REGEX.test(recipeId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid recipe ID format" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Authenticate: try JWT first, fall back to anonymous lead flow
+    let authenticatedUserId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const userClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user } } = await userClient.auth.getUser();
+      if (user) authenticatedUserId = user.id;
+    }
+
+    // For anonymous access, leadId must be provided
+    if (!authenticatedUserId && !leadId) {
+      return new Response(
+        JSON.stringify({ error: "Authentication or lead ID required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate leadId format if provided
+    if (leadId && !UUID_REGEX.test(leadId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid lead ID format" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify recipe ownership for actions that modify existing recipes
+    if (recipeId) {
+      const isOwner = await verifyRecipeOwnership(supabase, recipeId, authenticatedUserId, leadId);
+      if (!isOwner) {
+        return new Response(
+          JSON.stringify({ error: "Not authorized for this recipe" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // Route to appropriate handler
     if (action === "ocr") {
@@ -49,12 +122,12 @@ serve(async (req) => {
     } else if (action === "update-recipe") {
       return await handleUpdateRecipe(recipeId, recipeData, supabase);
     } else {
-      throw new Error("Invalid action: " + action);
+      throw new Error("Invalid action");
     }
   } catch (e) {
     console.error("process-recipe error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Error processing recipe. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

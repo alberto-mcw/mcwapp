@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -15,13 +17,60 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { ingredients, images, userId, leadId } = await req.json();
+    const { ingredients, images, leadId } = await req.json();
 
     if (!ingredients?.length && !images?.length) {
       return new Response(
         JSON.stringify({ error: "Debes proporcionar ingredientes o imágenes" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Authenticate: derive userId from JWT, never trust request body
+    let authenticatedUserId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const userClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user } } = await userClient.auth.getUser();
+      if (user) authenticatedUserId = user.id;
+    }
+
+    // Require either authentication or valid leadId
+    if (!authenticatedUserId && !leadId) {
+      return new Response(
+        JSON.stringify({ error: "Authentication or lead ID required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate leadId format
+    if (leadId && !UUID_REGEX.test(leadId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid lead ID" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify leadId exists in database if provided
+    if (leadId && !authenticatedUserId) {
+      const { data: lead } = await supabase
+        .from("recetario_leads")
+        .select("id")
+        .eq("id", leadId)
+        .single();
+      if (!lead) {
+        return new Response(
+          JSON.stringify({ error: "Invalid lead" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Step 1: If images provided, extract ingredients using AI vision
@@ -72,7 +121,7 @@ Sé específico pero conciso. Incluye cantidades aproximadas si son visibles.`
             status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
-        throw new Error(`AI gateway error: ${status}`);
+        throw new Error("AI service error");
       }
 
       const extractData = await extractResponse.json();
@@ -87,7 +136,7 @@ Sé específico pero conciso. Incluye cantidades aproximadas si son visibles.`
           }
         }
       } catch {
-        console.error("Failed to parse ingredient extraction:", extractText);
+        console.error("Failed to parse ingredient extraction");
       }
     }
 
@@ -101,20 +150,16 @@ Sé específico pero conciso. Incluye cantidades aproximadas si son visibles.`
       );
     }
 
-    // Step 2: Search user's own recipes
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
+    // Step 2: Search user's own recipes — use authenticated userId (never from body)
     let userRecipes: any[] = [];
-    if (userId || leadId) {
+    if (authenticatedUserId || leadId) {
       let query = supabase
         .from("recipes")
         .select("id, title, structured_data, original_image_url, difficulty, estimated_time, servings, recipe_type")
         .eq("status", "completed");
 
-      if (userId) {
-        query = query.eq("user_id", userId);
+      if (authenticatedUserId) {
+        query = query.eq("user_id", authenticatedUserId);
       } else if (leadId) {
         query = query.eq("lead_id", leadId);
       }
@@ -208,7 +253,7 @@ ${JSON.stringify(publicRecipeSummaries.slice(0, 100))}`
           status, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw new Error(`AI suggestion error: ${status}`);
+      throw new Error("AI service error");
     }
 
     const suggestData = await suggestResponse.json();
@@ -221,7 +266,7 @@ ${JSON.stringify(publicRecipeSummaries.slice(0, 100))}`
         result = JSON.parse(jsonMatch[0]);
       }
     } catch {
-      console.error("Failed to parse suggestions:", suggestText);
+      console.error("Failed to parse suggestions");
     }
 
     // Enrich matched recipes with full data
@@ -247,7 +292,7 @@ ${JSON.stringify(publicRecipeSummaries.slice(0, 100))}`
   } catch (e) {
     console.error("what-to-cook error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Error desconocido" }),
+      JSON.stringify({ error: "Error processing request. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
