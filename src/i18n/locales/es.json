@@ -1,6 +1,8 @@
 {
   "nav": {
     "ranking": "Ranking",
+    "recetas": "Recetas",
+    "theKitchen": "The Kitchen",
     "videos": "Vídeos",
     "recetario": "Recetario",
     "faq": "FAQ",
@@ -605,5 +607,29 @@
     "top1000": "Solo Top 1.000",
     "top100": "Solo Top 100",
     "top5": "Solo Top 5"
+  },
+  "recetasPage": {
+    "badge": "Recetas",
+    "heroTitle1": "Prepárate para",
+    "heroTitle2": "chuparte los dedos",
+    "heroSubtitle": "¿Tus amigos están de camino y no sabes qué cocinar? Cero agobios: aquí encontrarás diferentes platos para cualquier momento.",
+    "searchPlaceholder": "Buscar recetas...",
+    "trending": "En tendencia",
+    "forYou": "Recetas para ti",
+    "ourChefs": "Nuestros chefs",
+    "resultsFor": "Resultados para",
+    "clearSearch": "Limpiar búsqueda",
+    "noResults": "No encontramos recetas con ese término.",
+    "subsection": "Subsección"
+  },
+  "theKitchenPage": {
+    "heroSubtitle": "La cocina más top con Chefs y Celebrities",
+    "watchNow": "Ver ahora",
+    "dailyNews": "Novedades del día",
+    "sponsors": "Nuestros patrocinadores",
+    "fromOurChefs": "De nuestros Chefs",
+    "featuredChefs": "Han pasado por The Kitchen",
+    "articles": "Artículos recomendados",
+    "article": "Artículo"
   }
 }
