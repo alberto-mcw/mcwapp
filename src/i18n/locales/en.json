@@ -1,6 +1,8 @@
 {
   "nav": {
     "ranking": "Ranking",
+    "recetas": "Recipes",
+    "theKitchen": "The Kitchen",
     "videos": "Videos",
     "recetario": "Recipe Book",
     "faq": "FAQ",
@@ -605,5 +607,29 @@
     "top1000": "Top 1,000 only",
     "top100": "Top 100 only",
     "top5": "Top 5 only"
+  },
+  "recetasPage": {
+    "badge": "Recipes",
+    "heroTitle1": "Get ready to",
+    "heroTitle2": "lick your fingers",
+    "heroSubtitle": "Friends on the way and no idea what to cook? No stress: find the perfect dish for any occasion.",
+    "searchPlaceholder": "Search recipes...",
+    "trending": "Trending",
+    "forYou": "Recipes for you",
+    "ourChefs": "Our chefs",
+    "resultsFor": "Results for",
+    "clearSearch": "Clear search",
+    "noResults": "No recipes found for that term.",
+    "subsection": "Subsection"
+  },
+  "theKitchenPage": {
+    "heroSubtitle": "Top-tier cooking with Chefs and Celebrities",
+    "watchNow": "Watch now",
+    "dailyNews": "Today's news",
+    "sponsors": "Our sponsors",
+    "fromOurChefs": "From our Chefs",
+    "featuredChefs": "Featured on The Kitchen",
+    "articles": "Recommended articles",
+    "article": "Article"
   }
 }

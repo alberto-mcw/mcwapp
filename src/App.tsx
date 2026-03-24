@@ -20,6 +20,8 @@ import AdminUsers from "./pages/AdminUsers";
 import NotFound from "./pages/NotFound";
 import Install from "./pages/Install";
 import Inscripcion from "./pages/Inscripcion";
+import Recetas from "./pages/Recetas";
+import TheKitchen from "./pages/TheKitchen";
 
 // Sigue al Chef
 import ChefEventList from "./pages/ChefEventList";
@@ -76,6 +78,8 @@ const App = () => (
             <Route path="/admin/usuarios" element={<AdminUsers />} />
             <Route path="/install" element={<Install />} />
             <Route path="/inscripcion" element={<Inscripcion />} />
+            <Route path="/recetas" element={<Recetas />} />
+            <Route path="/the-kitchen" element={<TheKitchen />} />
             
             {/* Sigue al Chef */}
             <Route path="/sigue-al-chef" element={<ChefEventList />} />

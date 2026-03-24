@@ -18,8 +18,9 @@ const useNavItems = () => {
   const { t } = useTranslation();
   return [
     { label: t('nav.ranking'), href: "/ranking" },
+    { label: t('nav.recetas'), href: "/recetas" },
+    { label: t('nav.theKitchen'), href: "/the-kitchen" },
     { label: t('nav.videos'), href: "/videos" },
-    { label: t('nav.recetario'), href: "/recetario" },
     { label: t('nav.faq'), href: "/#faq" },
     { label: t('nav.downloadApp'), href: "/descarga" },
   ];
