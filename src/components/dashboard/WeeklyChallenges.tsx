@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getSignedUrl } from '@/lib/storageUrl';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -118,11 +119,10 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('challenge-videos')
-        .getPublicUrl(fileName);
+      // Generate a signed URL since bucket is now private
+      const signedUrl = await getSignedUrl(fileName, 'challenge-videos', 7200);
 
-      setMetricsPreview(publicUrl);
+      setMetricsPreview(signedUrl);
       
       // Analyze the screenshot with AI
       setAnalyzing(true);
@@ -382,13 +382,11 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                 </div>
 
                 {submission.metrics_screenshot_url && (
-                  <div className="mt-3">
-                    <img 
-                      src={submission.metrics_screenshot_url} 
-                      alt="Captura de métricas" 
-                      className="w-full max-h-48 object-contain rounded-lg"
-                    />
-                  </div>
+                  <SignedImage 
+                    url={submission.metrics_screenshot_url} 
+                    alt="Captura de métricas" 
+                    className="w-full max-h-48 object-contain rounded-lg mt-3"
+                  />
                 )}
               </div>
             </div>
