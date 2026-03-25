@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useSignedUrl } from '@/hooks/useSignedUrl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Check, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+// Helper to render video with signed URL
+const SignedVideo = ({ url, className }: { url: string; className?: string }) => {
+  const signedUrl = useSignedUrl(url, 'challenge-videos');
+  if (!signedUrl) return <div className={className} />;
+  return <video src={signedUrl} controls className={className} />;
+};
 
 interface PresentationVideoAdmin {
   id: string;
@@ -111,7 +119,7 @@ export const AdminPresentationVideos = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pending.map(video => (
               <Card key={video.id} className="overflow-hidden">
-                <video src={video.video_url} controls className="w-full aspect-video bg-black" />
+                <SignedVideo url={video.video_url} className="w-full aspect-video bg-black" />
                 <CardContent className="p-3 space-y-2">
                   <p className="font-semibold text-sm">{video.profile?.display_name || 'Sin nombre'}</p>
                   <p className="text-xs text-muted-foreground">{video.profile?.email}</p>
@@ -136,7 +144,7 @@ export const AdminPresentationVideos = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {reviewed.map(video => (
               <Card key={video.id} className="overflow-hidden">
-                <video src={video.video_url} controls className="w-full aspect-video bg-black" />
+                <SignedVideo url={video.video_url} className="w-full aspect-video bg-black" />
                 <CardContent className="p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="font-semibold text-sm">{video.profile?.display_name || 'Sin nombre'}</p>
