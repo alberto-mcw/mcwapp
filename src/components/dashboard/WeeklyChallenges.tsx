@@ -23,6 +23,17 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Small helper component for displaying signed storage images
+const MetricsImage = ({ url }: { url: string }) => {
+  const signedUrl = useSignedUrl(url, 'challenge-videos');
+  if (!signedUrl) return null;
+  return (
+    <div className="mt-3">
+      <img src={signedUrl} alt="Captura de métricas" className="w-full max-h-48 object-contain rounded-lg" />
+    </div>
+  );
+};
+
 interface Challenge {
   id: string;
   title: string;
