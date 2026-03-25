@@ -296,8 +296,9 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
                 difficulty: td.difficulty,
                 energy_reward: td.energy_reward
               });
-            setSelectedAnswer(dbCompletion.selected_answer);
-            setIsCorrect(dbCompletion.is_correct);
+            }
+            setSelectedAnswer(completion.selected_answer);
+            setIsCorrect(completion.is_correct);
             setHasAnswered(true);
             setLoading(false);
             return;
