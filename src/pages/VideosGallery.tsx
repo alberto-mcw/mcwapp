@@ -477,9 +477,7 @@ const VideosGallery = () => {
       const userIds = [...new Set(submissionsData.map(s => s.user_id))];
 
       const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, avatar_url, city')
-        .in('user_id', userIds);
+        .rpc('get_public_profiles', { p_user_ids: userIds });
 
       let userLikes: string[] = [];
       if (user) {

@@ -39,12 +39,8 @@ const Index = () => {
   }, [location.hash]);
 
   useEffect(() => {
-    supabase.
-    from('profiles').
-    select('display_name, avatar_url, total_energy').
-    order('total_energy', { ascending: false }).
-    limit(10).
-    then(({ data }) => {if (data) setTopProfiles(data);});
+    supabase.rpc('get_top_profiles', { p_limit: 10 })
+    .then(({ data }) => {if (data) setTopProfiles(data);});
   }, []);
 
   const ctaHref = user && isEnrolled ? '/descarga' : '/inscripcion';

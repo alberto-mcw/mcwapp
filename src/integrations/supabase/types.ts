@@ -1172,6 +1172,82 @@ export type Database = {
         Returns: Json
       }
       get_auth_email: { Args: never; Returns: string }
+      get_lead_recipe_by_id: {
+        Args: { p_email: string; p_lead_id: string; p_recipe_id: string }
+        Returns: {
+          ai_story: string | null
+          alternatives: Json | null
+          calories_per_serving: number | null
+          corrected_text: string | null
+          created_at: string
+          difficulty: string | null
+          estimated_time: string | null
+          healthy_version: Json | null
+          healthy_version_active: boolean | null
+          id: string
+          is_favorite: boolean | null
+          lead_id: string | null
+          ocr_text: string | null
+          original_image_url: string | null
+          pdf_url: string | null
+          recipe_type: string | null
+          regional_style: string | null
+          servings: number | null
+          share_token: string | null
+          shopping_list: Json | null
+          status: string
+          structured_data: Json | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string | null
+          visibility: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "recipes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_lead_recipes: {
+        Args: { p_email: string; p_lead_id: string }
+        Returns: {
+          ai_story: string | null
+          alternatives: Json | null
+          calories_per_serving: number | null
+          corrected_text: string | null
+          created_at: string
+          difficulty: string | null
+          estimated_time: string | null
+          healthy_version: Json | null
+          healthy_version_active: boolean | null
+          id: string
+          is_favorite: boolean | null
+          lead_id: string | null
+          ocr_text: string | null
+          original_image_url: string | null
+          pdf_url: string | null
+          recipe_type: string | null
+          regional_style: string | null
+          servings: number | null
+          share_token: string | null
+          shopping_list: Json | null
+          status: string
+          structured_data: Json | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string | null
+          visibility: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "recipes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_rank_position:
         | {
             Args: { p_user_id: string }
@@ -1190,6 +1266,20 @@ export type Database = {
               total_energy: number
             }[]
           }
+      get_public_profiles: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city: string
+          country: string
+          display_name: string
+          instagram_handle: string
+          tiktok_handle: string
+          total_energy: number
+          user_id: string
+        }[]
+      }
       get_ranking_countries: {
         Args: never
         Returns: {
@@ -1253,6 +1343,14 @@ export type Database = {
               total_participants: number
             }[]
           }
+      get_top_profiles: {
+        Args: { p_limit?: number }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          total_energy: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
