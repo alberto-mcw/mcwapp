@@ -71,6 +71,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
   const [analyzing, setAnalyzing] = useState(false);
   const [reelUrl, setReelUrl] = useState('');
   const [metricsPreview, setMetricsPreview] = useState<string | null>(null);
+  const [metricsFilePath, setMetricsFilePath] = useState<string | null>(null);
   const [analyzedMetrics, setAnalyzedMetrics] = useState<{
     views: number;
     likes: number;
