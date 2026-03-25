@@ -46,13 +46,12 @@ export const usePresentationVideo = () => {
         .upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('challenge-videos')
-        .getPublicUrl(filePath);
+      // Store the path (not public URL) since bucket is private
+      const storagePath = filePath;
 
       const { error: insertError } = await supabase
         .from('presentation_videos')
-        .insert({ user_id: user.id, video_url: publicUrl });
+        .insert({ user_id: user.id, video_url: storagePath });
       if (insertError) throw insertError;
 
       await fetchVideo();

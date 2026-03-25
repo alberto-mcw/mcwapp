@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getSignedUrl } from '@/lib/storageUrl';
+import { useSignedUrl } from '@/hooks/useSignedUrl';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +22,17 @@ import {
   Heart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Small helper component for displaying signed storage images
+const MetricsImage = ({ url }: { url: string }) => {
+  const signedUrl = useSignedUrl(url, 'challenge-videos');
+  if (!signedUrl) return null;
+  return (
+    <div className="mt-3">
+      <img src={signedUrl} alt="Captura de métricas" className="w-full max-h-48 object-contain rounded-lg" />
+    </div>
+  );
+};
 
 interface Challenge {
   id: string;
@@ -58,6 +71,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
   const [analyzing, setAnalyzing] = useState(false);
   const [reelUrl, setReelUrl] = useState('');
   const [metricsPreview, setMetricsPreview] = useState<string | null>(null);
+  const [metricsFilePath, setMetricsFilePath] = useState<string | null>(null);
   const [analyzedMetrics, setAnalyzedMetrics] = useState<{
     views: number;
     likes: number;
@@ -118,11 +132,11 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('challenge-videos')
-        .getPublicUrl(fileName);
+      // Generate a signed URL since bucket is now private
+      const signedUrl = await getSignedUrl(fileName, 'challenge-videos', 7200);
 
-      setMetricsPreview(publicUrl);
+      setMetricsPreview(signedUrl);
+      setMetricsFilePath(fileName);
       
       // Analyze the screenshot with AI
       setAnalyzing(true);
@@ -133,7 +147,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
         },
-        body: JSON.stringify({ imageUrl: publicUrl })
+        body: JSON.stringify({ imageUrl: signedUrl })
       });
 
       if (!response.ok) {
@@ -189,7 +203,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
           challenge_id: challenge.id,
           video_url: reelUrl,
           reel_url: reelUrl,
-          metrics_screenshot_url: metricsPreview,
+          metrics_screenshot_url: metricsFilePath || metricsPreview,
           views_count: analyzedMetrics.views,
           likes_from_metrics: analyzedMetrics.likes,
           metrics_energy_earned: analyzedMetrics.totalEnergy,
@@ -382,13 +396,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                 </div>
 
                 {submission.metrics_screenshot_url && (
-                  <div className="mt-3">
-                    <img 
-                      src={submission.metrics_screenshot_url} 
-                      alt="Captura de métricas" 
-                      className="w-full max-h-48 object-contain rounded-lg"
-                    />
-                  </div>
+                  <MetricsImage url={submission.metrics_screenshot_url} />
                 )}
               </div>
             </div>
