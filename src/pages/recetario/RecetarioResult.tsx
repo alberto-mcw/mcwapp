@@ -89,10 +89,13 @@ export default function RecetarioResult() {
     const leadId = sessionStorage.getItem("recetario_lead_id");
     const leadEmail = sessionStorage.getItem("recetario_email");
 
+    // Check if user is authenticated
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+
     let data: any = null;
     let error: any = null;
 
-    if (user) {
+    if (authUser) {
       // Authenticated: direct query (RLS allows owner access)
       const result = await supabase
         .from("recipes")
