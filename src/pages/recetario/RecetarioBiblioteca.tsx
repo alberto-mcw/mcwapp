@@ -74,23 +74,30 @@ export default function RecetarioBiblioteca() {
 
   const loadRecipes = async () => {
     setLoading(true);
-    let query = supabase
-      .from("recipes")
-      .select("*")
-      .eq("status", "completed");
+    let data: any[] | null = null;
+    let error: any = null;
 
     if (user?.id) {
-      // After unification, user_id is the primary owner
+      // Authenticated user: query directly (RLS allows owner access)
+      let query = supabase
+        .from("recipes")
+        .select("*")
+        .eq("status", "completed");
+
       if (leadId) {
         query = query.or(`user_id.eq.${user.id},lead_id.eq.${leadId}`);
       } else {
         query = query.eq("user_id", user.id);
       }
-    } else if (leadId) {
-      query = query.eq("lead_id", leadId);
+      const result = await query.order("created_at", { ascending: false });
+      data = result.data;
+      error = result.error;
+    } else if (leadId && email) {
+      // Anonymous lead: use secure RPC that verifies email ownership
+      const result = await supabase.rpc('get_lead_recipes', { p_lead_id: leadId, p_email: email });
+      data = result.data;
+      error = result.error;
     }
-
-    const { data, error } = await query.order("created_at", { ascending: false });
 
     if (error) {
       console.error(error);

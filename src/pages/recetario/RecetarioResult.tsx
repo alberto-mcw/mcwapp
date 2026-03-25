@@ -86,11 +86,27 @@ export default function RecetarioResult() {
 
   const loadRecipe = async () => {
     if (!id) return;
-    const { data, error } = await supabase
-      .from("recipes")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    const leadId = sessionStorage.getItem("recetario_lead_id");
+    const leadEmail = sessionStorage.getItem("recetario_email");
+
+    let data: any = null;
+    let error: any = null;
+
+    if (user) {
+      // Authenticated: direct query (RLS allows owner access)
+      const result = await supabase
+        .from("recipes")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      data = result.data;
+      error = result.error;
+    } else if (leadId && leadEmail) {
+      // Anonymous lead: use secure RPC
+      const result = await supabase.rpc('get_lead_recipe_by_id', { p_recipe_id: id, p_lead_id: leadId, p_email: leadEmail });
+      data = result.data?.[0] || null;
+      error = result.error;
+    }
 
     if (error || !data) {
       toast.error("Receta no encontrada");
