@@ -203,7 +203,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
           challenge_id: challenge.id,
           video_url: reelUrl,
           reel_url: reelUrl,
-          metrics_screenshot_url: metricsPreview,
+          metrics_screenshot_url: metricsFilePath || metricsPreview,
           views_count: analyzedMetrics.views,
           likes_from_metrics: analyzedMetrics.likes,
           metrics_energy_earned: analyzedMetrics.totalEnergy,
