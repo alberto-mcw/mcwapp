@@ -252,25 +252,53 @@ export const DailyTrivia = ({ onEnergyEarned }: DailyTriviaProps) => {
         try {
           const { data: dbCompletion } = await supabase
             .from('trivia_completions')
-            .select('*, daily_trivias!inner(title, question, options, difficulty, energy_reward)')
+            .select('*')
             .eq('user_id', user.id)
-            .eq('daily_trivias.scheduled_date', effectiveDate)
+            .eq('trivia_id', challenge?.id ?? '')
             .maybeSingle();
+
+          // If no match by trivia_id, try finding any completion for today's date
+          let completion = dbCompletion;
+          if (!completion) {
+            const { data: triviaForDate } = await supabase
+              .from('daily_trivias_public' as any)
+              .select('id')
+              .eq('scheduled_date', effectiveDate)
+              .maybeSingle();
+
+            if (triviaForDate) {
+              const { data: compByTrivia } = await supabase
+                .from('trivia_completions')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('trivia_id', (triviaForDate as any).id)
+                .maybeSingle();
+              completion = compByTrivia;
+            }
+          }
           
-          if (dbCompletion) {
-            // User already completed today's trivia (found in DB)
-            const triviaData = dbCompletion.daily_trivias as any;
-            setChallenge({
-              id: dbCompletion.trivia_id,
-              type: 'trivia',
-              title: triviaData.title,
-              question: triviaData.question,
-              options: triviaData.options,
-              difficulty: triviaData.difficulty,
-              energy_reward: triviaData.energy_reward
-            });
-            setSelectedAnswer(dbCompletion.selected_answer);
-            setIsCorrect(dbCompletion.is_correct);
+          if (completion) {
+            // User already completed today's trivia - fetch trivia data from public view
+            const { data: triviaData } = await supabase
+              .from('daily_trivias_public' as any)
+              .select('*')
+              .eq('id', completion.trivia_id)
+              .maybeSingle();
+
+            if (triviaData) {
+              const td = triviaData as any;
+              setChallenge({
+                id: completion.trivia_id,
+                type: 'trivia',
+                title: td.title,
+                question: td.question,
+                options: td.options,
+                difficulty: td.difficulty,
+                energy_reward: td.energy_reward
+              });
+            }
+            setSelectedAnswer(completion.selected_answer);
+            setIsCorrect(completion.is_correct);
             setHasAnswered(true);
             setLoading(false);
             return;
