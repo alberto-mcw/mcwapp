@@ -382,11 +382,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
                 </div>
 
                 {submission.metrics_screenshot_url && (
-                  <SignedImage 
-                    url={submission.metrics_screenshot_url} 
-                    alt="Captura de métricas" 
-                    className="w-full max-h-48 object-contain rounded-lg mt-3"
-                  />
+                  <MetricsImage url={submission.metrics_screenshot_url} />
                 )}
               </div>
             </div>
