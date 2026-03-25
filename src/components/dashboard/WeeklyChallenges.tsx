@@ -136,6 +136,7 @@ const ChallengeCard = ({ challenge, submission, isActive, onSubmissionComplete }
       const signedUrl = await getSignedUrl(fileName, 'challenge-videos', 7200);
 
       setMetricsPreview(signedUrl);
+      setMetricsFilePath(fileName);
       
       // Analyze the screenshot with AI
       setAnalyzing(true);
